@@ -12,7 +12,7 @@
   <link href="https://fonts.googleapis.com/css2?family=Comfortaa:wght@700&family=Inter:wght@300;400;500;600&family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;1,6..72,400&display=swap" rel="stylesheet">
   
   <style>
-/* KHAI BÁO FONT CHÍNH XÁC THEO TÊN FILE TRÊN GITHUB */
+    /* KHAI BÁO FONT CHÍNH XÁC THEO TÊN FILE TRÊN GITHUB */
     @font-face {
       font-family: 'Aardvark-Cafe';
       src: url('./AARDC___.TTF') format('truetype');
@@ -51,7 +51,7 @@
 </head>
 <body class="bg-brand-bg text-brand-text font-sans antialiased selection:bg-stone-200 overflow-x-hidden">
 
-  <!-- HEADER (KHÔNG BO TRÒN) -->
+  <!-- HEADER GÓC VUÔNG & LOGO TO RÕ -->
   <header class="sticky top-0 z-50 bg-brand-bg/95 backdrop-blur-md border-b border-brand-border/80">
     <div class="max-w-7xl mx-auto px-4 md:px-6 h-16 md:h-20 flex items-center justify-between">
       <!-- LOGO FONT AARDVARK-CAFE -->
@@ -76,14 +76,13 @@
   </header>
 
   <main>
-    <!-- HERO SECTION (KHOẢNG CÁCH HẸP, KHÔNG BỌC KHUNG BÊN DƯỚI) -->
+    <!-- HERO SECTION (ĐÃ THAY ẢNH HERO DRIVE CHUẨN) -->
     <section class="pt-4 pb-6 md:pt-6 md:pb-10 px-4 md:px-6">
       <div class="max-w-7xl mx-auto">
-        <!-- Khung ảnh Hero góc vuông -->
         <div class="relative w-full h-[240px] md:h-[320px] bg-stone-300">
-          <img src="https://images.unsplash.com/photo-1500937386664-56d1dfef3854?q=80&w=1600&auto=format&fit=crop" 
-               alt="Oriberry Coffee Farm" 
-               class="w-full h-full object-cover brightness-[0.75]">
+          <img src="https://lh3.googleusercontent.com/d/1xEYdHop03BvfNEUPg95dpb4OfDej3OY6" 
+               alt="Oriberry Coffee Hero Banner" 
+               class="w-full h-full object-cover brightness-[0.8]">
           <div class="absolute inset-0 bg-gradient-to-t from-black/85 via-black/30 to-transparent flex flex-col justify-end p-5 md:p-8 text-white">
             <h1 class="text-2xl md:text-4xl font-serif font-light tracking-tight leading-tight">
               Farm, Roastery, Shops.
@@ -94,19 +93,17 @@
           </div>
         </div>
 
-        <!-- Đoạn rút gọn để trực tiếp bên dưới không qua khung chứa -->
         <p class="mt-4 text-xs md:text-sm text-brand-text font-normal leading-relaxed max-w-4xl">
           Oriberry is Vietnamese Social Enterprise. We and our farmers fight poverty together by producing great Vietnamese coffee.
         </p>
       </div>
     </section>
 
-    <!-- WHAT ORIBERRY DOES? (TỔNG THỂ KHÔNG BO TRÒN, MỘT CỘT MOBILE VUỐT) -->
+    <!-- ROOTED IN IMPACT (ĐÃ THAY 4 ẢNH FARMERS TỪ DRIVE) -->
     <section id="core" class="py-6 md:py-10 border-t border-brand-border/60">
       <div class="max-w-7xl mx-auto px-4 md:px-6">
         <div class="mb-4 flex justify-between items-end">
-          <h2 class="text-xl md:text-3xl font-serif">Rooted in Impact, Crafted for Specialty</h2>
-          <!-- Indicator Dots cho Mobile -->
+          <h2 class="text-xl md:text-3xl font-serif">Rooted in Impact, Crafted for Specialty Coffee</h2>
           <div class="flex space-x-1.5 md:hidden mb-1">
             <span class="w-2 h-2 bg-brand-text"></span>
             <span class="w-2 h-2 bg-brand-border"></span>
@@ -115,10 +112,10 @@
         </div>
 
         <div class="flex md:grid md:grid-cols-3 gap-5 overflow-x-auto no-scrollbar snap-x snap-mandatory">
-          <!-- Cột 1 -->
+          <!-- Cột 1: We work with farmers (Chạy Flash Carousel 4 ảnh Drive) -->
           <div class="w-[calc(100vw-2rem)] md:w-auto flex-none snap-start">
             <div class="aspect-[4/3] bg-stone-200 mb-3 relative">
-              <img id="img-farmers" src="https://images.unsplash.com/photo-1606787366850-de6330128bfc?q=80&w=800&auto=format&fit=crop" 
+              <img id="img-farmers" src="https://lh3.googleusercontent.com/d/1ovCK034G7Ni-jasp8iwrcUnB-3uh-HqI" 
                    alt="We work with farmers" class="w-full h-full object-cover transition-opacity duration-1000">
               <span id="label-farmers" class="absolute bottom-2 left-2 bg-black/70 text-white text-[10px] font-medium px-2 py-0.5">
                 Quảng Trị
@@ -130,7 +127,7 @@
             </p>
           </div>
 
-          <!-- Cột 2 -->
+          <!-- Cột 2: We roast coffee -->
           <div class="w-[calc(100vw-2rem)] md:w-auto flex-none snap-start">
             <div class="aspect-[4/3] bg-stone-200 mb-3 relative">
               <img id="img-roast" src="https://images.unsplash.com/photo-1514432324607-a09d9b4aefdd?q=80&w=800&auto=format&fit=crop" 
@@ -145,7 +142,7 @@
             </p>
           </div>
 
-          <!-- Cột 3: Đổi thành We serve coffee and drinks -->
+          <!-- Cột 3: We serve coffee and drinks -->
           <div class="w-[calc(100vw-2rem)] md:w-auto flex-none snap-start">
             <div class="aspect-[4/3] bg-stone-200 mb-3 relative">
               <img id="img-shops" src="https://images.unsplash.com/photo-1554118811-1e0d58224f24?q=80&w=800&auto=format&fit=crop" 
@@ -163,7 +160,7 @@
       </div>
     </section>
 
-    <!-- OUR COFFEE (CÓ NÚT SEE ALL COFFEE) -->
+    <!-- OUR COFFEE -->
     <section id="featured" class="py-6 md:py-10 bg-brand-card border-y border-brand-border/60">
       <div class="max-w-7xl mx-auto px-4 md:px-6">
         <div class="mb-4 flex justify-between items-center">
@@ -174,7 +171,6 @@
         </div>
 
         <div class="flex md:grid md:grid-cols-3 gap-5 overflow-x-auto no-scrollbar snap-x snap-mandatory">
-          <!-- Item 1 -->
           <div class="w-[calc(100vw-2rem)] md:w-auto flex-none snap-start bg-brand-bg border border-brand-border p-4 flex flex-col justify-between">
             <div>
               <div class="aspect-square bg-stone-200 mb-3">
@@ -188,7 +184,6 @@
             </a>
           </div>
 
-          <!-- Item 2 -->
           <div class="w-[calc(100vw-2rem)] md:w-auto flex-none snap-start bg-brand-bg border border-brand-border p-4 flex flex-col justify-between">
             <div>
               <div class="aspect-square bg-stone-200 mb-3">
@@ -202,7 +197,6 @@
             </a>
           </div>
 
-          <!-- Item 3 -->
           <div class="w-[calc(100vw-2rem)] md:w-auto flex-none snap-start bg-brand-bg border border-brand-border p-4 flex flex-col justify-between">
             <div>
               <div class="aspect-square bg-stone-200 mb-3">
@@ -219,7 +213,7 @@
       </div>
     </section>
 
-    <!-- OUR DRINKS AND MEALS (NÚT SEE OUR MENU + 2 NÚT PICKUP/DELIVERY) -->
+    <!-- OUR DRINKS AND MEALS -->
     <section id="shops" class="py-6 md:py-10">
       <div class="max-w-7xl mx-auto px-4 md:px-6">
         <div class="mb-4 flex justify-between items-center">
@@ -230,7 +224,6 @@
         </div>
 
         <div class="flex md:grid md:grid-cols-3 gap-5 overflow-x-auto no-scrollbar snap-x snap-mandatory">
-          <!-- Item 1 -->
           <div class="w-[calc(100vw-2rem)] md:w-auto flex-none snap-start border border-brand-border bg-brand-bg p-4 flex flex-col justify-between">
             <div>
               <div class="aspect-[16/10] bg-stone-200 mb-3">
@@ -239,7 +232,6 @@
               <h3 class="text-lg font-serif">Handbrew Specialty Coffee</h3>
               <p class="mt-1 text-xs text-brand-muted">Pha thủ công V60 / Aeropress chiết xuất hương vị hạt Arabica bản địa.</p>
             </div>
-            <!-- 2 Nút Order Pickup & Order Delivery -->
             <div class="mt-4 grid grid-cols-2 gap-2">
               <a href="https://order.oriberry.com" target="_blank" class="text-center text-[11px] font-medium border border-brand-text py-1.5 hover:bg-brand-text hover:text-brand-bg">
                 Order Pickup
@@ -250,7 +242,6 @@
             </div>
           </div>
 
-          <!-- Item 2 -->
           <div class="w-[calc(100vw-2rem)] md:w-auto flex-none snap-start border border-brand-border bg-brand-bg p-4 flex flex-col justify-between">
             <div>
               <div class="aspect-[16/10] bg-stone-200 mb-3">
@@ -269,7 +260,6 @@
             </div>
           </div>
 
-          <!-- Item 3 -->
           <div class="w-[calc(100vw-2rem)] md:w-auto flex-none snap-start border border-brand-border bg-brand-bg p-4 flex flex-col justify-between">
             <div>
               <div class="aspect-[16/10] bg-stone-200 mb-3">
@@ -291,12 +281,11 @@
       </div>
     </section>
 
-    <!-- WE & OUR FARMERS (BỎ PILLAR, HOÀN TOÀN GÓC VUÔNG, VUỐT 1 CỘT MOBILE KÈM 3 DẤU CHẤM) -->
+    <!-- WE & OUR FARMERS -->
     <section id="stories" class="py-6 md:py-10 bg-brand-card border-t border-brand-border/60">
       <div class="max-w-7xl mx-auto px-4 md:px-6">
         <div class="mb-4 flex justify-between items-center">
           <h2 class="text-xl md:text-3xl font-serif uppercase">WE & OUR FARMERS</h2>
-          <!-- 3 Dấu chấm chỉ báo vuốt cho Mobile -->
           <div class="flex space-x-1.5 md:hidden">
             <span class="w-2 h-2 bg-brand-text"></span>
             <span class="w-2 h-2 bg-brand-border"></span>
@@ -305,7 +294,6 @@
         </div>
 
         <div class="flex md:grid md:grid-cols-3 gap-5 overflow-x-auto no-scrollbar snap-x snap-mandatory">
-          <!-- Cột 1: The Business -->
           <article class="w-[calc(100vw-2rem)] md:w-auto flex-none snap-start">
             <div class="aspect-[3/2] bg-stone-200 mb-3">
               <img src="https://images.unsplash.com/photo-1495474472287-4d71bcdd2085?q=80&w=800&auto=format&fit=crop" alt="The Business" class="w-full h-full object-cover">
@@ -314,7 +302,6 @@
             <p class="mt-1 text-xs text-brand-muted leading-relaxed">Mô hình doanh nghiệp xã hội tạo tác động kinh tế bền vững và minh bạch chuỗi cung ứng.</p>
           </article>
 
-          <!-- Cột 2: The Farmers -->
           <article class="w-[calc(100vw-2rem)] md:w-auto flex-none snap-start">
             <div class="aspect-[3/2] bg-stone-200 mb-3">
               <img src="https://images.unsplash.com/photo-1606787366850-de6330128bfc?q=80&w=800&auto=format&fit=crop" alt="The Farmers" class="w-full h-full object-cover">
@@ -323,7 +310,6 @@
             <p class="mt-1 text-xs text-brand-muted leading-relaxed">Đồng hành trực tiếp cùng cộng đồng dân tộc thiểu số nâng cao năng lực thu hoạch.</p>
           </article>
 
-          <!-- Cột 3: Processing -->
           <article class="w-[calc(100vw-2rem)] md:w-auto flex-none snap-start">
             <div class="aspect-[3/2] bg-stone-200 mb-3">
               <img src="https://images.unsplash.com/photo-1511920170033-f8396924c348?q=80&w=800&auto=format&fit=crop" alt="Processing" class="w-full h-full object-cover">
@@ -336,11 +322,10 @@
     </section>
   </main>
 
-  <!-- FOOTER GÓC VUÔNG -->
   <footer class="bg-brand-bg border-t border-brand-border py-8 md:py-12">
     <div class="max-w-7xl mx-auto px-4 md:px-6 grid md:grid-cols-4 gap-6">
       <div class="md:col-span-2">
-        <span class="font-logo text-2xl font-bold tracking-wider text-brand-text uppercase">ORIBERRY</span>
+        <span class="font-logo text-3xl font-bold tracking-wider text-brand-text uppercase">ORIBERRY</span>
         <p class="text-xs text-brand-muted mt-1 tracking-wide">Coffee roastery · Shops · Development</p>
         <p class="text-xs text-brand-muted mt-3 max-w-sm leading-relaxed">Social enterprise developing specialty coffee & tea, empowering indigenous smallholders across Vietnam.</p>
       </div>
@@ -357,13 +342,13 @@
     </div>
   </footer>
 
-  <!-- FLASH CAROUSEL SCRIPT -->
+  <!-- SCRIPT CAROUSEL SỬ DỤNG ẢNH DRIVE THẬT TỪ ANH -->
   <script>
     const farmersData = [
-      { url: "https://images.unsplash.com/photo-1606787366850-de6330128bfc?q=80&w=800&auto=format&fit=crop", label: "Quảng Trị" },
-      { url: "https://images.unsplash.com/photo-1500937386664-56d1dfef3854?q=80&w=800&auto=format&fit=crop", label: "Điện Biên" },
-      { url: "https://images.unsplash.com/photo-1595974482597-4b8da8879bc5?q=80&w=800&auto=format&fit=crop", label: "Lâm Đồng" },
-      { url: "https://images.unsplash.com/photo-1524350876685-274059332603?q=80&w=800&auto=format&fit=crop", label: "Đắk Lắk" }
+      { url: "https://lh3.googleusercontent.com/d/1ovCK034G7Ni-jasp8iwrcUnB-3uh-HqI", label: "Quảng Trị" },
+      { url: "https://lh3.googleusercontent.com/d/1TegMGgnA8LYnRn-p1XCy0seyc4ZrTDpW", label: "Điện Biên" },
+      { url: "https://lh3.googleusercontent.com/d/1GVSQA7fut3hp4WGvivI_RXN5VszxJRAz", label: "Lâm Đồng" },
+      { url: "https://lh3.googleusercontent.com/d/1xI0kbZ5SIjkBDdb6Cw9d9bcViCyQALNH", label: "Đắk Lắk" }
     ];
 
     const roastData = [
