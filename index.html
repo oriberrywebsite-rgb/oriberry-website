@@ -1,0 +1,384 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Oriberry — Farm, Roastery, Shops</title>
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Comfortaa:wght@700&family=Inter:wght@300;400;500;600&family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;1,6..72,400&display=swap" rel="stylesheet">
+  
+  <style>
+    @font-face {
+      font-family: 'Aardvark-Cafe';
+      src: local('Aardvark-Cafe'), local('Aardvark Cafe');
+    }
+    .font-logo {
+      font-family: 'Aardvark-Cafe', 'Comfortaa', cursive, sans-serif;
+    }
+    .no-scrollbar::-webkit-scrollbar { display: none; }
+    .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+  </style>
+
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['Inter', 'sans-serif'],
+            serif: ['Newsreader', 'serif'],
+          },
+          colors: {
+            brand: {
+              bg: '#F9F8F6',
+              card: '#F1EFEA',
+              text: '#1C1C1A',
+              muted: '#666560',
+              border: '#E2DFD7',
+            }
+          }
+        }
+      }
+    }
+  </script>
+</head>
+<body class="bg-brand-bg text-brand-text font-sans antialiased selection:bg-stone-200 overflow-x-hidden">
+
+  <!-- 1. HEADER -->
+  <header class="sticky top-0 z-50 bg-brand-bg/90 backdrop-blur-md border-b border-brand-border/60">
+    <div class="max-w-7xl mx-auto px-6 h-20 flex items-center justify-between">
+      <!-- 1. CHỮ ORIBERRY FONT AARDVARK-CAFE -->
+      <a href="#" class="font-logo text-2xl font-bold tracking-wider text-brand-text uppercase">ORIBERRY</a>
+      
+      <nav class="hidden md:flex space-x-8 text-sm font-medium tracking-wide text-brand-muted">
+        <a href="#farmers" class="hover:text-brand-text transition-colors">Farmers</a>
+        <a href="#roastery" class="hover:text-brand-text transition-colors">Roastery</a>
+        <a href="#shops" class="hover:text-brand-text transition-colors">Shops</a>
+        <a href="#stories" class="hover:text-brand-text transition-colors">Oriberry & Farmers</a>
+      </nav>
+
+      <div class="flex items-center space-x-2 md:space-x-3">
+        <a href="https://order.oriberry.com" target="_blank" class="text-xs md:text-sm font-medium bg-brand-text text-brand-bg px-3.5 py-2 md:px-4 md:py-2.5 rounded-full hover:bg-stone-800 transition-all">
+          Order Drinks &rarr;
+        </a>
+        <a href="https://shop.oriberry.com" target="_blank" class="text-xs md:text-sm font-medium border border-brand-text/30 px-3.5 py-2 md:px-4 md:py-2.5 rounded-full hover:bg-brand-text hover:text-brand-bg transition-all">
+          Shop Coffee
+        </a>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    <!-- 2 & 3. HERO SECTION (GIẢM 1/2 CHIỀU CAO & THAY NỘI DUNG) -->
+    <section class="relative pt-6 pb-12 md:pt-10 md:pb-16 px-4 md:px-6">
+      <div class="max-w-7xl mx-auto">
+        <!-- Chiều cao ảnh bằng 1/2 bản cũ -->
+        <div class="relative w-full h-[280px] md:h-[360px] rounded-2xl overflow-hidden bg-stone-300">
+          <img src="https://images.unsplash.com/photo-1500937386664-56d1dfef3854?q=80&w=1600&auto=format&fit=crop" 
+               alt="Oriberry Coffee Farm" 
+               class="w-full h-full object-cover brightness-[0.75]">
+          <div class="absolute inset-0 bg-gradient-to-t from-black/85 via-black/40 to-transparent flex flex-col justify-end p-6 md:p-10 text-white">
+            <!-- 2. Thay chữ thành Farm, Roastery, Shops -->
+            <h1 class="text-2xl md:text-5xl font-serif font-light tracking-tight max-w-3xl leading-tight">
+              Farm, Roastery, Shops.
+            </h1>
+            <!-- 3. ORIBERRY AS A DEVELOPMENT SOLUTION -->
+            <p class="mt-2 text-xs md:text-sm font-semibold tracking-widest text-amber-300 uppercase">
+              ORIBERRY AS A DEVELOPMENT SOLUTION
+            </p>
+          </div>
+        </div>
+
+        <!-- Đoạn văn bản giới thiệu Social Enterprise -->
+        <div class="mt-6 p-6 md:p-8 bg-brand-card rounded-2xl border border-brand-border/60">
+          <p class="text-xs md:text-sm text-brand-muted leading-relaxed font-light">
+            Oriberry is Vietnamese Social Enterprise. We and our farmers fight poverty together by producing great Vietnamese coffee and tea. From the experience of working in many charity and non-for-profit projects since 1998 to help indigenous and ethnic minorities people in remote areas of Vietnam, Oriberry was found in 2010 as a more sustainable development solution through creating direct-trade | fair-trade coffee and tea products. Our goal is to create more jobs for smallholders and provide excellent service to our customers both online and in our shops.
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <!-- 4 & 5. WHAT ORIBERRY DOES (3 CỘT FLASH ĐỔI ẢNH, MOBILE SCROLL 1 CỘT) -->
+    <section id="core" class="py-10 md:py-16 border-t border-brand-border/40">
+      <div class="max-w-7xl mx-auto px-6">
+        <div class="mb-6 md:mb-8">
+          <h2 class="text-2xl md:text-4xl font-serif">What Oriberry does?</h2>
+        </div>
+
+        <!-- Grid 3 cột Desktop, Swipe Scroll 1 cột Mobile -->
+        <div class="flex md:grid md:grid-cols-3 gap-6 overflow-x-auto no-scrollbar snap-x snap-mandatory">
+          
+          <!-- Cột 1: We work with farmers -->
+          <div class="w-[calc(100vw-3rem)] md:w-auto flex-none snap-start group">
+            <div class="aspect-[4/3] rounded-xl overflow-hidden bg-stone-200 mb-4 relative">
+              <img id="img-farmers" src="https://images.unsplash.com/photo-1606787366850-de6330128bfc?q=80&w=800&auto=format&fit=crop" 
+                   alt="We work with farmers" 
+                   class="w-full h-full object-cover transition-opacity duration-1000">
+              <span id="label-farmers" class="absolute bottom-3 left-3 bg-black/60 backdrop-blur-md text-white text-[10px] font-medium px-2.5 py-1 rounded-full">
+                Quảng Trị
+              </span>
+            </div>
+            <h3 class="text-xl font-serif">We work with farmers</h3>
+            <p class="mt-2 text-xs md:text-sm text-brand-muted leading-relaxed">
+              Hợp tác trực tiếp cùng hộ nông dân tại Quảng Trị, Điện Biên, Lâm Đồng, Đắk Lắk để phát triển sinh kế bền vững.
+            </p>
+          </div>
+
+          <!-- Cột 2: We roast coffee -->
+          <div class="w-[calc(100vw-3rem)] md:w-auto flex-none snap-start group">
+            <div class="aspect-[4/3] rounded-xl overflow-hidden bg-stone-200 mb-4 relative">
+              <img id="img-roast" src="https://images.unsplash.com/photo-1514432324607-a09d9b4aefdd?q=80&w=800&auto=format&fit=crop" 
+                   alt="We roast coffee" 
+                   class="w-full h-full object-cover transition-opacity duration-1000">
+              <span id="label-roast" class="absolute bottom-3 left-3 bg-black/60 backdrop-blur-md text-white text-[10px] font-medium px-2.5 py-1 rounded-full">
+                Micro & Testing Roast
+              </span>
+            </div>
+            <h3 class="text-xl font-serif">We roast coffee</h3>
+            <p class="mt-2 text-xs md:text-sm text-brand-muted leading-relaxed">
+              Thực hiện thử nghiệm mẻ rang nhỏ (Micro/Testing Roast) và rang thương mại (Commercial Roast) tỉ mỉ.
+            </p>
+          </div>
+
+          <!-- Cột 3: Come visit us -->
+          <div class="w-[calc(100vw-3rem)] md:w-auto flex-none snap-start group">
+            <div class="aspect-[4/3] rounded-xl overflow-hidden bg-stone-200 mb-4 relative">
+              <img id="img-shops" src="https://images.unsplash.com/photo-1554118811-1e0d58224f24?q=80&w=800&auto=format&fit=crop" 
+                   alt="Come visit us" 
+                   class="w-full h-full object-cover transition-opacity duration-1000">
+              <span id="label-shops" class="absolute bottom-3 left-3 bg-black/60 backdrop-blur-md text-white text-[10px] font-medium px-2.5 py-1 rounded-full">
+                28 Quảng An
+              </span>
+            </div>
+            <h3 class="text-xl font-serif">Come visit us</h3>
+            <p class="mt-2 text-xs md:text-sm text-brand-muted leading-relaxed">
+              Chuỗi 06 cửa hàng không gian yên bình gắn liền với nhịp sống và văn hóa địa phương.
+            </p>
+          </div>
+
+        </div>
+      </div>
+    </section>
+
+    <!-- 7. FEATURED COFFEE (3 CỘT DESKTOP, 1 CỘT MOBILE SWIPE) -->
+    <section id="featured" class="py-10 md:py-20 bg-brand-card border-y border-brand-border/60">
+      <div class="max-w-7xl mx-auto px-4 md:px-6">
+        <div class="mb-6 md:mb-8">
+          <!-- 7. Bỏ Curated Coffee, thay thành Featured Coffee -->
+          <h2 class="text-2xl md:text-4xl font-serif">Featured Coffee</h2>
+        </div>
+
+        <div id="featured-coffee-container" class="flex md:grid md:grid-cols-3 gap-6 overflow-x-auto no-scrollbar snap-x snap-mandatory">
+          <!-- Item 1 -->
+          <div class="w-[calc(100vw-3rem)] md:w-auto flex-none snap-start bg-brand-bg border border-brand-border rounded-xl p-5 flex flex-col justify-between">
+            <div>
+              <div class="aspect-square bg-stone-200 rounded-lg overflow-hidden mb-4">
+                <img src="https://images.unsplash.com/photo-1559056199-641a0ac8b55e?q=80&w=800&auto=format&fit=crop" alt="Catimor Đà Lạt" class="w-full h-full object-cover">
+              </div>
+              <h3 class="text-xl font-serif">Catimor Đà Lạt</h3>
+              <p class="mt-2 text-xs text-brand-muted leading-relaxed">Arabica Catimor Washed Process. Ghi chú vị Citrus, Floral, Sweet Honey.</p>
+            </div>
+            <a href="https://shop.oriberry.com" target="_blank" class="mt-5 inline-block text-center text-xs font-medium bg-brand-text text-brand-bg px-4 py-2 rounded-full hover:bg-stone-800">
+              Buy this coffee &rarr;
+            </a>
+          </div>
+
+          <!-- Item 2 -->
+          <div class="w-[calc(100vw-3rem)] md:w-auto flex-none snap-start bg-brand-bg border border-brand-border rounded-xl p-5 flex flex-col justify-between">
+            <div>
+              <div class="aspect-square bg-stone-200 rounded-lg overflow-hidden mb-4">
+                <img src="https://images.unsplash.com/photo-1514432324607-a09d9b4aefdd?q=80&w=800&auto=format&fit=crop" alt="Mường Phăng Shade Grown" class="w-full h-full object-cover">
+              </div>
+              <h3 class="text-xl font-serif">Mường Phăng Shade Grown</h3>
+              <p class="mt-2 text-xs text-brand-muted leading-relaxed">Trồng dưới tán rừng Mường Phăng Điện Biên. Vị Black Tea, Herbal, Dark Chocolate.</p>
+            </div>
+            <a href="https://shop.oriberry.com" target="_blank" class="mt-5 inline-block text-center text-xs font-medium bg-brand-text text-brand-bg px-4 py-2 rounded-full hover:bg-stone-800">
+              Buy this coffee &rarr;
+            </a>
+          </div>
+
+          <!-- Item 3 -->
+          <div class="w-[calc(100vw-3rem)] md:w-auto flex-none snap-start bg-brand-bg border border-brand-border rounded-xl p-5 flex flex-col justify-between">
+            <div>
+              <div class="aspect-square bg-stone-200 rounded-lg overflow-hidden mb-4">
+                <img src="https://images.unsplash.com/photo-1511920170033-f8396924c348?q=80&w=800&auto=format&fit=crop" alt="Oriberry 64 Blend" class="w-full h-full object-cover">
+              </div>
+              <h3 class="text-xl font-serif">Oriberry 64 Blend</h3>
+              <p class="mt-2 text-xs text-brand-muted leading-relaxed">Espresso Signature Blend. Phối trộn Arabica Sơn La & Fine Robusta Quảng Trị.</p>
+            </div>
+            <a href="https://shop.oriberry.com" target="_blank" class="mt-5 inline-block text-center text-xs font-medium bg-brand-text text-brand-bg px-4 py-2 rounded-full hover:bg-stone-800">
+              Buy this coffee &rarr;
+            </a>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 8. FEATURED DRINKS & MEALS (3 CỘT DESKTOP, 1 CỘT MOBILE SWIPE) -->
+    <section id="shops" class="py-10 md:py-20">
+      <div class="max-w-7xl mx-auto px-4 md:px-6">
+        <div class="mb-6 md:mb-8">
+          <!-- 8. Đổi Visit Oriberry thành Featured Drinks & Meals, bỏ Our Spaces -->
+          <h2 class="text-2xl md:text-4xl font-serif">Featured Drinks & Meals</h2>
+        </div>
+
+        <div id="featured-drinks-container" class="flex md:grid md:grid-cols-3 gap-6 overflow-x-auto no-scrollbar snap-x snap-mandatory">
+          <!-- Item 1 -->
+          <div class="w-[calc(100vw-3rem)] md:w-auto flex-none snap-start border border-brand-border rounded-xl overflow-hidden bg-brand-bg flex flex-col justify-between p-5">
+            <div>
+              <div class="aspect-[16/10] rounded-lg overflow-hidden bg-stone-200 mb-4">
+                <img src="https://images.unsplash.com/photo-1517256064527-09c73fc73e38?q=80&w=800&auto=format&fit=crop" alt="Handbrew Specialty Coffee" class="w-full h-full object-cover">
+              </div>
+              <h3 class="text-xl font-serif">Handbrew Specialty Coffee</h3>
+              <p class="mt-2 text-xs text-brand-muted leading-relaxed">Pha thủ công V60 / Aeropress chiết xuất hương vị nguyên bản từ hạt Arabica bản địa.</p>
+            </div>
+            <a href="https://order.oriberry.com" target="_blank" class="mt-5 inline-block text-center text-xs font-medium border border-brand-border px-4 py-2 rounded-full hover:bg-stone-200">
+              Order Pick-up &rarr;
+            </a>
+          </div>
+
+          <!-- Item 2 -->
+          <div class="w-[calc(100vw-3rem)] md:w-auto flex-none snap-start border border-brand-border rounded-xl overflow-hidden bg-brand-bg flex flex-col justify-between p-5">
+            <div>
+              <div class="aspect-[16/10] rounded-lg overflow-hidden bg-stone-200 mb-4">
+                <img src="https://images.unsplash.com/photo-1541167760496-1628856ab772?q=80&w=800&auto=format&fit=crop" alt="Traditional Vietnamese Phin" class="w-full h-full object-cover">
+              </div>
+              <h3 class="text-xl font-serif">Traditional Phin & Milk Coffee</h3>
+              <p class="mt-2 text-xs text-brand-muted leading-relaxed">Cà phê Phin truyền thống từ Robusta Quảng Trị đậm đà, thơm ngậy hậu vị ngọt.</p>
+            </div>
+            <a href="https://order.oriberry.com" target="_blank" class="mt-5 inline-block text-center text-xs font-medium border border-brand-border px-4 py-2 rounded-full hover:bg-stone-200">
+              Order Pick-up &rarr;
+            </a>
+          </div>
+
+          <!-- Item 3 -->
+          <div class="w-[calc(100vw-3rem)] md:w-auto flex-none snap-start border border-brand-border rounded-xl overflow-hidden bg-brand-bg flex flex-col justify-between p-5">
+            <div>
+              <div class="aspect-[16/10] rounded-lg overflow-hidden bg-stone-200 mb-4">
+                <img src="https://images.unsplash.com/photo-1509722747041-616f39b57569?q=80&w=800&auto=format&fit=crop" alt="Artisanal Tea & Light Meals" class="w-full h-full object-cover">
+              </div>
+              <h3 class="text-xl font-serif">Artisanal Tea & Light Meals</h3>
+              <p class="mt-2 text-xs text-brand-muted leading-relaxed">Các dòng trà cổ thụ vùng cao kết hợp bánh ngọt và đồ ăn nhẹ mộc mạc.</p>
+            </div>
+            <a href="https://order.oriberry.com" target="_blank" class="mt-5 inline-block text-center text-xs font-medium border border-brand-border px-4 py-2 rounded-full hover:bg-stone-200">
+              Order Pick-up &rarr;
+            </a>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 9. ORIBERRY & FARMERS (3 CỘT: BUSINESS, FARMERS, PROCESSING) -->
+    <section id="stories" class="py-10 md:py-20 bg-brand-card border-t border-brand-border/60">
+      <div class="max-w-7xl mx-auto px-6">
+        <div class="mb-6 md:mb-8">
+          <!-- 9. Bỏ Journal & Field Notes, đổi thành Oriberry & Farmers -->
+          <h2 class="text-2xl md:text-4xl font-serif">Oriberry & Farmers</h2>
+        </div>
+
+        <div class="grid md:grid-cols-3 gap-8">
+          <!-- Cột 1: Business -->
+          <article class="group">
+            <div class="aspect-[3/2] rounded-lg overflow-hidden bg-stone-200 mb-4">
+              <img src="https://images.unsplash.com/photo-1495474472287-4d71bcdd2085?q=80&w=800&auto=format&fit=crop" alt="Business" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500">
+            </div>
+            <span class="text-xs uppercase tracking-widest text-brand-muted font-semibold">Pillar 01</span>
+            <h3 class="text-xl font-serif mt-1">Business</h3>
+            <p class="mt-2 text-xs text-brand-muted leading-relaxed">Mô hình doanh nghiệp xã hội tạo tác động kinh tế bền vững và minh bạch chuỗi cung ứng.</p>
+          </article>
+
+          <!-- Cột 2: Farmers -->
+          <article class="group">
+            <div class="aspect-[3/2] rounded-lg overflow-hidden bg-stone-200 mb-4">
+              <img src="https://images.unsplash.com/photo-1606787366850-de6330128bfc?q=80&w=800&auto=format&fit=crop" alt="Farmers" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500">
+            </div>
+            <span class="text-xs uppercase tracking-widest text-brand-muted font-semibold">Pillar 02</span>
+            <h3 class="text-xl font-serif mt-1">Farmers</h3>
+            <p class="mt-2 text-xs text-brand-muted leading-relaxed">Đồng hành trực tiếp cùng cộng đồng dân tộc thiểu số nâng cao năng lực thu hoạch.</p>
+          </article>
+
+          <!-- Cột 3: Processing -->
+          <article class="group">
+            <div class="aspect-[3/2] rounded-lg overflow-hidden bg-stone-200 mb-4">
+              <img src="https://images.unsplash.com/photo-1511920170033-f8396924c348?q=80&w=800&auto=format&fit=crop" alt="Processing" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500">
+            </div>
+            <span class="text-xs uppercase tracking-widest text-brand-muted font-semibold">Pillar 03</span>
+            <h3 class="text-xl font-serif mt-1">Processing</h3>
+            <p class="mt-2 text-xs text-brand-muted leading-relaxed">Ứng dụng phương pháp sơ chế tự nhiên, Honey, Washed và Anaerobics tiêu chuẩn cao.</p>
+          </article>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- FOOTER -->
+  <footer class="bg-brand-bg border-t border-brand-border py-12">
+    <div class="max-w-7xl mx-auto px-6 grid md:grid-cols-4 gap-8">
+      <div class="md:col-span-2">
+        <span class="font-logo text-2xl font-bold tracking-wider text-brand-text uppercase">ORIBERRY</span>
+        <p class="text-xs text-brand-muted mt-2 tracking-wide">Coffee roastery · Shops · Development</p>
+        <p class="text-xs text-brand-muted mt-4 max-w-sm leading-relaxed">Social enterprise developing specialty coffee & tea, empowering indigenous smallholders across Vietnam.</p>
+      </div>
+      <div class="text-xs text-brand-muted space-y-2">
+        <p class="font-semibold text-brand-text uppercase tracking-widest mb-3">Ecosystem</p>
+        <p><a href="https://shop.oriberry.com" target="_blank" class="hover:text-brand-text">shop.oriberry.com</a></p>
+        <p><a href="https://order.oriberry.com" target="_blank" class="hover:text-brand-text">order.oriberry.com</a></p>
+      </div>
+      <div class="text-xs text-brand-muted space-y-2">
+        <p class="font-semibold text-brand-text uppercase tracking-widest mb-3">System</p>
+        <p>© Oriberry Coffee</p>
+        <p>Google Workspace CMS Powered</p>
+      </div>
+    </div>
+  </footer>
+
+  <!-- SCRIPT FLASH CHUYỂN ẢNH TỰ ĐỘNG CHO KHỐI "WHAT ORIBERRY DOES?" -->
+  <script>
+    // Dữ liệu danh sách ảnh Flash
+    const farmersData = [
+      { url: "https://images.unsplash.com/photo-1606787366850-de6330128bfc?q=80&w=800&auto=format&fit=crop", label: "Quảng Trị" },
+      { url: "https://images.unsplash.com/photo-1500937386664-56d1dfef3854?q=80&w=800&auto=format&fit=crop", label: "Điện Biên" },
+      { url: "https://images.unsplash.com/photo-1595974482597-4b8da8879bc5?q=80&w=800&auto=format&fit=crop", label: "Lâm Đồng" },
+      { url: "https://images.unsplash.com/photo-1524350876685-274059332603?q=80&w=800&auto=format&fit=crop", label: "Đắk Lắk" }
+    ];
+
+    const roastData = [
+      { url: "https://images.unsplash.com/photo-1514432324607-a09d9b4aefdd?q=80&w=800&auto=format&fit=crop", label: "Micro & Testing Roast" },
+      { url: "https://images.unsplash.com/photo-1511920170033-f8396924c348?q=80&w=800&auto=format&fit=crop", label: "Commercial Roast" }
+    ];
+
+    const shopsData = [
+      { url: "https://images.unsplash.com/photo-1501339847302-ac426a4a7cbb?q=80&w=800&auto=format&fit=crop", label: "28 Quảng An" },
+      { url: "https://images.unsplash.com/photo-1554118811-1e0d58224f24?q=80&w=800&auto=format&fit=crop", label: "24A Tô Ngọc Vân" },
+      { url: "https://images.unsplash.com/photo-1442512595331-e89e73853f31?q=80&w=800&auto=format&fit=crop", label: "1 Phạm Sư Mạnh" },
+      { url: "https://images.unsplash.com/photo-1495474472287-4d71bcdd2085?q=80&w=800&auto=format&fit=crop", label: "6A Phạm Sư Mạnh" },
+      { url: "https://images.unsplash.com/photo-1521017432531-fbd92d768814?q=80&w=800&auto=format&fit=crop", label: "11B Tông Đản" },
+      { url: "https://images.unsplash.com/photo-1559925393-8be0ec4767c8?q=80&w=800&auto=format&fit=crop", label: "23-25 Đặng Tiến Đông" }
+    ];
+
+    function startFlashCarousel(imgId, labelId, dataArray, intervalMs) {
+      let index = 0;
+      const imgEl = document.getElementById(imgId);
+      const labelEl = document.getElementById(labelId);
+
+      setInterval(() => {
+        index = (index + 1) % dataArray.length;
+        imgEl.style.opacity = '0';
+        setTimeout(() => {
+          imgEl.src = dataArray[index].url;
+          labelEl.textContent = dataArray[index].label;
+          imgEl.style.opacity = '1';
+        }, 300);
+      }, intervalMs);
+    }
+
+    // Chạy tự động chuyển ảnh cho 3 cột
+    startFlashCarousel('img-farmers', 'label-farmers', farmersData, 3500);
+    startFlashCarousel('img-roast', 'label-roast', roastData, 4500);
+    startFlashCarousel('img-shops', 'label-shops', shopsData, 3000);
+  </script>
+</body>
+</html>
