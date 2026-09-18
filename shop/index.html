@@ -29,25 +29,115 @@
     </div>
   </header>
 
-  <!-- Hero Banner -->
-  <section class="bg-neutral-900 text-white py-12 px-4 text-center">
-    <span class="text-xs font-semibold text-amber-500 uppercase tracking-widest">Specialty Coffee</span>
-    <h1 class="text-3xl md:text-4xl font-light tracking-wide my-2">CÀ PHÊ HẠT RANG MỚI</h1>
-    <p class="text-neutral-400 text-sm max-w-md mx-auto">Tuyển chọn các dòng Arabica & Specialty đậm đà bản sắc vùng trồng.</p>
-  </section>
+  <!-- Main Content -->
+  <main class="max-w-6xl mx-auto px-4 py-8 w-full flex-grow">
+    
+    <!-- Tiêu đề & Bộ lọc sản phẩm -->
+    <div class="mb-8 bg-white p-5 rounded-xl border border-neutral-200 shadow-sm space-y-4">
+      <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-neutral-100 pb-4">
+        <div>
+          <h1 class="text-2xl font-bold text-neutral-900">Cửa Hàng Cà Phê</h1>
+          <p class="text-xs text-neutral-500 mt-1">Khám phá các sản phẩm cà phê hạt rang chất lượng cao từ Oriberry</p>
+        </div>
+        
+        <!-- Sắp xếp giá -->
+        <div class="flex items-center gap-2">
+          <label class="text-xs font-semibold text-neutral-600 whitespace-nowrap">Sắp xếp giá:</label>
+          <select id="sort-price" onchange="applyFilters()" class="text-xs border border-neutral-300 rounded-lg p-2 bg-white focus:outline-none focus:ring-1 focus:ring-neutral-900">
+            <option value="default">Mặc định</option>
+            <option value="asc">Giá: Thấp đến Cao</option>
+            <option value="desc">Giá: Cao đến Thấp</option>
+          </select>
+        </div>
+      </div>
 
-  <!-- Product List Grid -->
-  <main class="max-w-6xl mx-auto px-4 py-12 w-full">
-    <h2 class="text-xl font-bold text-neutral-900 mb-6">Sản phẩm cà phê</h2>
-    <div id="product-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+      <!-- Các thẻ lọc (Tags filter) -->
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-xs">
+        <!-- Lọc theo Giống/Loại Cà phê -->
+        <div>
+          <span class="block font-bold text-neutral-700 mb-2">Loại cà phê:</span>
+          <div class="flex flex-wrap gap-1.5" id="type-filter-tags">
+            <button onclick="filterType('ALL')" class="type-tag text-xs px-3 py-1 rounded-full border border-neutral-300 bg-neutral-900 text-white font-medium">Tất cả</button>
+            <button onclick="filterType('Arabica')" class="type-tag text-xs px-3 py-1 rounded-full border border-neutral-300 bg-neutral-100 text-neutral-700 hover:bg-neutral-200">Arabica</button>
+            <button onclick="filterType('Robusta')" class="type-tag text-xs px-3 py-1 rounded-full border border-neutral-300 bg-neutral-100 text-neutral-700 hover:bg-neutral-200">Robusta</button>
+            <button onclick="filterType('Liberica')" class="type-tag text-xs px-3 py-1 rounded-full border border-neutral-300 bg-neutral-100 text-neutral-700 hover:bg-neutral-200">Liberica/Excelsa</button>
+            <button onclick="filterType('Blended')" class="type-tag text-xs px-3 py-1 rounded-full border border-neutral-300 bg-neutral-100 text-neutral-700 hover:bg-neutral-200">Blended</button>
+          </div>
+        </div>
+
+        <!-- Lọc theo Vùng trồng -->
+        <div>
+          <span class="block font-bold text-neutral-700 mb-2">Vùng trồng:</span>
+          <div class="flex flex-wrap gap-1.5" id="region-filter-tags">
+            <button onclick="filterRegion('ALL')" class="region-tag text-xs px-3 py-1 rounded-full border border-neutral-300 bg-neutral-900 text-white font-medium">Tất cả</button>
+            <button onclick="filterRegion('Quảng Trị')" class="region-tag text-xs px-3 py-1 rounded-full border border-neutral-300 bg-neutral-100 text-neutral-700 hover:bg-neutral-200">Quảng Trị</button>
+            <button onclick="filterRegion('Điện Biên')" class="region-tag text-xs px-3 py-1 rounded-full border border-neutral-300 bg-neutral-100 text-neutral-700 hover:bg-neutral-200">Điện Biên</button>
+            <button onclick="filterRegion('Lâm Đồng')" class="region-tag text-xs px-3 py-1 rounded-full border border-neutral-300 bg-neutral-100 text-neutral-700 hover:bg-neutral-200">Lâm Đồng</button>
+            <button onclick="filterRegion('Đắk Lắk')" class="region-tag text-xs px-3 py-1 rounded-full border border-neutral-300 bg-neutral-100 text-neutral-700 hover:bg-neutral-200">Đắk Lắk</button>
+            <button onclick="filterRegion('Gia Lai')" class="region-tag text-xs px-3 py-1 rounded-full border border-neutral-300 bg-neutral-100 text-neutral-700 hover:bg-neutral-200">Gia Lai</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Product Grid 3x3 -->
+    <div id="product-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
       <!-- Products render dynamically from JS -->
     </div>
   </main>
 
   <!-- Footer -->
-  <footer class="border-t border-neutral-200 py-8 text-center text-xs text-neutral-500">
+  <footer class="border-t border-neutral-200 py-8 text-center text-xs text-neutral-500 bg-white">
     <p>© 2026 Oriberry Coffee. Minimalist Jamstack Store.</p>
   </footer>
+
+  <!-- POPUP CHỌN TÙY CHỌN SẢN PHẨM (SHOPEE STYLE POPUP) -->
+  <div id="option-modal" class="fixed inset-0 z-50 hidden flex items-end sm:items-center justify-center p-0 sm:p-4">
+    <div class="fixed inset-0 bg-black/60 transition-opacity" onclick="closeOptionModal()"></div>
+    
+    <div class="relative w-full max-w-md bg-white rounded-t-2xl sm:rounded-xl shadow-2xl overflow-hidden z-10 p-5 space-y-4 max-h-[90vh] overflow-y-auto">
+      <button onclick="closeOptionModal()" class="absolute top-4 right-4 text-neutral-400 hover:text-neutral-800 text-2xl font-bold">&times;</button>
+      
+      <!-- Thông tin sản phẩm trong Pop-up -->
+      <div class="flex gap-4 items-start border-b border-neutral-100 pb-4">
+        <img id="pop-img" src="" class="w-20 h-20 object-cover rounded-lg bg-neutral-100">
+        <div>
+          <h3 id="pop-name" class="font-bold text-sm text-neutral-900"></h3>
+          <p id="pop-price" class="text-base font-bold text-amber-700 mt-1"></p>
+          <span id="pop-stock" class="text-xs text-neutral-400">Kho: 999</span>
+        </div>
+      </div>
+
+      <!-- Tùy chọn cỡ xay (Nuts/Powder Type) -->
+      <div>
+        <label class="block text-xs font-bold text-neutral-800 mb-2">Chọn cỡ xay (Nuts/Powder Type):</label>
+        <div class="flex flex-wrap gap-2" id="pop-grind-options">
+          <!-- Grind buttons injected via JS -->
+        </div>
+      </div>
+
+      <!-- Quy cách đóng gói (Volume / Weight) -->
+      <div>
+        <label class="block text-xs font-bold text-neutral-800 mb-1">Khối lượng (Volume):</label>
+        <span id="pop-weight" class="inline-block bg-neutral-100 text-neutral-800 border border-neutral-300 px-3 py-1 rounded text-xs font-medium"></span>
+      </div>
+
+      <!-- Số lượng (Quantity) -->
+      <div class="flex items-center justify-between pt-2 border-t border-neutral-100">
+        <span class="text-xs font-bold text-neutral-800">Số lượng (Quantity):</span>
+        <div class="flex items-center border border-neutral-300 rounded">
+          <button onclick="changePopQty(-1)" class="px-3 py-1 text-sm font-bold text-neutral-600 hover:bg-neutral-100">-</button>
+          <span id="pop-qty" class="px-4 text-xs font-bold">1</span>
+          <button onclick="changePopQty(1)" class="px-3 py-1 text-sm font-bold text-neutral-600 hover:bg-neutral-100">+</button>
+        </div>
+      </div>
+
+      <!-- Nút xác nhận thêm vào giỏ -->
+      <button id="pop-add-btn" onclick="confirmAddToCart()" class="w-full bg-amber-700 text-white font-bold text-xs py-3.5 rounded-lg hover:bg-amber-800 transition">
+        Thêm vào giỏ hàng
+      </button>
+    </div>
+  </div>
 
   <!-- Slide-over Cart Modal -->
   <div id="cart-modal" class="fixed inset-0 z-50 hidden">
@@ -55,7 +145,6 @@
 
     <div class="fixed inset-y-0 right-0 max-w-full flex pl-10">
       <div class="w-screen max-w-md bg-white shadow-xl flex flex-col justify-between p-6">
-        
         <div>
           <div class="flex items-center justify-between pb-4 border-b border-neutral-200">
             <h3 class="text-lg font-bold text-neutral-900">Giỏ hàng của bạn</h3>
@@ -83,7 +172,6 @@
             </button>
           </form>
         </div>
-
       </div>
     </div>
   </div>
@@ -93,155 +181,235 @@
     const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzoWopdIwcIH1mI6i0LNZP3YLK_U7zjIc6iMwLEdyCNuZ4L4jAwop8QWc6g0v06Qs_f/exec";
 
     const GRIND_OPTIONS = [
-      { id: "whole", label: "Nguyên hạt (Whole grain)" },
-      { id: "drip", label: "Drip / V60 powder" },
-      { id: "coldbrew", label: "Coldbrew powder" },
-      { id: "espresso", label: "Espresso powder" },
-      { id: "staresso", label: "Staresso powder" },
-      { id: "aeropress", label: "Aeropress powder" },
-      { id: "frenchpress", label: "Frenchpress / Phin" },
-      { id: "moka", label: "Moka powder" }
+      "Whole grain",
+      "Drip/V60 powder",
+      "Coldbrew powder",
+      "Espresso powder",
+      "Staresso powder",
+      "Aeropress powder",
+      "Frenchpress Powder/Phin",
+      "Moka powder"
     ];
 
+    // Dữ liệu sản phẩm mẫu bao gồm Loại (type) & Vùng trồng (region)
     const PRODUCTS = [
       {
         id: "muong-phang",
         name: "Muong Phang Shade-Grown Coffee",
-        origin: "Cà phê trồng dưới tán rừng Mường Phăng, Điện Biên",
+        description: "Roasted Arabica coffee Muong Phang, Dien Bien cultivated under forest canopy",
         price: 127600,
         weight: "200g",
-        category: "Roasted Arabica",
+        type: "Arabica",
+        region: "Điện Biên",
         img: "https://images.unsplash.com/photo-1559056199-641a0ac8b55e?w=500&auto=format&fit=crop&q=80"
       },
       {
-        id: "arabica-quang-tri",
+        id: "khe-sanh-honey",
         name: "Arabica Quảng Trị - Honey Process",
-        origin: "Tuyển chọn độ cao 800m • Khe Sanh, Quảng Trị",
+        description: "Hương hoa quả mọng, chua thanh hậu vị ngọt sâu",
         price: 180000,
         weight: "250g",
-        category: "Specialty Coffee",
+        type: "Arabica",
+        region: "Quảng Trị",
         img: "https://images.unsplash.com/photo-1587734195503-904fca47e0e9?w=500&auto=format&fit=crop&q=80"
+      },
+      {
+        id: "robusta-daklak",
+        name: "Fine Robusta Đắk Lắk",
+        description: "Đậm đà, thơm vị sô-cô-la đen & hạt dẻ rang",
+        price: 140000,
+        weight: "250g",
+        type: "Robusta",
+        region: "Đắk Lắk",
+        img: "https://images.unsplash.com/photo-1514432324607-a09d9b4aefdd?w=500&auto=format&fit=crop&q=80"
+      },
+      {
+        id: "blend-house",
+        name: "Oriberry House Blend",
+        description: "Sự kết hợp hoàn hảo giữa Arabica & Robusta",
+        price: 155000,
+        weight: "250g",
+        type: "Blended",
+        region: "Lâm Đồng",
+        img: "https://images.unsplash.com/photo-1511920170033-f8396924c348?w=500&auto=format&fit=crop&q=80"
+      },
+      {
+        id: "liberica-gialai",
+        name: "Specialty Liberica Gia Lai",
+        description: "Hương vị trái cây chín lên men đặc trưng, vị đậm độc đáo",
+        price: 210000,
+        weight: "200g",
+        type: "Liberica",
+        region: "Gia Lai",
+        img: "https://images.unsplash.com/photo-1497935586351-b67a49e012bf?w=500&auto=format&fit=crop&q=80"
       }
     ];
 
-    // Track selected grind per product
-    const selectedGrinds = {};
-    const productQuantities = {};
+    let currentTypeFilter = 'ALL';
+    let currentRegionFilter = 'ALL';
+    let activeProductForPop = null;
+    let selectedPopGrind = GRIND_OPTIONS[0];
+    let selectedPopQty = 1;
 
     let cart = JSON.parse(localStorage.getItem('oriberry_cart') || '[]');
 
     function renderProducts() {
+      let filtered = PRODUCTS.filter(p => {
+        const matchType = (currentTypeFilter === 'ALL') || (p.type === currentTypeFilter);
+        const matchRegion = (currentRegionFilter === 'ALL') || (p.region === currentRegionFilter);
+        return matchType && matchRegion;
+      });
+
+      // Sort by price
+      const sortVal = document.getElementById('sort-price').value;
+      if (sortVal === 'asc') {
+        filtered.sort((a, b) => a.price - b.price);
+      } else if (sortVal === 'desc') {
+        filtered.sort((a, b) => b.price - a.price);
+      }
+
       const grid = document.getElementById('product-grid');
-      grid.innerHTML = PRODUCTS.map(p => {
-        // Default values
-        if (!selectedGrinds[p.id]) selectedGrinds[p.id] = GRIND_OPTIONS[0].label;
-        if (!productQuantities[p.id]) productQuantities[p.id] = 1;
+      if (filtered.length === 0) {
+        grid.innerHTML = `<div class="col-span-full text-center py-12 text-neutral-400 text-sm">Không tìm thấy sản phẩm phù hợp.</div>`;
+        return;
+      }
 
-        return `
-          <div class="bg-white border border-neutral-200 rounded-xl overflow-hidden shadow-sm hover:shadow-md transition flex flex-col justify-between">
-            <div>
+      grid.innerHTML = filtered.map(p => `
+        <div class="bg-white border border-neutral-200 rounded-xl overflow-hidden shadow-sm hover:shadow-md transition flex flex-col justify-between">
+          <div>
+            <div class="relative">
               <img src="${p.img}" alt="${p.name}" class="w-full aspect-square object-cover bg-neutral-100">
-              <div class="p-5">
-                <span class="text-xs font-semibold text-amber-700 uppercase tracking-wider">${p.category}</span>
-                <h3 class="text-lg font-bold mt-1 text-neutral-900">${p.name}</h3>
-                <p class="text-xs text-neutral-500 mt-1">${p.origin}</p>
-                
-                <!-- Grind Type Selection (Shopee Style Buttons) -->
-                <div class="mt-4">
-                  <label class="block text-xs font-bold text-neutral-700 mb-2">Chọn cỡ xay (Type):</label>
-                  <div class="flex flex-wrap gap-1.5">
-                    ${GRIND_OPTIONS.map(g => `
-                      <button 
-                        type="button" 
-                        onclick="selectGrind('${p.id}', '${g.label}')"
-                        id="grind-btn-${p.id}-${g.id}"
-                        class="grind-btn grind-btn-${p.id} text-[11px] px-2.5 py-1.5 rounded border border-neutral-200 bg-neutral-100 text-neutral-700 hover:border-neutral-900 transition${selectedGrinds[p.id] === g.label ? 'active' : ''}"
-                      >
-                        ${g.label}
-                      </button>
-                    `).join('')}
-                  </div>
-                </div>
-
-                <!-- Volume -->
-                <div class="mt-4 flex items-center justify-between text-xs">
-                  <span class="font-bold text-neutral-700">Khối lượng:</span>
-                  <span class="bg-neutral-100 px-3 py-1 rounded font-medium text-neutral-800 border border-neutral-200">${p.weight}</span>
-                </div>
-              </div>
+              <span class="absolute top-2 left-2 bg-neutral-900/80 text-white text-[10px] font-medium px-2 py-0.5 rounded backdrop-blur-sm">${p.type} • ${p.region}</span>
             </div>
-
-            <div class="p-5 pt-0 border-t border-neutral-100 mt-4">
-              <div class="flex items-center justify-between mb-3 mt-3">
-                <span class="text-lg font-bold text-neutral-900">${p.price.toLocaleString('vi-VN')}đ</span>
-                
-                <!-- Quantity selector -->
-                <div class="flex items-center border border-neutral-300 rounded">
-                  <button onclick="changeProductQty('${p.id}', -1)" class="px-2.5 py-1 text-xs font-bold text-neutral-600 hover:bg-neutral-100">-</button>
-                  <span id="qty-val-${p.id}" class="px-3 text-xs font-bold">${productQuantities[p.id]}</span>
-                  <button onclick="changeProductQty('${p.id}', 1)" class="px-2.5 py-1 text-xs font-bold text-neutral-600 hover:bg-neutral-100">+</button>
-                </div>
+            <div class="p-4">
+              <h3 class="text-sm font-bold text-neutral-900 line-clamp-1">${p.name}</h3>
+              <p class="text-xs text-neutral-500 mt-1 line-clamp-2 h-8">${p.description}</p>
+              <div class="mt-3 flex items-center justify-between">
+                <span class="text-sm font-bold text-amber-700">${p.price.toLocaleString('vi-VN')}đ</span>
+                <span class="text-[11px] bg-neutral-100 text-neutral-600 px-2 py-0.5 rounded border border-neutral-200">${p.weight}</span>
               </div>
-
-              <button onclick="addToCart('${p.id}')" class="w-full bg-neutral-900 text-white text-xs font-medium py-3 rounded-lg hover:bg-amber-700 transition">
-                + Thêm vào giỏ hàng
-              </button>
             </div>
           </div>
-        `;
-      }).join('');
+
+          <div class="p-4 pt-0">
+            <button onclick="openOptionModal('${p.id}')" class="w-full bg-neutral-900 text-white text-xs font-medium py-2.5 rounded-lg hover:bg-amber-700 transition flex items-center justify-center gap-1">
+              <span>Thêm vào giỏ hàng</span>
+            </button>
+          </div>
+        </div>
+      `).join('');
     }
 
-    function selectGrind(productId, grindLabel) {
-      selectedGrinds[productId] = grindLabel;
-      // Refresh UI buttons for this product
-      const buttons = document.querySelectorAll(`.grind-btn-${productId}`);
-      buttons.forEach(btn => {
-        if (btn.innerText.trim() === grindLabel) {
-          btn.classList.add('active');
+    function filterType(type) {
+      currentTypeFilter = type;
+      // Update UI active tag
+      const btns = document.querySelectorAll('#type-filter-tags button');
+      btns.forEach(b => {
+        if ((type === 'ALL' && b.innerText.includes('Tất cả')) || b.innerText.includes(type)) {
+          b.className = "type-tag text-xs px-3 py-1 rounded-full border border-neutral-300 bg-neutral-900 text-white font-medium";
         } else {
-          btn.classList.remove('active');
+          b.className = "type-tag text-xs px-3 py-1 rounded-full border border-neutral-300 bg-neutral-100 text-neutral-700 hover:bg-neutral-200";
+        }
+      });
+      renderProducts();
+    }
+
+    function filterRegion(region) {
+      currentRegionFilter = region;
+      // Update UI active tag
+      const btns = document.querySelectorAll('#region-filter-tags button');
+      btns.forEach(b => {
+        if ((region === 'ALL' && b.innerText.includes('Tất cả')) || b.innerText.includes(region)) {
+          b.className = "region-tag text-xs px-3 py-1 rounded-full border border-neutral-300 bg-neutral-900 text-white font-medium";
+        } else {
+          b.className = "region-tag text-xs px-3 py-1 rounded-full border border-neutral-300 bg-neutral-100 text-neutral-700 hover:bg-neutral-200";
+        }
+      });
+      renderProducts();
+    }
+
+    function applyFilters() {
+      renderProducts();
+    }
+
+    /* Pop-up Shopee logic */
+    function openOptionModal(productId) {
+      activeProductForPop = PRODUCTS.find(p => p.id === productId);
+      selectedPopGrind = GRIND_OPTIONS[0];
+      selectedPopQty = 1;
+
+      document.getElementById('pop-img').src = activeProductForPop.img;
+      document.getElementById('pop-name').innerText = activeProductForPop.name;
+      document.getElementById('pop-price').innerText = activeProductForPop.price.toLocaleString('vi-VN') + 'đ';
+      document.getElementById('pop-weight').innerText = activeProductForPop.weight;
+      document.getElementById('pop-qty').innerText = selectedPopQty;
+
+      // Render grind buttons inside popup
+      const grindContainer = document.getElementById('pop-grind-options');
+      grindContainer.innerHTML = GRIND_OPTIONS.map(g => `
+        <button 
+          type="button" 
+          onclick="selectPopGrind('${g}')"
+          class="pop-grind-btn text-[11px] px-3 py-2 rounded border border-neutral-200 bg-neutral-100 text-neutral-700 hover:border-neutral-900 transition ${g === selectedPopGrind ? 'active' : ''}"
+        >
+          ${g}
+        </button>
+      `).join('');
+
+      document.getElementById('option-modal').classList.remove('hidden');
+    }
+
+    function closeOptionModal() {
+      document.getElementById('option-modal').classList.add('hidden');
+    }
+
+    function selectPopGrind(grind) {
+      selectedPopGrind = grind;
+      const btns = document.querySelectorAll('.pop-grind-btn');
+      btns.forEach(b => {
+        if (b.innerText.trim() === grind) {
+          b.classList.add('active');
+        } else {
+          b.classList.remove('active');
         }
       });
     }
 
-    function changeProductQty(productId, delta) {
-      if (!productQuantities[productId]) productQuantities[productId] = 1;
-      productQuantities[productId] = Math.max(1, productQuantities[productId] + delta);
-      document.getElementById(`qty-val-${productId}`).innerText = productQuantities[productId];
+    function changePopQty(delta) {
+      selectedPopQty = Math.max(1, selectedPopQty + delta);
+      document.getElementById('pop-qty').innerText = selectedPopQty;
     }
 
-    function addToCart(productId) {
-      const product = PRODUCTS.find(p => p.id === productId);
-      const grind = selectedGrinds[productId] || GRIND_OPTIONS[0].label;
-      const qty = productQuantities[productId] || 1;
-      const cartKey = `${productId}-${grind}`;
+    function confirmAddToCart() {
+      if (!activeProductForPop) return;
 
+      const cartKey = `${activeProductForPop.id}-${selectedPopGrind}`;
       const existingIndex = cart.findIndex(item => item.key === cartKey);
+
       if (existingIndex > -1) {
-        cart[existingIndex].qty += qty;
+        cart[existingIndex].qty += selectedPopQty;
       } else {
         cart.push({
           key: cartKey,
-          id: product.id,
-          name: product.name,
-          grind: grind,
-          price: product.price,
-          qty: qty
+          id: activeProductForPop.id,
+          name: activeProductForPop.name,
+          grind: selectedPopGrind,
+          price: activeProductForPop.price,
+          qty: selectedPopQty
         });
       }
 
       saveCart();
+      closeOptionModal();
       toggleCart(true);
     }
 
+    /* Giỏ hàng Logic */
     function updateQty(key, delta) {
       const index = cart.findIndex(item => item.key === key);
       if (index > -1) {
         cart[index].qty += delta;
-        if (cart[index].qty <= 0) {
-          cart.splice(index, 1);
-        }
+        if (cart[index].qty <= 0) cart.splice(index, 1);
       }
       saveCart();
     }
@@ -281,13 +449,9 @@
 
     function toggleCart(open = null) {
       const modal = document.getElementById('cart-modal');
-      if (open === true) {
-        modal.classList.remove('hidden');
-      } else if (open === false) {
-        modal.classList.add('hidden');
-      } else {
-        modal.classList.toggle('hidden');
-      }
+      if (open === true) modal.classList.remove('hidden');
+      else if (open === false) modal.classList.add('hidden');
+      else modal.classList.toggle('hidden');
     }
 
     async function submitOrder(e) {
