@@ -70,7 +70,7 @@
             <button onclick="filterRegion('Điện Biên')" class="region-tag text-xs px-3 py-1 rounded-full border border-neutral-300 bg-neutral-100 text-neutral-700 hover:bg-neutral-200">Điện Biên</button>
             <button onclick="filterRegion('Lâm Đồng')" class="region-tag text-xs px-3 py-1 rounded-full border border-neutral-300 bg-neutral-100 text-neutral-700 hover:bg-neutral-200">Lâm Đồng</button>
             <button onclick="filterRegion('Đắk Lắk')" class="region-tag text-xs px-3 py-1 rounded-full border border-neutral-300 bg-neutral-100 text-neutral-700 hover:bg-neutral-200">Đắk Lắk</button>
-            <button onclick="filterRegion('Quảng Trị & Đắk Lắk')" class="region-tag text-xs px-3 py-1 rounded-full border border-neutral-300 bg-neutral-100 text-neutral-700 hover:bg-neutral-200">Quảng Trị & Đắk Lắk</button>
+            <button onclick="filterRegion('Gia Lai')" class="region-tag text-xs px-3 py-1 rounded-full border border-neutral-300 bg-neutral-100 text-neutral-700 hover:bg-neutral-200">Gia Lai</button>
           </div>
         </div>
       </div>
@@ -228,8 +228,11 @@
 
     function renderProducts() {
       let filtered = PRODUCTS.filter(p => {
-        const matchType = (currentTypeFilter === 'ALL') || (p.type.toLowerCase().includes(currentTypeFilter.toLowerCase()));
-        const matchRegion = (currentRegionFilter === 'ALL') || (p.region.toLowerCase().includes(currentRegionFilter.toLowerCase()));
+        const pType = (p.type || "").toLowerCase();
+        const pRegion = (p.region || "").toLowerCase();
+        
+        const matchType = (currentTypeFilter === 'ALL') || pType.includes(currentTypeFilter.toLowerCase());
+        const matchRegion = (currentRegionFilter === 'ALL') || pRegion.includes(currentRegionFilter.toLowerCase());
         return matchType && matchRegion;
       });
 
@@ -276,7 +279,7 @@
     function filterType(type) {
       currentTypeFilter = type;
       document.querySelectorAll('#type-filter-tags button').forEach(b => {
-        if ((type === 'ALL' && b.innerText.includes('Tất cả')) || b.innerText.includes(type)) {
+        if ((type === 'ALL' && b.innerText.includes('Tất cả')) || b.innerText.toLowerCase().includes(type.toLowerCase())) {
           b.className = "type-tag text-xs px-3 py-1 rounded-full border border-neutral-300 bg-neutral-900 text-white font-medium";
         } else {
           b.className = "type-tag text-xs px-3 py-1 rounded-full border border-neutral-300 bg-neutral-100 text-neutral-700 hover:bg-neutral-200";
@@ -288,7 +291,7 @@
     function filterRegion(region) {
       currentRegionFilter = region;
       document.querySelectorAll('#region-filter-tags button').forEach(b => {
-        if ((region === 'ALL' && b.innerText.includes('Tất cả')) || b.innerText.includes(region)) {
+        if ((region === 'ALL' && b.innerText.includes('Tất cả')) || b.innerText.trim().toLowerCase() === region.trim().toLowerCase()) {
           b.className = "region-tag text-xs px-3 py-1 rounded-full border border-neutral-300 bg-neutral-900 text-white font-medium";
         } else {
           b.className = "region-tag text-xs px-3 py-1 rounded-full border border-neutral-300 bg-neutral-100 text-neutral-700 hover:bg-neutral-200";
@@ -476,7 +479,7 @@
         toggleCart(false);
         document.getElementById('checkout-form').reset();
       } catch (err) {
-        alert("Có lỗi xảy ra khi gửi đơn hàng. Vui lòng thử lại!");
+        alert("Có lỗi xảy ra khi gửi đơn hàng. Vuint lòng thử lại!");
       } finally {
         submitBtn.disabled = false;
         submitBtn.innerText = "Xác nhận Đặt hàng";
