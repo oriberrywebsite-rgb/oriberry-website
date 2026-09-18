@@ -6,7 +6,7 @@
   <title>Cửa hàng Oriberry Coffee</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <style>
-    .grind-btn.active {
+    .grind-btn.active, .pop-grind-btn.active {
       background-color: #171717;
       color: #ffffff;
       border-color: #171717;
@@ -104,16 +104,14 @@
         <div>
           <h3 id="pop-name" class="font-bold text-sm text-neutral-900"></h3>
           <p id="pop-price" class="text-base font-bold text-amber-700 mt-1"></p>
-          <span id="pop-stock" class="text-xs text-neutral-400">Kho: 999</span>
+          <span id="pop-stock" class="text-xs text-neutral-400">Kho: Có sẵn</span>
         </div>
       </div>
 
-      <!-- Tùy chọn cỡ xay (Nuts/Powder Type) -->
+      <!-- Tùy chọn cỡ xay -->
       <div>
         <label class="block text-xs font-bold text-neutral-800 mb-2">Chọn cỡ xay (Nuts/Powder Type):</label>
-        <div class="flex flex-wrap gap-2" id="pop-grind-options">
-          <!-- Grind buttons injected via JS -->
-        </div>
+        <div class="flex flex-wrap gap-2" id="pop-grind-options"></div>
       </div>
 
       <!-- Quy cách đóng gói (Volume / Weight) -->
@@ -151,9 +149,7 @@
             <button onclick="toggleCart()" class="text-neutral-500 hover:text-neutral-800 text-xl font-bold">&times;</button>
           </div>
 
-          <div id="cart-items-container" class="py-4 space-y-4 max-h-[50vh] overflow-y-auto">
-            <!-- Items rendered via JS -->
-          </div>
+          <div id="cart-items-container" class="py-4 space-y-4 max-h-[50vh] overflow-y-auto"></div>
         </div>
 
         <div class="border-t border-neutral-200 pt-4">
@@ -179,6 +175,11 @@
   <!-- Store Logic Script -->
   <script>
     const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzoWopdIwcIH1mI6i0LNZP3YLK_U7zjIc6iMwLEdyCNuZ4L4jAwop8QWc6g0v06Qs_f/exec";
+    
+    // Config Telegram
+    const TELEGRAM_BOT_TOKEN = "8800862894:AAFC0smzm20B_0L44zAYtTqYswuReG2IlbU";
+    // Nhập Chat ID Telegram của anh hoặc nhóm quản lý đơn hàng bên dưới
+    const TELEGRAM_CHAT_ID = "THAY_BANG_CHAT_ID_CUA_ANH"; 
 
     const GRIND_OPTIONS = [
       "Whole grain",
@@ -191,7 +192,6 @@
       "Moka powder"
     ];
 
-    // Dữ liệu sản phẩm mẫu bao gồm Loại (type) & Vùng trồng (region)
     const PRODUCTS = [
       {
         id: "muong-phang",
@@ -260,13 +260,9 @@
         return matchType && matchRegion;
       });
 
-      // Sort by price
       const sortVal = document.getElementById('sort-price').value;
-      if (sortVal === 'asc') {
-        filtered.sort((a, b) => a.price - b.price);
-      } else if (sortVal === 'desc') {
-        filtered.sort((a, b) => b.price - a.price);
-      }
+      if (sortVal === 'asc') filtered.sort((a, b) => a.price - b.price);
+      else if (sortVal === 'desc') filtered.sort((a, b) => b.price - a.price);
 
       const grid = document.getElementById('product-grid');
       if (filtered.length === 0) {
@@ -302,9 +298,7 @@
 
     function filterType(type) {
       currentTypeFilter = type;
-      // Update UI active tag
-      const btns = document.querySelectorAll('#type-filter-tags button');
-      btns.forEach(b => {
+      document.querySelectorAll('#type-filter-tags button').forEach(b => {
         if ((type === 'ALL' && b.innerText.includes('Tất cả')) || b.innerText.includes(type)) {
           b.className = "type-tag text-xs px-3 py-1 rounded-full border border-neutral-300 bg-neutral-900 text-white font-medium";
         } else {
@@ -316,9 +310,7 @@
 
     function filterRegion(region) {
       currentRegionFilter = region;
-      // Update UI active tag
-      const btns = document.querySelectorAll('#region-filter-tags button');
-      btns.forEach(b => {
+      document.querySelectorAll('#region-filter-tags button').forEach(b => {
         if ((region === 'ALL' && b.innerText.includes('Tất cả')) || b.innerText.includes(region)) {
           b.className = "region-tag text-xs px-3 py-1 rounded-full border border-neutral-300 bg-neutral-900 text-white font-medium";
         } else {
@@ -328,11 +320,8 @@
       renderProducts();
     }
 
-    function applyFilters() {
-      renderProducts();
-    }
+    function applyFilters() { renderProducts(); }
 
-    /* Pop-up Shopee logic */
     function openOptionModal(productId) {
       activeProductForPop = PRODUCTS.find(p => p.id === productId);
       selectedPopGrind = GRIND_OPTIONS[0];
@@ -344,9 +333,7 @@
       document.getElementById('pop-weight').innerText = activeProductForPop.weight;
       document.getElementById('pop-qty').innerText = selectedPopQty;
 
-      // Render grind buttons inside popup
-      const grindContainer = document.getElementById('pop-grind-options');
-      grindContainer.innerHTML = GRIND_OPTIONS.map(g => `
+      document.getElementById('pop-grind-options').innerHTML = GRIND_OPTIONS.map(g => `
         <button 
           type="button" 
           onclick="selectPopGrind('${g}')"
@@ -359,19 +346,13 @@
       document.getElementById('option-modal').classList.remove('hidden');
     }
 
-    function closeOptionModal() {
-      document.getElementById('option-modal').classList.add('hidden');
-    }
+    function closeOptionModal() { document.getElementById('option-modal').classList.add('hidden'); }
 
     function selectPopGrind(grind) {
       selectedPopGrind = grind;
-      const btns = document.querySelectorAll('.pop-grind-btn');
-      btns.forEach(b => {
-        if (b.innerText.trim() === grind) {
-          b.classList.add('active');
-        } else {
-          b.classList.remove('active');
-        }
+      document.querySelectorAll('.pop-grind-btn').forEach(b => {
+        if (b.innerText.trim() === grind) b.classList.add('active');
+        else b.classList.remove('active');
       });
     }
 
@@ -382,13 +363,11 @@
 
     function confirmAddToCart() {
       if (!activeProductForPop) return;
-
       const cartKey = `${activeProductForPop.id}-${selectedPopGrind}`;
       const existingIndex = cart.findIndex(item => item.key === cartKey);
 
-      if (existingIndex > -1) {
-        cart[existingIndex].qty += selectedPopQty;
-      } else {
+      if (existingIndex > -1) cart[existingIndex].qty += selectedPopQty;
+      else {
         cart.push({
           key: cartKey,
           id: activeProductForPop.id,
@@ -404,7 +383,6 @@
       toggleCart(true);
     }
 
-    /* Giỏ hàng Logic */
     function updateQty(key, delta) {
       const index = cart.findIndex(item => item.key === key);
       if (index > -1) {
@@ -420,8 +398,7 @@
     }
 
     function updateCartUI() {
-      const totalQty = cart.reduce((sum, item) => sum + item.qty, 0);
-      document.getElementById('cart-count').innerText = totalQty;
+      document.getElementById('cart-count').innerText = cart.reduce((sum, item) => sum + item.qty, 0);
 
       const container = document.getElementById('cart-items-container');
       if (cart.length === 0) {
@@ -443,8 +420,7 @@
         `).join('');
       }
 
-      const totalPrice = cart.reduce((sum, item) => sum + (item.price * item.qty), 0);
-      document.getElementById('cart-total-price').innerText = totalPrice.toLocaleString('vi-VN') + 'đ';
+      document.getElementById('cart-total-price').innerText = cart.reduce((sum, item) => sum + (item.price * item.qty), 0).toLocaleString('vi-VN') + 'đ';
     }
 
     function toggleCart(open = null) {
@@ -456,26 +432,21 @@
 
     async function submitOrder(e) {
       e.preventDefault();
-      if (cart.length === 0) {
-        alert("Giỏ hàng của bạn đang trống!");
-        return;
-      }
+      if (cart.length === 0) return alert("Giỏ hàng của bạn đang trống!");
 
       const submitBtn = document.getElementById('submit-btn');
       submitBtn.disabled = true;
       submitBtn.innerText = "Đang gửi đơn hàng...";
 
+      const name = document.getElementById('cust-name').value;
+      const phone = document.getElementById('cust-phone').value;
+      const address = document.getElementById('cust-address').value;
       const itemsDetail = cart.map(i => `${i.name} [Xay: ${i.grind}] x${i.qty}`).join(' | ');
-      const totalAmount = cart.reduce((sum, i) => sum + (i.price * i.qty), 0);
+      const totalAmount = cart.reduce((sum, i) => sum + (i.price * i.qty), 0).toLocaleString('vi-VN') + 'đ';
 
-      const payload = {
-        customerName: document.getElementById('cust-name').value,
-        phone: document.getElementById('cust-phone').value,
-        address: document.getElementById('cust-address').value,
-        itemsDetail: itemsDetail,
-        totalAmount: totalAmount.toLocaleString('vi-VN') + 'đ'
-      };
-
+      // Send to Google Sheet
+      const payload = { customerName: name, phone: phone, address: address, itemsDetail: itemsDetail, totalAmount: totalAmount };
+      
       try {
         await fetch(SCRIPT_URL, {
           method: 'POST',
@@ -483,6 +454,16 @@
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(payload)
         });
+
+        // Send to Telegram Bot (if Chat ID is provided)
+        if (TELEGRAM_CHAT_ID !== "THAY_BANG_CHAT_ID_CUA_ANH") {
+          const teleMsg = `🛒 *ĐƠN HÀNG MỚI TỪ ORIBERRY WEB*\n\n👤 *Khách hàng:* ${name}\n📞 *SĐT:* ${phone}\n📍 *Địa chỉ:* ${address}\n📦 *Sản phẩm:* ${itemsDetail}\n💰 *Tổng tiền:* ${totalAmount}`;
+          fetch(`https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ chat_id: TELEGRAM_CHAT_ID, text: teleMsg, parse_mode: 'Markdown' })
+          });
+        }
 
         alert("🎉 Đặt hàng thành công! Oriberry sẽ liên hệ xác nhận sớm nhất.");
         cart = [];
@@ -497,7 +478,6 @@
       }
     }
 
-    // Init
     renderProducts();
     updateCartUI();
   </script>
