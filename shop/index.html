@@ -78,7 +78,7 @@
 
     <!-- Product Grid 3x3 -->
     <div id="product-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-      <div class="col-span-full text-center py-12 text-neutral-400 text-sm">Đang tải danh sách sản phẩm từ Google Sheet...</div>
+      <div class="col-span-full text-center py-12 text-neutral-400 text-sm">Đang tải danh sách sản phẩm...</div>
     </div>
   </main>
 
@@ -87,16 +87,13 @@
     <p>© 2026 Oriberry Coffee. Minimalist Jamstack Store.</p>
   </footer>
 
-  <!-- POPUP XEM CHI TIẾT SẢN PHẨM (SEE MORE - ẢNH TO RÕ & MÔ TẢ DÀI) -->
+  <!-- POPUP XEM CHI TIẾT SẢN PHẨM -->
   <div id="detail-modal" class="fixed inset-0 z-50 hidden flex items-center justify-center p-4">
     <div class="fixed inset-0 bg-black/60 transition-opacity" onclick="closeDetailModal()"></div>
     <div class="relative w-full max-w-3xl bg-white rounded-xl shadow-2xl overflow-hidden z-10 p-6 max-h-[90vh] overflow-y-auto space-y-6">
       <button onclick="closeDetailModal()" class="absolute top-4 right-4 text-neutral-400 hover:text-neutral-800 text-2xl font-bold">&times;</button>
       
-      <!-- Khu vực hiển thị ảnh lớn bên trái, thông tin bên phải -->
       <div class="grid grid-cols-1 md:grid-cols-12 gap-6 items-start border-b border-neutral-200 pb-6">
-        
-        <!-- Cột Ảnh (Rộng hơn hẳn để nhìn cực rõ) -->
         <div class="md:col-span-5 space-y-3">
           <div class="w-full aspect-square rounded-xl overflow-hidden bg-neutral-100 border border-neutral-200 shadow-sm">
             <img id="detail-main-img" src="" class="w-full h-full object-cover">
@@ -104,7 +101,6 @@
           <div id="detail-thumbnails" class="grid grid-cols-3 gap-2"></div>
         </div>
         
-        <!-- Cột Thông tin cơ bản -->
         <div class="md:col-span-7 space-y-2">
           <span id="detail-tag" class="text-[10px] font-bold bg-amber-100 text-amber-800 px-2.5 py-1 rounded uppercase tracking-wide"></span>
           <h2 id="detail-name" class="text-xl font-bold text-neutral-900 mt-2"></h2>
@@ -117,10 +113,8 @@
             </button>
           </div>
         </div>
-
       </div>
 
-      <!-- Mô tả dài (Flavor Profile đầy đủ) -->
       <div class="space-y-2 text-xs">
         <h4 class="font-bold text-neutral-900 uppercase tracking-wide text-xs text-amber-800">Flavor Profile & Details:</h4>
         <div id="detail-longdesc" class="text-neutral-700 bg-neutral-50 p-4 rounded-lg border border-neutral-200 whitespace-pre-line leading-relaxed max-h-60 overflow-y-auto"></div>
@@ -132,7 +126,7 @@
     </div>
   </div>
 
-  <!-- POPUP CHỌN CỠ XAY & MUA HÀNG (SHOPEE STYLE) -->
+  <!-- POPUP CHỌN CỠ XAY & MUA HÀNG -->
   <div id="option-modal" class="fixed inset-0 z-50 hidden flex items-end sm:items-center justify-center p-0 sm:p-4">
     <div class="fixed inset-0 bg-black/60 transition-opacity" onclick="closeOptionModal()"></div>
     <div class="relative w-full max-w-md bg-white rounded-t-2xl sm:rounded-xl shadow-2xl overflow-hidden z-10 p-5 space-y-4 max-h-[90vh] overflow-y-auto">
@@ -204,9 +198,12 @@
     </div>
   </div>
 
-  <!-- Script logic -->
+  <!-- Script logic with Caching -->
   <script>
     const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzoWopdIwcIH1mI6i0LNZP3YLK_U7zjIc6iMwLEdyCNuZ4L4jAwop8QWc6g0v06Qs_f/exec";
+    const CACHE_KEY = "oriberry_products_cache_v1";
+    const CACHE_TIME_KEY = "oriberry_products_time_v1";
+    const CACHE_DURATION = 5 * 60 * 1000; // 5 phút
 
     const GRIND_OPTIONS = [
       "Whole grain", "Drip/V60 powder", "Coldbrew powder", 
@@ -223,17 +220,36 @@
     let cart = JSON.parse(localStorage.getItem('oriberry_cart') || '[]');
 
     async function fetchProducts() {
+      const cachedData = localStorage.getItem(CACHE_KEY);
+      const cachedTime = localStorage.getItem(CACHE_TIME_KEY);
+      const now = new Date().getTime();
+
+      // Nếu có cache và chưa hết hạn (5 phút), dùng luôn cho mượt
+      if (cachedData && cachedTime && (now - cachedTime < CACHE_DURATION)) {
+        PRODUCTS = JSON.parse(cachedData);
+        renderProducts();
+        return;
+      }
+
       try {
         const res = await fetch(SCRIPT_URL);
         const data = await res.json();
         if (Array.isArray(data) && data.length > 0) {
           PRODUCTS = data;
+          localStorage.setItem(CACHE_KEY, JSON.stringify(data));
+          localStorage.setItem(CACHE_TIME_KEY, now);
           renderProducts();
         } else {
           document.getElementById('product-grid').innerHTML = `<div class="col-span-full text-center py-12 text-neutral-400 text-sm">Chưa có sản phẩm nào trong Sheet SanPham.</div>`;
         }
       } catch (err) {
-        document.getElementById('product-grid').innerHTML = `<div class="col-span-full text-center py-12 text-red-400 text-sm">Không thể tải dữ liệu sản phẩm từ Google Sheet.</div>`;
+        // Nếu mạng lỗi mà có cache cũ thì bạt lửa dùng tạm cache cũ để không sập trang
+        if (cachedData) {
+          PRODUCTS = JSON.parse(cachedData);
+          renderProducts();
+        } else {
+          document.getElementById('product-grid').innerHTML = `<div class="col-span-full text-center py-12 text-red-400 text-sm">Không thể tải dữ liệu sản phẩm từ Google Sheet.</div>`;
+        }
       }
     }
 
@@ -313,7 +329,6 @@
 
     function applyFilters() { renderProducts(); }
 
-    /* See More Detail Modal (Ảnh lớn bên trái, cực kỳ rõ nét) */
     function openDetailModal(productId) {
       const p = PRODUCTS.find(item => item.id === productId);
       if (!p) return;
@@ -355,7 +370,6 @@
       document.getElementById('detail-modal').classList.add('hidden');
     }
 
-    /* Shopee Style Buy Modal */
     function openOptionModal(productId) {
       activeProductForPop = PRODUCTS.find(p => p.id === productId);
       selectedPopGrind = GRIND_OPTIONS[0];
