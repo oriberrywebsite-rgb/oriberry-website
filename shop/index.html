@@ -5,6 +5,13 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Cửa hàng Oriberry Coffee</title>
   <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    .grind-btn.active {
+      background-color: #171717;
+      color: #ffffff;
+      border-color: #171717;
+    }
+  </style>
 </head>
 <body class="bg-neutral-50 text-neutral-800 font-sans min-h-screen flex flex-col justify-between">
 
@@ -26,13 +33,13 @@
   <section class="bg-neutral-900 text-white py-12 px-4 text-center">
     <span class="text-xs font-semibold text-amber-500 uppercase tracking-widest">Specialty Coffee</span>
     <h1 class="text-3xl md:text-4xl font-light tracking-wide my-2">CÀ PHÊ HẠT RANG MỚI</h1>
-    <p class="text-neutral-400 text-sm max-w-md mx-auto">Tuyển chọn các dòng Arabica & Specialty đậm đà bản sắc vùng trồng Khe Sanh, Quảng Trị.</p>
+    <p class="text-neutral-400 text-sm max-w-md mx-auto">Tuyển chọn các dòng Arabica & Specialty đậm đà bản sắc vùng trồng.</p>
   </section>
 
   <!-- Product List Grid -->
   <main class="max-w-6xl mx-auto px-4 py-12 w-full">
-    <h2 class="text-xl font-bold text-neutral-900 mb-6">Sản phẩm nổi bật</h2>
-    <div id="product-grid" class="grid grid-cols-1 md:grid-cols-3 gap-8">
+    <h2 class="text-xl font-bold text-neutral-900 mb-6">Sản phẩm cà phê</h2>
+    <div id="product-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
       <!-- Products render dynamically from JS -->
     </div>
   </main>
@@ -44,7 +51,6 @@
 
   <!-- Slide-over Cart Modal -->
   <div id="cart-modal" class="fixed inset-0 z-50 hidden">
-    <!-- Backdrop -->
     <div class="fixed inset-0 bg-black/50 transition-opacity" onclick="toggleCart()"></div>
 
     <div class="fixed inset-y-0 right-0 max-w-full flex pl-10">
@@ -56,13 +62,11 @@
             <button onclick="toggleCart()" class="text-neutral-500 hover:text-neutral-800 text-xl font-bold">&times;</button>
           </div>
 
-          <!-- Cart Items List -->
           <div id="cart-items-container" class="py-4 space-y-4 max-h-[50vh] overflow-y-auto">
             <!-- Items rendered via JS -->
           </div>
         </div>
 
-        <!-- Checkout Form & Total -->
         <div class="border-t border-neutral-200 pt-4">
           <div class="flex justify-between items-center text-base font-bold text-neutral-900 mb-4">
             <span>Tổng tiền:</span>
@@ -88,82 +92,134 @@
   <script>
     const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzoWopdIwcIH1mI6i0LNZP3YLK_U7zjIc6iMwLEdyCNuZ4L4jAwop8QWc6g0v06Qs_f/exec";
 
+    const GRIND_OPTIONS = [
+      { id: "whole", label: "Nguyên hạt (Whole grain)" },
+      { id: "drip", label: "Drip / V60 powder" },
+      { id: "coldbrew", label: "Coldbrew powder" },
+      { id: "espresso", label: "Espresso powder" },
+      { id: "staresso", label: "Staresso powder" },
+      { id: "aeropress", label: "Aeropress powder" },
+      { id: "frenchpress", label: "Frenchpress / Phin" },
+      { id: "moka", label: "Moka powder" }
+    ];
+
     const PRODUCTS = [
       {
-        id: "p1",
-        name: "Arabica Quảng Trị - Honey",
-        origin: "Khe Sanh, Quảng Trị • Độ cao 800m",
-        price: 180000,
-        weight: "250g",
-        category: "Specialty",
+        id: "muong-phang",
+        name: "Muong Phang Shade-Grown Coffee",
+        origin: "Cà phê trồng dưới tán rừng Mường Phăng, Điện Biên",
+        price: 127600,
+        weight: "200g",
+        category: "Roasted Arabica",
         img: "https://images.unsplash.com/photo-1559056199-641a0ac8b55e?w=500&auto=format&fit=crop&q=80"
       },
       {
-        id: "p2",
-        name: "Arabica Quảng Trị - Natural",
-        origin: "Khe Sanh, Quảng Trị • Độ cao 800m",
-        price: 195000,
+        id: "arabica-quang-tri",
+        name: "Arabica Quảng Trị - Honey Process",
+        origin: "Tuyển chọn độ cao 800m • Khe Sanh, Quảng Trị",
+        price: 180000,
         weight: "250g",
-        category: "Specialty",
+        category: "Specialty Coffee",
         img: "https://images.unsplash.com/photo-1587734195503-904fca47e0e9?w=500&auto=format&fit=crop&q=80"
-      },
-      {
-        id: "p3",
-        name: "Oriberry House Blend",
-        origin: "Phối trộn Arabica & Robusta Đắk Lắk",
-        price: 150000,
-        weight: "250g",
-        category: "Signature",
-        img: "https://images.unsplash.com/photo-1514432324607-a09d9b4aefdd?w=500&auto=format&fit=crop&q=80"
       }
     ];
+
+    // Track selected grind per product
+    const selectedGrinds = {};
+    const productQuantities = {};
 
     let cart = JSON.parse(localStorage.getItem('oriberry_cart') || '[]');
 
     function renderProducts() {
       const grid = document.getElementById('product-grid');
-      grid.innerHTML = PRODUCTS.map(p => `
-        <div class="bg-white border border-neutral-200 rounded-xl overflow-hidden shadow-sm hover:shadow-md transition flex flex-col justify-between">
-          <div>
-            <img src="${p.img}" alt="${p.name}" class="w-full aspect-square object-cover bg-neutral-100">
-            <div class="p-5">
-              <span class="text-xs font-semibold text-amber-700 uppercase tracking-wider">${p.category}</span>
-              <h3 class="text-lg font-bold mt-1 text-neutral-900">${p.name}</h3>
-              <p class="text-xs text-neutral-500 mt-1">${p.origin}</p>
-              
-              <div class="mt-4">
-                <label class="block text-xs font-medium text-neutral-600 mb-1">Mức xay:</label>
-                <select id="grind-${p.id}" class="w-full text-xs border border-neutral-300 rounded-md p-2 bg-neutral-50 focus:outline-none focus:ring-1 focus:ring-neutral-900">
-                  <option value="Nguyên hạt">Nguyên hạt (Whole Bean)</option>
-                  <option value="Pha Phin">Pha Phin / Moka Pot</option>
-                  <option value="Pha PourOver">Pha Pourover / Drip</option>
-                  <option value="Pha Máy">Pha Máy (Espresso)</option>
-                </select>
+      grid.innerHTML = PRODUCTS.map(p => {
+        // Default values
+        if (!selectedGrinds[p.id]) selectedGrinds[p.id] = GRIND_OPTIONS[0].label;
+        if (!productQuantities[p.id]) productQuantities[p.id] = 1;
+
+        return `
+          <div class="bg-white border border-neutral-200 rounded-xl overflow-hidden shadow-sm hover:shadow-md transition flex flex-col justify-between">
+            <div>
+              <img src="${p.img}" alt="${p.name}" class="w-full aspect-square object-cover bg-neutral-100">
+              <div class="p-5">
+                <span class="text-xs font-semibold text-amber-700 uppercase tracking-wider">${p.category}</span>
+                <h3 class="text-lg font-bold mt-1 text-neutral-900">${p.name}</h3>
+                <p class="text-xs text-neutral-500 mt-1">${p.origin}</p>
+                
+                <!-- Grind Type Selection (Shopee Style Buttons) -->
+                <div class="mt-4">
+                  <label class="block text-xs font-bold text-neutral-700 mb-2">Chọn cỡ xay (Type):</label>
+                  <div class="flex flex-wrap gap-1.5">
+                    ${GRIND_OPTIONS.map(g => `
+                      <button 
+                        type="button" 
+                        onclick="selectGrind('${p.id}', '${g.label}')"
+                        id="grind-btn-${p.id}-${g.id}"
+                        class="grind-btn grind-btn-${p.id} text-[11px] px-2.5 py-1.5 rounded border border-neutral-200 bg-neutral-100 text-neutral-700 hover:border-neutral-900 transition${selectedGrinds[p.id] === g.label ? 'active' : ''}"
+                      >
+                        ${g.label}
+                      </button>
+                    `).join('')}
+                  </div>
+                </div>
+
+                <!-- Volume -->
+                <div class="mt-4 flex items-center justify-between text-xs">
+                  <span class="font-bold text-neutral-700">Khối lượng:</span>
+                  <span class="bg-neutral-100 px-3 py-1 rounded font-medium text-neutral-800 border border-neutral-200">${p.weight}</span>
+                </div>
               </div>
             </div>
-          </div>
 
-          <div class="p-5 pt-0 flex items-center justify-between border-t border-neutral-100 mt-4">
-            <div>
-              <span class="text-lg font-bold text-neutral-900">${p.price.toLocaleString('vi-VN')}đ</span>
-              <span class="text-xs text-neutral-500">/ ${p.weight}</span>
+            <div class="p-5 pt-0 border-t border-neutral-100 mt-4">
+              <div class="flex items-center justify-between mb-3 mt-3">
+                <span class="text-lg font-bold text-neutral-900">${p.price.toLocaleString('vi-VN')}đ</span>
+                
+                <!-- Quantity selector -->
+                <div class="flex items-center border border-neutral-300 rounded">
+                  <button onclick="changeProductQty('${p.id}', -1)" class="px-2.5 py-1 text-xs font-bold text-neutral-600 hover:bg-neutral-100">-</button>
+                  <span id="qty-val-${p.id}" class="px-3 text-xs font-bold">${productQuantities[p.id]}</span>
+                  <button onclick="changeProductQty('${p.id}', 1)" class="px-2.5 py-1 text-xs font-bold text-neutral-600 hover:bg-neutral-100">+</button>
+                </div>
+              </div>
+
+              <button onclick="addToCart('${p.id}')" class="w-full bg-neutral-900 text-white text-xs font-medium py-3 rounded-lg hover:bg-amber-700 transition">
+                + Thêm vào giỏ hàng
+              </button>
             </div>
-            <button onclick="addToCart('${p.id}')" class="bg-neutral-900 text-white text-xs font-medium px-4 py-2.5 rounded-lg hover:bg-amber-700 transition">
-              + Thêm vào giỏ
-            </button>
           </div>
-        </div>
-      `).join('');
+        `;
+      }).join('');
+    }
+
+    function selectGrind(productId, grindLabel) {
+      selectedGrinds[productId] = grindLabel;
+      // Refresh UI buttons for this product
+      const buttons = document.querySelectorAll(`.grind-btn-${productId}`);
+      buttons.forEach(btn => {
+        if (btn.innerText.trim() === grindLabel) {
+          btn.classList.add('active');
+        } else {
+          btn.classList.remove('active');
+        }
+      });
+    }
+
+    function changeProductQty(productId, delta) {
+      if (!productQuantities[productId]) productQuantities[productId] = 1;
+      productQuantities[productId] = Math.max(1, productQuantities[productId] + delta);
+      document.getElementById(`qty-val-${productId}`).innerText = productQuantities[productId];
     }
 
     function addToCart(productId) {
       const product = PRODUCTS.find(p => p.id === productId);
-      const grind = document.getElementById(`grind-${productId}`).value;
+      const grind = selectedGrinds[productId] || GRIND_OPTIONS[0].label;
+      const qty = productQuantities[productId] || 1;
       const cartKey = `${productId}-${grind}`;
 
       const existingIndex = cart.findIndex(item => item.key === cartKey);
       if (existingIndex > -1) {
-        cart[existingIndex].qty += 1;
+        cart[existingIndex].qty += qty;
       } else {
         cart.push({
           key: cartKey,
@@ -171,7 +227,7 @@
           name: product.name,
           grind: grind,
           price: product.price,
-          qty: 1
+          qty: qty
         });
       }
 
@@ -245,7 +301,7 @@
       submitBtn.disabled = true;
       submitBtn.innerText = "Đang gửi đơn hàng...";
 
-      const itemsDetail = cart.map(i => `${i.name} (${i.grind}) x${i.qty}`).join(' | ');
+      const itemsDetail = cart.map(i => `${i.name} [Xay: ${i.grind}] x${i.qty}`).join(' | ');
       const totalAmount = cart.reduce((sum, i) => sum + (i.price * i.qty), 0);
 
       const payload = {
