@@ -87,31 +87,31 @@
     <p>© 2026 Oriberry Coffee. Minimalist Jamstack Store.</p>
   </footer>
 
-  <!-- POPUP XEM CHI TIẾT SẢN PHẨM (SEE MORE / HỒ SƠ HƯƠNG VỊ) -->
+  <!-- POPUP XEM CHI TIẾT SẢN PHẨM (SEE MORE - 3 ẢNH & MÔ TẢ DÀI) -->
   <div id="detail-modal" class="fixed inset-0 z-50 hidden flex items-center justify-center p-4">
     <div class="fixed inset-0 bg-black/60 transition-opacity" onclick="closeDetailModal()"></div>
     <div class="relative w-full max-w-2xl bg-white rounded-xl shadow-2xl overflow-hidden z-10 p-6 max-h-[85vh] overflow-y-auto space-y-4">
       <button onclick="closeDetailModal()" class="absolute top-4 right-4 text-neutral-400 hover:text-neutral-800 text-2xl font-bold">&times;</button>
       
+      <!-- Khu vực hiển thị 3 ảnh (Ảnh lớn + 2 Thumbnail nhỏ) -->
       <div class="flex flex-col sm:flex-row gap-4 items-start border-b border-neutral-200 pb-4">
-        <img id="detail-img" src="" class="w-32 h-32 object-cover rounded-lg bg-neutral-100 flex-shrink-0">
-        <div>
+        <div class="w-full sm:w-48 flex-shrink-0 space-y-2">
+          <img id="detail-main-img" src="" class="w-full aspect-square object-cover rounded-lg bg-neutral-100 border border-neutral-200 shadow-sm">
+          <div id="detail-thumbnails" class="grid grid-cols-3 gap-1.5"></div>
+        </div>
+        
+        <div class="flex-grow">
           <span id="detail-tag" class="text-[10px] font-bold bg-amber-100 text-amber-800 px-2 py-0.5 rounded uppercase"></span>
-          <h2 id="detail-name" class="text-lg font-bold text-neutral-900 mt-1"></h2>
+          <h2 id="detail-name" class="text-base font-bold text-neutral-900 mt-1"></h2>
           <p id="detail-price" class="text-base font-bold text-amber-700 mt-1"></p>
           <p id="detail-weight" class="text-xs text-neutral-500 mt-1"></p>
         </div>
       </div>
 
-      <div class="space-y-3 text-xs">
-        <div>
-          <h4 class="font-bold text-neutral-900 uppercase tracking-wide text-[11px] text-amber-800 mb-1">Composition (Thành phần):</h4>
-          <p id="detail-composition" class="text-neutral-700 bg-neutral-50 p-3 rounded-lg border border-neutral-200 whitespace-pre-line"></p>
-        </div>
-        <div>
-          <h4 class="font-bold text-neutral-900 uppercase tracking-wide text-[11px] text-amber-800 mb-1">Flavor Profile & Notes (Hồ sơ hương vị):</h4>
-          <div id="detail-flavor" class="text-neutral-700 bg-neutral-50 p-3 rounded-lg border border-neutral-200 whitespace-pre-line leading-relaxed"></div>
-        </div>
+      <!-- Mô tả dài (Flavor Profile đầy đủ) -->
+      <div class="space-y-2 text-xs">
+        <h4 class="font-bold text-neutral-900 uppercase tracking-wide text-[11px] text-amber-800">Flavor Profile & Details:</h4>
+        <div id="detail-longdesc" class="text-neutral-700 bg-neutral-50 p-4 rounded-lg border border-neutral-200 whitespace-pre-line leading-relaxed"></div>
       </div>
 
       <div class="pt-2 flex justify-end gap-3">
@@ -196,8 +196,6 @@
   <!-- Script logic -->
   <script>
     const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzoWopdIwcIH1mI6i0LNZP3YLK_U7zjIc6iMwLEdyCNuZ4L4jAwop8QWc6g0v06Qs_f/exec";
-    const TELEGRAM_BOT_TOKEN = "8800862894:AAFC0smzm20B_0L44zAYtTqYswuReG2IlbU";
-    const TELEGRAM_CHAT_ID = "THAY_BANG_CHAT_ID_CUA_ANH";
 
     const GRIND_OPTIONS = [
       "Whole grain", "Drip/V60 powder", "Coldbrew powder", 
@@ -249,7 +247,7 @@
         <div class="bg-white border border-neutral-200 rounded-xl overflow-hidden shadow-sm hover:shadow-md transition flex flex-col justify-between">
           <div>
             <div class="relative">
-              <img src="${p.img}" alt="${p.name}" class="w-full aspect-square object-cover bg-neutral-100">
+              <img src="${p.img1}" alt="${p.name}" class="w-full aspect-square object-cover bg-neutral-100">
               <span class="absolute top-2 left-2 bg-neutral-900/80 text-white text-[10px] font-medium px-2 py-0.5 rounded backdrop-blur-sm">${p.type} • ${p.region}</span>
             </div>
             <div class="p-4">
@@ -301,18 +299,32 @@
 
     function applyFilters() { renderProducts(); }
 
-    /* See More Detail Modal */
+    /* See More Detail Modal (3 Ảnh: Ảnh lớn + 2 Thumbnail nhỏ) */
     function openDetailModal(productId) {
       const p = PRODUCTS.find(item => item.id === productId);
       if (!p) return;
 
-      document.getElementById('detail-img').src = p.img;
+      const imgList = [p.img1, p.img2, p.img3].filter(img => img && img.trim() !== "");
+      const mainImg = imgList.length > 0 ? imgList[0] : "https://images.unsplash.com/photo-1559056199-641a0ac8b55e?w=500&auto=format&fit=crop&q=80";
+
+      document.getElementById('detail-main-img').src = mainImg;
       document.getElementById('detail-tag').innerText = `${p.type} • ${p.region}`;
       document.getElementById('detail-name').innerText = p.name;
       document.getElementById('detail-price').innerText = p.price.toLocaleString('vi-VN') + 'đ';
       document.getElementById('detail-weight').innerText = `Quy cách: ${p.weight}`;
-      document.getElementById('detail-composition').innerText = p.composition || "Chưa cập nhật thành phần";
-      document.getElementById('detail-flavor').innerText = p.flavorDetails || p.shortDesc;
+      document.getElementById('detail-longdesc').innerText = p.longDesc || p.shortDesc;
+
+      // Render 3 ảnh thumbnail nhỏ bên dưới
+      const thumbContainer = document.getElementById('detail-thumbnails');
+      if (imgList.length > 1) {
+        thumbContainer.innerHTML = imgList.map((imgUrl, index) => `
+          <img src="${imgUrl}" onclick="changeMainImage('${imgUrl}')" class="w-full aspect-square object-cover rounded border border-neutral-300 cursor-pointer hover:opacity-75 transition">
+        `).join('');
+        thumbContainer.classList.remove('hidden');
+      } else {
+        thumbContainer.innerHTML = "";
+        thumbContainer.classList.add('hidden');
+      }
 
       document.getElementById('detail-buy-btn').onclick = function() {
         closeDetailModal();
@@ -320,6 +332,10 @@
       };
 
       document.getElementById('detail-modal').classList.remove('hidden');
+    }
+
+    function changeMainImage(url) {
+      document.getElementById('detail-main-img').src = url;
     }
 
     function closeDetailModal() {
@@ -332,7 +348,7 @@
       selectedPopGrind = GRIND_OPTIONS[0];
       selectedPopQty = 1;
 
-      document.getElementById('pop-img').src = activeProductForPop.img;
+      document.getElementById('pop-img').src = activeProductForPop.img1;
       document.getElementById('pop-name').innerText = activeProductForPop.name;
       document.getElementById('pop-price').innerText = activeProductForPop.price.toLocaleString('vi-VN') + 'đ';
       document.getElementById('pop-weight').innerText = activeProductForPop.weight;
@@ -455,22 +471,13 @@
           body: JSON.stringify(payload)
         });
 
-        if (TELEGRAM_CHAT_ID !== "THAY_BANG_CHAT_ID_CUA_ANH") {
-          const teleMsg = `🛒 *ĐƠN HÀNG MỚI TỪ ORIBERRY SHOP*\n\n👤 *Khách hàng:* ${name}\n📞 *SĐT:* ${phone}\n📍 *Địa chỉ:* ${address}\n📦 *Sản phẩm:* ${itemsDetail}\n💰 *Tổng tiền:* ${totalAmount}`;
-          fetch(`https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ chat_id: TELEGRAM_CHAT_ID, text: teleMsg, parse_mode: 'Markdown' })
-          });
-        }
-
-        alert("🎉 Đặt hàng thành công! Oriberry sẽ liên hệ xác nhận sớm nhất.");
+        alert("🎉 Đặt hàng thành công! Đơn hàng đã được lưu và gửi email thông báo về Oriberry.");
         cart = [];
         saveCart();
         toggleCart(false);
         document.getElementById('checkout-form').reset();
       } catch (err) {
-        alert("Có lỗi xảy ra khi gửi đơn hàng. Vuint lòng thử lại!");
+        alert("Có lỗi xảy ra khi gửi đơn hàng. Vui lòng thử lại!");
       } finally {
         submitBtn.disabled = false;
         submitBtn.innerText = "Xác nhận Đặt hàng";
