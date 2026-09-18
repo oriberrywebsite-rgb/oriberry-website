@@ -70,7 +70,7 @@
             <button onclick="filterRegion('Điện Biên')" class="region-tag text-xs px-3 py-1 rounded-full border border-neutral-300 bg-neutral-100 text-neutral-700 hover:bg-neutral-200">Điện Biên</button>
             <button onclick="filterRegion('Lâm Đồng')" class="region-tag text-xs px-3 py-1 rounded-full border border-neutral-300 bg-neutral-100 text-neutral-700 hover:bg-neutral-200">Lâm Đồng</button>
             <button onclick="filterRegion('Đắk Lắk')" class="region-tag text-xs px-3 py-1 rounded-full border border-neutral-300 bg-neutral-100 text-neutral-700 hover:bg-neutral-200">Đắk Lắk</button>
-            <button onclick="filterRegion('Gia Lai')" class="region-tag text-xs px-3 py-1 rounded-full border border-neutral-300 bg-neutral-100 text-neutral-700 hover:bg-neutral-200">Gia Lai</button>
+            <button onclick="filterRegion('Quảng Trị & Đắk Lắk')" class="region-tag text-xs px-3 py-1 rounded-full border border-neutral-300 bg-neutral-100 text-neutral-700 hover:bg-neutral-200">Quảng Trị & Đắk Lắk</button>
           </div>
         </div>
       </div>
@@ -228,8 +228,8 @@
 
     function renderProducts() {
       let filtered = PRODUCTS.filter(p => {
-        const matchType = (currentTypeFilter === 'ALL') || (p.type.toLowerCase() === currentTypeFilter.toLowerCase());
-        const matchRegion = (currentRegionFilter === 'ALL') || (p.region.toLowerCase() === currentRegionFilter.toLowerCase());
+        const matchType = (currentTypeFilter === 'ALL') || (p.type.toLowerCase().includes(currentTypeFilter.toLowerCase()));
+        const matchRegion = (currentRegionFilter === 'ALL') || (p.region.toLowerCase().includes(currentRegionFilter.toLowerCase()));
         return matchType && matchRegion;
       });
 
@@ -314,7 +314,6 @@
       document.getElementById('detail-weight').innerText = `Quy cách: ${p.weight}`;
       document.getElementById('detail-longdesc').innerText = p.longDesc || p.shortDesc;
 
-      // Render 3 ảnh thumbnail nhỏ bên dưới
       const thumbContainer = document.getElementById('detail-thumbnails');
       if (imgList.length > 1) {
         thumbContainer.innerHTML = imgList.map((imgUrl, index) => `
