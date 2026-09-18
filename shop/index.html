@@ -15,7 +15,7 @@
 </head>
 <body class="bg-neutral-50 text-neutral-800 font-sans min-h-screen flex flex-col justify-between">
 
-  <!-- Header / Navigation -->
+  <!-- Header -->
   <header class="sticky top-0 bg-white border-b border-neutral-200 z-40">
     <div class="max-w-6xl mx-auto px-4 py-4 flex justify-between items-center">
       <a href="/" class="text-xl font-bold tracking-wider text-neutral-900">ORIBERRY</a>
@@ -32,15 +32,14 @@
   <!-- Main Content -->
   <main class="max-w-6xl mx-auto px-4 py-8 w-full flex-grow">
     
-    <!-- Tiêu đề & Bộ lọc sản phẩm -->
+    <!-- Bộ lọc & Sắp xếp -->
     <div class="mb-8 bg-white p-5 rounded-xl border border-neutral-200 shadow-sm space-y-4">
       <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-neutral-100 pb-4">
         <div>
           <h1 class="text-2xl font-bold text-neutral-900">Cửa Hàng Cà Phê</h1>
-          <p class="text-xs text-neutral-500 mt-1">Khám phá các sản phẩm cà phê hạt rang chất lượng cao từ Oriberry</p>
+          <p class="text-xs text-neutral-500 mt-1">Sản phẩm rang xay trực tiếp từ các vùng nguyên liệu đặc trưng</p>
         </div>
         
-        <!-- Sắp xếp giá -->
         <div class="flex items-center gap-2">
           <label class="text-xs font-semibold text-neutral-600 whitespace-nowrap">Sắp xếp giá:</label>
           <select id="sort-price" onchange="applyFilters()" class="text-xs border border-neutral-300 rounded-lg p-2 bg-white focus:outline-none focus:ring-1 focus:ring-neutral-900">
@@ -51,9 +50,7 @@
         </div>
       </div>
 
-      <!-- Các thẻ lọc (Tags filter) -->
       <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-xs">
-        <!-- Lọc theo Giống/Loại Cà phê -->
         <div>
           <span class="block font-bold text-neutral-700 mb-2">Loại cà phê:</span>
           <div class="flex flex-wrap gap-1.5" id="type-filter-tags">
@@ -65,7 +62,6 @@
           </div>
         </div>
 
-        <!-- Lọc theo Vùng trồng -->
         <div>
           <span class="block font-bold text-neutral-700 mb-2">Vùng trồng:</span>
           <div class="flex flex-wrap gap-1.5" id="region-filter-tags">
@@ -82,7 +78,7 @@
 
     <!-- Product Grid 3x3 -->
     <div id="product-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-      <!-- Products render dynamically from JS -->
+      <div class="col-span-full text-center py-12 text-neutral-400 text-sm">Đang tải danh sách sản phẩm từ Google Sheet...</div>
     </div>
   </main>
 
@@ -91,36 +87,64 @@
     <p>© 2026 Oriberry Coffee. Minimalist Jamstack Store.</p>
   </footer>
 
-  <!-- POPUP CHỌN TÙY CHỌN SẢN PHẨM (SHOPEE STYLE POPUP) -->
+  <!-- POPUP XEM CHI TIẾT SẢN PHẨM (SEE MORE / HỒ SƠ HƯƠNG VỊ) -->
+  <div id="detail-modal" class="fixed inset-0 z-50 hidden flex items-center justify-center p-4">
+    <div class="fixed inset-0 bg-black/60 transition-opacity" onclick="closeDetailModal()"></div>
+    <div class="relative w-full max-w-2xl bg-white rounded-xl shadow-2xl overflow-hidden z-10 p-6 max-h-[85vh] overflow-y-auto space-y-4">
+      <button onclick="closeDetailModal()" class="absolute top-4 right-4 text-neutral-400 hover:text-neutral-800 text-2xl font-bold">&times;</button>
+      
+      <div class="flex flex-col sm:flex-row gap-4 items-start border-b border-neutral-200 pb-4">
+        <img id="detail-img" src="" class="w-32 h-32 object-cover rounded-lg bg-neutral-100 flex-shrink-0">
+        <div>
+          <span id="detail-tag" class="text-[10px] font-bold bg-amber-100 text-amber-800 px-2 py-0.5 rounded uppercase"></span>
+          <h2 id="detail-name" class="text-lg font-bold text-neutral-900 mt-1"></h2>
+          <p id="detail-price" class="text-base font-bold text-amber-700 mt-1"></p>
+          <p id="detail-weight" class="text-xs text-neutral-500 mt-1"></p>
+        </div>
+      </div>
+
+      <div class="space-y-3 text-xs">
+        <div>
+          <h4 class="font-bold text-neutral-900 uppercase tracking-wide text-[11px] text-amber-800 mb-1">Composition (Thành phần):</h4>
+          <p id="detail-composition" class="text-neutral-700 bg-neutral-50 p-3 rounded-lg border border-neutral-200 whitespace-pre-line"></p>
+        </div>
+        <div>
+          <h4 class="font-bold text-neutral-900 uppercase tracking-wide text-[11px] text-amber-800 mb-1">Flavor Profile & Notes (Hồ sơ hương vị):</h4>
+          <div id="detail-flavor" class="text-neutral-700 bg-neutral-50 p-3 rounded-lg border border-neutral-200 whitespace-pre-line leading-relaxed"></div>
+        </div>
+      </div>
+
+      <div class="pt-2 flex justify-end gap-3">
+        <button onclick="closeDetailModal()" class="px-4 py-2 bg-neutral-200 text-neutral-800 text-xs font-bold rounded-lg hover:bg-neutral-300">Đóng</button>
+        <button id="detail-buy-btn" class="px-5 py-2 bg-neutral-900 text-white text-xs font-bold rounded-lg hover:bg-amber-700">Chọn mua sản phẩm</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- POPUP CHỌN CỠ XAY & MUA HÀNG (SHOPEE STYLE) -->
   <div id="option-modal" class="fixed inset-0 z-50 hidden flex items-end sm:items-center justify-center p-0 sm:p-4">
     <div class="fixed inset-0 bg-black/60 transition-opacity" onclick="closeOptionModal()"></div>
-    
     <div class="relative w-full max-w-md bg-white rounded-t-2xl sm:rounded-xl shadow-2xl overflow-hidden z-10 p-5 space-y-4 max-h-[90vh] overflow-y-auto">
       <button onclick="closeOptionModal()" class="absolute top-4 right-4 text-neutral-400 hover:text-neutral-800 text-2xl font-bold">&times;</button>
       
-      <!-- Thông tin sản phẩm trong Pop-up -->
       <div class="flex gap-4 items-start border-b border-neutral-100 pb-4">
         <img id="pop-img" src="" class="w-20 h-20 object-cover rounded-lg bg-neutral-100">
         <div>
           <h3 id="pop-name" class="font-bold text-sm text-neutral-900"></h3>
           <p id="pop-price" class="text-base font-bold text-amber-700 mt-1"></p>
-          <span id="pop-stock" class="text-xs text-neutral-400">Kho: Có sẵn</span>
         </div>
       </div>
 
-      <!-- Tùy chọn cỡ xay -->
       <div>
         <label class="block text-xs font-bold text-neutral-800 mb-2">Chọn cỡ xay (Nuts/Powder Type):</label>
         <div class="flex flex-wrap gap-2" id="pop-grind-options"></div>
       </div>
 
-      <!-- Quy cách đóng gói (Volume / Weight) -->
       <div>
         <label class="block text-xs font-bold text-neutral-800 mb-1">Khối lượng (Volume):</label>
         <span id="pop-weight" class="inline-block bg-neutral-100 text-neutral-800 border border-neutral-300 px-3 py-1 rounded text-xs font-medium"></span>
       </div>
 
-      <!-- Số lượng (Quantity) -->
       <div class="flex items-center justify-between pt-2 border-t border-neutral-100">
         <span class="text-xs font-bold text-neutral-800">Số lượng (Quantity):</span>
         <div class="flex items-center border border-neutral-300 rounded">
@@ -130,8 +154,7 @@
         </div>
       </div>
 
-      <!-- Nút xác nhận thêm vào giỏ -->
-      <button id="pop-add-btn" onclick="confirmAddToCart()" class="w-full bg-amber-700 text-white font-bold text-xs py-3.5 rounded-lg hover:bg-amber-800 transition">
+      <button onclick="confirmAddToCart()" class="w-full bg-amber-700 text-white font-bold text-xs py-3.5 rounded-lg hover:bg-amber-800 transition">
         Thêm vào giỏ hàng
       </button>
     </div>
@@ -140,7 +163,6 @@
   <!-- Slide-over Cart Modal -->
   <div id="cart-modal" class="fixed inset-0 z-50 hidden">
     <div class="fixed inset-0 bg-black/50 transition-opacity" onclick="toggleCart()"></div>
-
     <div class="fixed inset-y-0 right-0 max-w-full flex pl-10">
       <div class="w-screen max-w-md bg-white shadow-xl flex flex-col justify-between p-6">
         <div>
@@ -148,7 +170,6 @@
             <h3 class="text-lg font-bold text-neutral-900">Giỏ hàng của bạn</h3>
             <button onclick="toggleCart()" class="text-neutral-500 hover:text-neutral-800 text-xl font-bold">&times;</button>
           </div>
-
           <div id="cart-items-container" class="py-4 space-y-4 max-h-[50vh] overflow-y-auto"></div>
         </div>
 
@@ -172,91 +193,45 @@
     </div>
   </div>
 
-  <!-- Store Logic Script -->
+  <!-- Script logic -->
   <script>
     const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzoWopdIwcIH1mI6i0LNZP3YLK_U7zjIc6iMwLEdyCNuZ4L4jAwop8QWc6g0v06Qs_f/exec";
-    
-    // Config Telegram
     const TELEGRAM_BOT_TOKEN = "8800862894:AAFC0smzm20B_0L44zAYtTqYswuReG2IlbU";
-    // Nhập Chat ID Telegram của anh hoặc nhóm quản lý đơn hàng bên dưới
-    const TELEGRAM_CHAT_ID = "8871089862"; 
+    const TELEGRAM_CHAT_ID = "THAY_BANG_CHAT_ID_CUA_ANH";
 
     const GRIND_OPTIONS = [
-      "Whole grain",
-      "Drip/V60 powder",
-      "Coldbrew powder",
-      "Espresso powder",
-      "Staresso powder",
-      "Aeropress powder",
-      "Frenchpress Powder/Phin",
-      "Moka powder"
+      "Whole grain", "Drip/V60 powder", "Coldbrew powder", 
+      "Espresso powder", "Staresso powder", "Aeropress powder", 
+      "Frenchpress Powder/Phin", "Moka powder"
     ];
 
-    const PRODUCTS = [
-      {
-        id: "muong-phang",
-        name: "Muong Phang Shade-Grown Coffee",
-        description: "Roasted Arabica coffee Muong Phang, Dien Bien cultivated under forest canopy",
-        price: 127600,
-        weight: "200g",
-        type: "Arabica",
-        region: "Điện Biên",
-        img: "https://images.unsplash.com/photo-1559056199-641a0ac8b55e?w=500&auto=format&fit=crop&q=80"
-      },
-      {
-        id: "khe-sanh-honey",
-        name: "Arabica Quảng Trị - Honey Process",
-        description: "Hương hoa quả mọng, chua thanh hậu vị ngọt sâu",
-        price: 180000,
-        weight: "250g",
-        type: "Arabica",
-        region: "Quảng Trị",
-        img: "https://images.unsplash.com/photo-1587734195503-904fca47e0e9?w=500&auto=format&fit=crop&q=80"
-      },
-      {
-        id: "robusta-daklak",
-        name: "Fine Robusta Đắk Lắk",
-        description: "Đậm đà, thơm vị sô-cô-la đen & hạt dẻ rang",
-        price: 140000,
-        weight: "250g",
-        type: "Robusta",
-        region: "Đắk Lắk",
-        img: "https://images.unsplash.com/photo-1514432324607-a09d9b4aefdd?w=500&auto=format&fit=crop&q=80"
-      },
-      {
-        id: "blend-house",
-        name: "Oriberry House Blend",
-        description: "Sự kết hợp hoàn hảo giữa Arabica & Robusta",
-        price: 155000,
-        weight: "250g",
-        type: "Blended",
-        region: "Lâm Đồng",
-        img: "https://images.unsplash.com/photo-1511920170033-f8396924c348?w=500&auto=format&fit=crop&q=80"
-      },
-      {
-        id: "liberica-gialai",
-        name: "Specialty Liberica Gia Lai",
-        description: "Hương vị trái cây chín lên men đặc trưng, vị đậm độc đáo",
-        price: 210000,
-        weight: "200g",
-        type: "Liberica",
-        region: "Gia Lai",
-        img: "https://images.unsplash.com/photo-1497935586351-b67a49e012bf?w=500&auto=format&fit=crop&q=80"
-      }
-    ];
-
+    let PRODUCTS = [];
     let currentTypeFilter = 'ALL';
     let currentRegionFilter = 'ALL';
     let activeProductForPop = null;
     let selectedPopGrind = GRIND_OPTIONS[0];
     let selectedPopQty = 1;
-
     let cart = JSON.parse(localStorage.getItem('oriberry_cart') || '[]');
+
+    async function fetchProducts() {
+      try {
+        const res = await fetch(SCRIPT_URL);
+        const data = await res.json();
+        if (Array.isArray(data) && data.length > 0) {
+          PRODUCTS = data;
+          renderProducts();
+        } else {
+          document.getElementById('product-grid').innerHTML = `<div class="col-span-full text-center py-12 text-neutral-400 text-sm">Chưa có sản phẩm nào trong Sheet SanPham.</div>`;
+        }
+      } catch (err) {
+        document.getElementById('product-grid').innerHTML = `<div class="col-span-full text-center py-12 text-red-400 text-sm">Không thể tải dữ liệu sản phẩm từ Google Sheet.</div>`;
+      }
+    }
 
     function renderProducts() {
       let filtered = PRODUCTS.filter(p => {
-        const matchType = (currentTypeFilter === 'ALL') || (p.type === currentTypeFilter);
-        const matchRegion = (currentRegionFilter === 'ALL') || (p.region === currentRegionFilter);
+        const matchType = (currentTypeFilter === 'ALL') || (p.type.toLowerCase() === currentTypeFilter.toLowerCase());
+        const matchRegion = (currentRegionFilter === 'ALL') || (p.region.toLowerCase() === currentRegionFilter.toLowerCase());
         return matchType && matchRegion;
       });
 
@@ -279,7 +254,8 @@
             </div>
             <div class="p-4">
               <h3 class="text-sm font-bold text-neutral-900 line-clamp-1">${p.name}</h3>
-              <p class="text-xs text-neutral-500 mt-1 line-clamp-2 h-8">${p.description}</p>
+              <p class="text-xs text-neutral-500 mt-1 line-clamp-2 h-8">${p.shortDesc}</p>
+              
               <div class="mt-3 flex items-center justify-between">
                 <span class="text-sm font-bold text-amber-700">${p.price.toLocaleString('vi-VN')}đ</span>
                 <span class="text-[11px] bg-neutral-100 text-neutral-600 px-2 py-0.5 rounded border border-neutral-200">${p.weight}</span>
@@ -287,9 +263,12 @@
             </div>
           </div>
 
-          <div class="p-4 pt-0">
-            <button onclick="openOptionModal('${p.id}')" class="w-full bg-neutral-900 text-white text-xs font-medium py-2.5 rounded-lg hover:bg-amber-700 transition flex items-center justify-center gap-1">
-              <span>Thêm vào giỏ hàng</span>
+          <div class="p-4 pt-0 grid grid-cols-2 gap-2">
+            <button onclick="openDetailModal('${p.id}')" class="w-full bg-neutral-100 text-neutral-800 text-xs font-semibold py-2.5 rounded-lg hover:bg-neutral-200 transition">
+              See more
+            </button>
+            <button onclick="openOptionModal('${p.id}')" class="w-full bg-neutral-900 text-white text-xs font-semibold py-2.5 rounded-lg hover:bg-amber-700 transition">
+              Mua hàng
             </button>
           </div>
         </div>
@@ -322,6 +301,32 @@
 
     function applyFilters() { renderProducts(); }
 
+    /* See More Detail Modal */
+    function openDetailModal(productId) {
+      const p = PRODUCTS.find(item => item.id === productId);
+      if (!p) return;
+
+      document.getElementById('detail-img').src = p.img;
+      document.getElementById('detail-tag').innerText = `${p.type} • ${p.region}`;
+      document.getElementById('detail-name').innerText = p.name;
+      document.getElementById('detail-price').innerText = p.price.toLocaleString('vi-VN') + 'đ';
+      document.getElementById('detail-weight').innerText = `Quy cách: ${p.weight}`;
+      document.getElementById('detail-composition').innerText = p.composition || "Chưa cập nhật thành phần";
+      document.getElementById('detail-flavor').innerText = p.flavorDetails || p.shortDesc;
+
+      document.getElementById('detail-buy-btn').onclick = function() {
+        closeDetailModal();
+        openOptionModal(p.id);
+      };
+
+      document.getElementById('detail-modal').classList.remove('hidden');
+    }
+
+    function closeDetailModal() {
+      document.getElementById('detail-modal').classList.add('hidden');
+    }
+
+    /* Shopee Style Buy Modal */
     function openOptionModal(productId) {
       activeProductForPop = PRODUCTS.find(p => p.id === productId);
       selectedPopGrind = GRIND_OPTIONS[0];
@@ -334,11 +339,7 @@
       document.getElementById('pop-qty').innerText = selectedPopQty;
 
       document.getElementById('pop-grind-options').innerHTML = GRIND_OPTIONS.map(g => `
-        <button 
-          type="button" 
-          onclick="selectPopGrind('${g}')"
-          class="pop-grind-btn text-[11px] px-3 py-2 rounded border border-neutral-200 bg-neutral-100 text-neutral-700 hover:border-neutral-900 transition ${g === selectedPopGrind ? 'active' : ''}"
-        >
+        <button type="button" onclick="selectPopGrind('${g}')" class="pop-grind-btn text-[11px] px-3 py-2 rounded border border-neutral-200 bg-neutral-100 text-neutral-700 hover:border-neutral-900 transition ${g === selectedPopGrind ? 'active' : ''}">
           ${g}
         </button>
       `).join('');
@@ -444,7 +445,6 @@
       const itemsDetail = cart.map(i => `${i.name} [Xay: ${i.grind}] x${i.qty}`).join(' | ');
       const totalAmount = cart.reduce((sum, i) => sum + (i.price * i.qty), 0).toLocaleString('vi-VN') + 'đ';
 
-      // Send to Google Sheet
       const payload = { customerName: name, phone: phone, address: address, itemsDetail: itemsDetail, totalAmount: totalAmount };
       
       try {
@@ -455,9 +455,8 @@
           body: JSON.stringify(payload)
         });
 
-        // Send to Telegram Bot (if Chat ID is provided)
         if (TELEGRAM_CHAT_ID !== "THAY_BANG_CHAT_ID_CUA_ANH") {
-          const teleMsg = `🛒 *ĐƠN HÀNG MỚI TỪ ORIBERRY WEB*\n\n👤 *Khách hàng:* ${name}\n📞 *SĐT:* ${phone}\n📍 *Địa chỉ:* ${address}\n📦 *Sản phẩm:* ${itemsDetail}\n💰 *Tổng tiền:* ${totalAmount}`;
+          const teleMsg = `🛒 *ĐƠN HÀNG MỚI TỪ ORIBERRY SHOP*\n\n👤 *Khách hàng:* ${name}\n📞 *SĐT:* ${phone}\n📍 *Địa chỉ:* ${address}\n📦 *Sản phẩm:* ${itemsDetail}\n💰 *Tổng tiền:* ${totalAmount}`;
           fetch(`https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
@@ -471,14 +470,15 @@
         toggleCart(false);
         document.getElementById('checkout-form').reset();
       } catch (err) {
-        alert("Có lỗi xảy ra khi gửi đơn hàng. Vui lòng thử lại!");
+        alert("Có lỗi xảy ra khi gửi đơn hàng. Vuint lòng thử lại!");
       } finally {
         submitBtn.disabled = false;
         submitBtn.innerText = "Xác nhận Đặt hàng";
       }
     }
 
-    renderProducts();
+    // Init fetch products on load
+    fetchProducts();
     updateCartUI();
   </script>
 </body>
