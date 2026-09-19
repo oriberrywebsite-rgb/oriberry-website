@@ -86,37 +86,6 @@
   </div>
 </main>
 
-  <!-- Main Content -->
-  <main class="max-w-6xl mx-auto px-4 py-8 w-full flex-grow">
-    
-function filterProducts() {
-  const priceSort = document.getElementById('sort-price').value;
-  const selectedType = document.getElementById('filter-type').value;
-  const selectedRegion = document.getElementById('filter-region').value;
-
-  let filtered = [...allProducts];
-
-  // Lọc theo loại
-  if (selectedType && selectedType !== 'all') {
-    filtered = filtered.filter(p => p.type === selectedType);
-  }
-
-  // Lọc theo vùng trồng
-  if (selectedRegion && selectedRegion !== 'all') {
-    filtered = filtered.filter(p => p.region === selectedRegion);
-  }
-
-  // Sắp xếp giá
-  if (priceSort === 'low-to-high') {
-    filtered.sort((a, b) => a.price - b.price);
-  } else if (priceSort === 'high-to-low') {
-    filtered.sort((a, b) => b.price - a.price);
-  }
-
-  // Gọi hàm vẽ lại giao diện sản phẩm
-  renderProducts(filtered);
-}
-
       <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-xs">
         <div>
           <span class="block font-bold text-neutral-700 mb-2">Loại cà phê:</span>
@@ -330,19 +299,31 @@ function filterProducts() {
       }
     }
 
-    function renderProducts() {
-      let filtered = PRODUCTS.filter(p => {
-        const pType = (p.type || "").toLowerCase();
-        const pRegion = (p.region || "").toLowerCase();
-        
-        const matchType = (currentTypeFilter === 'ALL') || pType.includes(currentTypeFilter.toLowerCase());
-        const matchRegion = (currentRegionFilter === 'ALL') || pRegion.includes(currentRegionFilter.toLowerCase());
-        return matchType && matchRegion;
-      });
+function renderProducts() {
+  // 1. Đọc giá trị từ 3 ô dropdown mới
+  const typeVal = document.getElementById('filter-type')?.value || 'ALL';
+  const regionVal = document.getElementById('filter-region')?.value || 'ALL';
+  const sortVal = document.getElementById('sort-price')?.value || 'default';
 
-      const sortVal = document.getElementById('sort-price').value;
-      if (sortVal === 'asc') filtered.sort((a, b) => a.price - b.price);
-      else if (sortVal === 'desc') filtered.sort((a, b) => b.price - a.price);
+  // 2. Lọc danh sách sản phẩm theo Loại và Vùng trồng
+  let filtered = PRODUCTS.filter(p => {
+    const pType = (p.type || "").toLowerCase();
+    const pRegion = (p.region || "").toLowerCase();
+
+    const matchType = (typeVal === 'ALL' || typeVal === 'all') || pType.includes(typeVal.toLowerCase());
+    const matchRegion = (regionVal === 'ALL' || regionVal === 'all') || pRegion.includes(regionVal.toLowerCase());
+
+    return matchType && matchRegion;
+  });
+
+  // 3. Sắp xếp theo giá
+  if (sortVal === 'asc' || sortVal === 'low-to-high') {
+    filtered.sort((a, b) => a.price - b.price);
+  } else if (sortVal === 'desc' || sortVal === 'high-to-low') {
+    filtered.sort((a, b) => b.price - a.price);
+  }
+
+  // (Đoạn bên dưới giữ nguyên từ dòng 316 trở đi để vẽ sản phẩm ra màn hình)
 
       const grid = document.getElementById('product-grid');
       if (filtered.length === 0) {
