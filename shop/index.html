@@ -220,38 +220,31 @@
     let cart = JSON.parse(localStorage.getItem('oriberry_cart') || '[]');
 
     async function fetchProducts() {
-      const cachedData = localStorage.getItem(CACHE_KEY);
-      const cachedTime = localStorage.getItem(CACHE_TIME_KEY);
-      const now = new Date().getTime();
+  const cachedData = localStorage.getItem(CACHE_KEY);
+  
+  // 1. Nếu có cache, render ngay lập tức cho người dùng không phải chờ
+  if (cachedData) {
+    PRODUCTS = JSON.parse(cachedData);
+    renderProducts();
+  }
 
-      // Nếu có cache và chưa hết hạn (5 phút), dùng luôn cho mượt
-      if (cachedData && cachedTime && (now - cachedTime < CACHE_DURATION)) {
-        PRODUCTS = JSON.parse(cachedData);
-        renderProducts();
-        return;
-      }
-
-      try {
-        const res = await fetch(SCRIPT_URL);
-        const data = await res.json();
-        if (Array.isArray(data) && data.length > 0) {
-          PRODUCTS = data;
-          localStorage.setItem(CACHE_KEY, JSON.stringify(data));
-          localStorage.setItem(CACHE_TIME_KEY, now);
-          renderProducts();
-        } else {
-          document.getElementById('product-grid').innerHTML = `<div class="col-span-full text-center py-12 text-neutral-400 text-sm">Chưa có sản phẩm nào trong Sheet SanPham.</div>`;
-        }
-      } catch (err) {
-        // Nếu mạng lỗi mà có cache cũ thì bạt lửa dùng tạm cache cũ để không sập trang
-        if (cachedData) {
-          PRODUCTS = JSON.parse(cachedData);
-          renderProducts();
-        } else {
-          document.getElementById('product-grid').innerHTML = `<div class="col-span-full text-center py-12 text-red-400 text-sm">Không thể tải dữ liệu sản phẩm từ Google Sheet.</div>`;
-        }
-      }
+  // 2. Tải ngầm dữ liệu mới nhất từ Google Sheet
+  try {
+    const res = await fetch(SCRIPT_URL);
+    const data = await res.json();
+    if (Array.isArray(data) && data.length > 0) {
+      PRODUCTS = data;
+      localStorage.setItem(CACHE_KEY, JSON.stringify(data));
+      localStorage.setItem(CACHE_TIME_KEY, new Date().getTime());
+      renderProducts(); // Cập nhật lại giao diện với dữ liệu mới
     }
+  } catch (err) {
+    if (!cachedData) {
+      document.getElementById('product-grid').innerHTML = 
+        `<div class="col-span-full text-center py-12 text-red-400 text-sm">Không thể tải dữ liệu sản phẩm. Vui lòng kiểm tra kết nối mạng.</div>`;
+    }
+  }
+}
 
     function renderProducts() {
       let filtered = PRODUCTS.filter(p => {
