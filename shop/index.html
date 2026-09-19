@@ -160,7 +160,7 @@
       </div>
 
       <div class="flex items-center justify-between pt-2 border-t border-neutral-100">
-        <span class="text-xs font-bold text-neutral-800">Số lượng (Quantity):</span>
+        <span class="text-xs font-bold text-neutral-800">Quantity:</span>
         <div class="flex items-center border border-neutral-300 rounded">
           <button onclick="changePopQty(-1)" class="px-3 py-1 text-sm font-bold text-neutral-600 hover:bg-neutral-100">-</button>
           <span id="pop-qty" class="px-4 text-xs font-bold">1</span>
@@ -181,7 +181,7 @@
       <div class="w-screen max-w-md bg-white shadow-xl flex flex-col justify-between p-6">
         <div>
           <div class="flex items-center justify-between pb-4 border-b border-neutral-200">
-            <h3 class="text-lg font-bold text-neutral-900">Giỏ hàng của bạn</h3>
+            <h3 class="text-lg font-bold text-neutral-900">Your Cart</h3>
             <button onclick="toggleCart()" class="text-neutral-500 hover:text-neutral-800 text-xl font-bold">&times;</button>
           </div>
           <div id="cart-items-container" class="py-4 space-y-4 max-h-[50vh] overflow-y-auto"></div>
@@ -189,17 +189,17 @@
 
         <div class="border-t border-neutral-200 pt-4">
           <div class="flex justify-between items-center text-base font-bold text-neutral-900 mb-4">
-            <span>Tổng tiền:</span>
+            <span>Total:</span>
             <span id="cart-total-price">0đ</span>
           </div>
 
           <form id="checkout-form" onsubmit="submitOrder(event)" class="space-y-3">
-            <input type="text" id="cust-name" placeholder="Họ và tên *" required class="w-full text-xs border border-neutral-300 rounded-md p-2.5 focus:outline-none focus:ring-1 focus:ring-neutral-900">
-            <input type="tel" id="cust-phone" placeholder="Số điện thoại *" required class="w-full text-xs border border-neutral-300 rounded-md p-2.5 focus:outline-none focus:ring-1 focus:ring-neutral-900">
-            <textarea id="cust-address" placeholder="Địa chỉ nhận hàng *" rows="2" required class="w-full text-xs border border-neutral-300 rounded-md p-2.5 focus:outline-none focus:ring-1 focus:ring-neutral-900"></textarea>
+            <input type="text" id="cust-name" placeholder="Full Name *" required class="w-full text-xs border border-neutral-300 rounded-md p-2.5 focus:outline-none focus:ring-1 focus:ring-neutral-900">
+            <input type="tel" id="cust-phone" placeholder="Phone Number *" required class="w-full text-xs border border-neutral-300 rounded-md p-2.5 focus:outline-none focus:ring-1 focus:ring-neutral-900">
+            <textarea id="cust-address" placeholder="Shipping Address *" rows="2" required class="w-full text-xs border border-neutral-300 rounded-md p-2.5 focus:outline-none focus:ring-1 focus:ring-neutral-900"></textarea>
             
             <button type="submit" id="submit-btn" class="w-full bg-amber-700 text-white font-medium text-sm py-3 rounded-lg hover:bg-amber-800 transition">
-              Xác nhận Đặt hàng
+              Place Order
             </button>
           </form>
         </div>
