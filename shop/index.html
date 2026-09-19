@@ -16,39 +16,106 @@
 <body class="bg-neutral-50 text-neutral-800 font-sans min-h-screen flex flex-col justify-between">
 
   <!-- Header -->
-  <header class="sticky top-0 bg-white border-b border-neutral-200 z-40">
-    <div class="max-w-6xl mx-auto px-4 py-4 flex justify-between items-center">
-      <a href="/" class="text-xl font-bold tracking-wider text-neutral-900">ORIBERRY</a>
-      <div class="flex items-center gap-6">
-        <a href="/" class="text-sm font-medium text-neutral-600 hover:text-neutral-900">Trang chủ</a>
-        <button id="cart-btn" onclick="toggleCart()" class="relative bg-neutral-900 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-neutral-800 flex items-center gap-2">
-          <span>Giỏ hàng</span>
-          <span id="cart-count" class="bg-amber-600 text-white text-xs font-bold rounded-full w-5 h-5 flex items-center justify-center">0</span>
-        </button>
-      </div>
+<!-- HEADER -->
+<header class="sticky top-0 z-50 bg-brand-bg/95 backdrop-blur-md border-b border-brand-border/80">
+  <div class="max-w-7xl mx-auto px-4 md:px-6 h-16 md:h-20 flex items-center justify-between">
+    <!-- 1. LOGO THAY THÀNH ONLINE SHOP -->
+    <a href="/" class="font-logo text-2xl md:text-4xl font-bold tracking-wider text-brand-text uppercase">
+      ONLINE SHOP
+    </a>
+    
+    <!-- 2. TRANG CHỦ & GIỎ HÀNG ĐỔI SANG TIẾNG ANH -->
+    <div class="flex items-center space-x-6">
+      <a href="/" class="text-sm font-medium text-brand-text hover:opacity-70 transition-opacity">
+        Home
+      </a>
+      <button id="cart-btn" class="text-sm font-medium bg-brand-text text-brand-bg px-4 py-2 flex items-center space-x-2 hover:bg-stone-800 transition-all">
+        <span>Cart</span>
+        <span id="cart-count" class="bg-amber-500 text-black text-xs font-bold rounded-full w-5 h-5 flex items-center justify-center">0</span>
+      </button>
     </div>
-  </header>
+  </div>
+</header>
+
+<main class="max-w-7xl mx-auto px-4 md:px-6 py-6">
+  <!-- KHỐI BỘ LỌC MỚI (ĐÃ BỎ TIÊU ĐỀ CỬA HÀNG CÀ PHÊ & CHÚ THÍCH) -->
+  <div class="bg-brand-card border border-brand-border p-4 md:p-6 mb-8">
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+      
+      <!-- Ô 1: SẮP XẾP THEO GIÁ -->
+      <div>
+        <select id="sort-price" onchange="filterProducts()" class="w-full bg-brand-bg border border-brand-border text-brand-text text-sm p-2.5 focus:outline-none focus:border-brand-text cursor-pointer">
+          <option value="" disabled selected hidden>Theo giá bán</option>
+          <option value="default">Theo giá bán (Mặc định)</option>
+          <option value="low-to-high">Từ thấp đến cao</option>
+          <option value="high-to-low">Từ cao đến thấp</option>
+        </select>
+      </div>
+
+      <!-- Ô 2: LỌC THEO LOẠI CÀ PHÊ -->
+      <div>
+        <select id="filter-type" onchange="filterProducts()" class="w-full bg-brand-bg border border-brand-border text-brand-text text-sm p-2.5 focus:outline-none focus:border-brand-text cursor-pointer">
+          <option value="" disabled selected hidden>Theo loại cà phê</option>
+          <option value="all">Tất cả loại cà phê</option>
+          <option value="Arabica">Arabica</option>
+          <option value="Robusta">Robusta</option>
+          <option value="Liberica/Excelsa">Liberica/Excelsa</option>
+          <option value="Blended">Blended</option>
+        </select>
+      </div>
+
+      <!-- Ô 3: LỌC THEO VÙNG TRỒNG -->
+      <div>
+        <select id="filter-region" onchange="filterProducts()" class="w-full bg-brand-bg border border-brand-border text-brand-text text-sm p-2.5 focus:outline-none focus:border-brand-text cursor-pointer">
+          <option value="" disabled selected hidden>Theo vùng trồng</option>
+          <option value="all">Tất cả vùng trồng</option>
+          <option value="Quảng Trị">Quảng Trị</option>
+          <option value="Điện Biên">Điện Biên</option>
+          <option value="Lâm Đồng">Lâm Đồng</option>
+          <option value="Đắc Lắc">Đắc Lắc</option>
+          <option value="Gia Lai">Gia Lai</option>
+        </select>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- DANH SÁCH SẢN PHẨM RENDER DƯỚI ĐÂY -->
+  <div id="product-grid" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+    <!-- Sản phẩm sẽ được JavaScript render vào đây -->
+  </div>
+</main>
 
   <!-- Main Content -->
   <main class="max-w-6xl mx-auto px-4 py-8 w-full flex-grow">
     
-    <!-- Bộ lọc & Sắp xếp -->
-    <div class="mb-8 bg-white p-5 rounded-xl border border-neutral-200 shadow-sm space-y-4">
-      <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-neutral-100 pb-4">
-        <div>
-          <h1 class="text-2xl font-bold text-neutral-900">Cửa Hàng Cà Phê</h1>
-          <p class="text-xs text-neutral-500 mt-1">Sản phẩm rang xay trực tiếp từ các vùng nguyên liệu đặc trưng</p>
-        </div>
-        
-        <div class="flex items-center gap-2">
-          <label class="text-xs font-semibold text-neutral-600 whitespace-nowrap">Sắp xếp giá:</label>
-          <select id="sort-price" onchange="applyFilters()" class="text-xs border border-neutral-300 rounded-lg p-2 bg-white focus:outline-none focus:ring-1 focus:ring-neutral-900">
-            <option value="default">Mặc định</option>
-            <option value="asc">Giá: Thấp đến Cao</option>
-            <option value="desc">Giá: Cao đến Thấp</option>
-          </select>
-        </div>
-      </div>
+function filterProducts() {
+  const priceSort = document.getElementById('sort-price').value;
+  const selectedType = document.getElementById('filter-type').value;
+  const selectedRegion = document.getElementById('filter-region').value;
+
+  let filtered = [...allProducts];
+
+  // Lọc theo loại
+  if (selectedType && selectedType !== 'all') {
+    filtered = filtered.filter(p => p.type === selectedType);
+  }
+
+  // Lọc theo vùng trồng
+  if (selectedRegion && selectedRegion !== 'all') {
+    filtered = filtered.filter(p => p.region === selectedRegion);
+  }
+
+  // Sắp xếp giá
+  if (priceSort === 'low-to-high') {
+    filtered.sort((a, b) => a.price - b.price);
+  } else if (priceSort === 'high-to-low') {
+    filtered.sort((a, b) => b.price - a.price);
+  }
+
+  // Gọi hàm vẽ lại giao diện sản phẩm
+  renderProducts(filtered);
+}
 
       <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-xs">
         <div>
