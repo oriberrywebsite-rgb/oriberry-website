@@ -38,44 +38,49 @@
 </header>
 
 <main class="max-w-7xl mx-auto px-4 md:px-6 py-6">
-  <!-- KHỐI BỘ LỌC MỚI (ĐÃ BỎ TIÊU ĐỀ CỬA HÀNG CÀ PHÊ & CHÚ THÍCH) -->
-  <div class="bg-brand-card border border-brand-border p-4 md:p-6 mb-8">
-    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-      
-      <!-- Ô 1: SẮP XẾP THEO GIÁ -->
-      <div>
-        <select id="sort-price" onchange="filterProducts()" class="w-full bg-brand-bg border border-brand-border text-brand-text text-sm p-2.5 focus:outline-none focus:border-brand-text cursor-pointer">
-          <option value="" disabled selected hidden>Theo giá bán</option>
-          <option value="default">Theo giá bán (Mặc định)</option>
-          <option value="low-to-high">Từ thấp đến cao</option>
-          <option value="high-to-low">Từ cao đến thấp</option>
-        </select>
-      </div>
+<!-- KHỐI BỘ LỌC DẠNG DROPDOWN (TIẾNG ANH) -->
+<div class="bg-white p-4 rounded-xl border border-neutral-200 shadow-sm mb-6">
+  <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+    
+    <!-- 1. SORT BY PRICE -->
+    <div>
+      <select id="sort-price" onchange="renderProducts()" class="w-full text-xs border border-neutral-300 rounded-lg p-2.5 bg-white focus:outline-none focus:ring-1 focus:ring-neutral-900 cursor-pointer">
+        <option value="default" selected>Sort by Price (Default)</option>
+        <option value="low-to-high">Price: Low to High</option>
+        <option value="high-to-low">Price: High to Low</option>
+      </select>
+    </div>
 
-      <!-- Ô 2: LỌC THEO LOẠI CÀ PHÊ -->
-      <div>
-        <select id="filter-type" onchange="filterProducts()" class="w-full bg-brand-bg border border-brand-border text-brand-text text-sm p-2.5 focus:outline-none focus:border-brand-text cursor-pointer">
-          <option value="" disabled selected hidden>Theo loại cà phê</option>
-          <option value="all">Tất cả loại cà phê</option>
-          <option value="Arabica">Arabica</option>
-          <option value="Robusta">Robusta</option>
-          <option value="Liberica/Excelsa">Liberica/Excelsa</option>
-          <option value="Blended">Blended</option>
-        </select>
-      </div>
+    <!-- 2. FILTER BY TYPE -->
+    <div>
+      <select id="filter-type" onchange="renderProducts()" class="w-full text-xs border border-neutral-300 rounded-lg p-2.5 bg-white focus:outline-none focus:ring-1 focus:ring-neutral-900 cursor-pointer">
+        <option value="ALL" selected>Filter by Type (All)</option>
+        <option value="Arabica">Arabica</option>
+        <option value="Robusta">Robusta</option>
+        <option value="Liberica/Excelsa">Liberica/Excelsa</option>
+        <option value="Blended">Blended</option>
+      </select>
+    </div>
 
-      <!-- Ô 3: LỌC THEO VÙNG TRỒNG -->
-      <div>
-        <select id="filter-region" onchange="filterProducts()" class="w-full bg-brand-bg border border-brand-border text-brand-text text-sm p-2.5 focus:outline-none focus:border-brand-text cursor-pointer">
-          <option value="" disabled selected hidden>Theo vùng trồng</option>
-          <option value="all">Tất cả vùng trồng</option>
-          <option value="Quảng Trị">Quảng Trị</option>
-          <option value="Điện Biên">Điện Biên</option>
-          <option value="Lâm Đồng">Lâm Đồng</option>
-          <option value="Đắc Lắc">Đắc Lắc</option>
-          <option value="Gia Lai">Gia Lai</option>
-        </select>
-      </div>
+    <!-- 3. FILTER BY REGION -->
+    <div>
+      <select id="filter-region" onchange="renderProducts()" class="w-full text-xs border border-neutral-300 rounded-lg p-2.5 bg-white focus:outline-none focus:ring-1 focus:ring-neutral-900 cursor-pointer">
+        <option value="ALL" selected>Filter by Region (All)</option>
+        <option value="Quảng Trị">Quảng Trị</option>
+        <option value="Điện Biên">Điện Biên</option>
+        <option value="Lâm Đồng">Lâm Đồng</option>
+        <option value="Đắc Lắc">Đắc Lắc</option>
+        <option value="Gia Lai">Gia Lai</option>
+      </select>
+    </div>
+
+  </div>
+</div>
+
+<!-- KHUNG HIỂN THỊ SẢN PHẨM (CHỈ GIỮ LẠI 1 KHUNG NÀY) -->
+<div id="product-grid" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
+  <!-- Sản phẩm được vẽ tự động bằng JS vào đây -->
+</div>
 
     </div>
   </div>
@@ -85,38 +90,6 @@
     <!-- Sản phẩm sẽ được JavaScript render vào đây -->
   </div>
 </main>
-
-      <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-xs">
-        <div>
-          <span class="block font-bold text-neutral-700 mb-2">Loại cà phê:</span>
-          <div class="flex flex-wrap gap-1.5" id="type-filter-tags">
-            <button onclick="filterType('ALL')" class="type-tag text-xs px-3 py-1 rounded-full border border-neutral-300 bg-neutral-900 text-white font-medium">Tất cả</button>
-            <button onclick="filterType('Arabica')" class="type-tag text-xs px-3 py-1 rounded-full border border-neutral-300 bg-neutral-100 text-neutral-700 hover:bg-neutral-200">Arabica</button>
-            <button onclick="filterType('Robusta')" class="type-tag text-xs px-3 py-1 rounded-full border border-neutral-300 bg-neutral-100 text-neutral-700 hover:bg-neutral-200">Robusta</button>
-            <button onclick="filterType('Liberica')" class="type-tag text-xs px-3 py-1 rounded-full border border-neutral-300 bg-neutral-100 text-neutral-700 hover:bg-neutral-200">Liberica/Excelsa</button>
-            <button onclick="filterType('Blended')" class="type-tag text-xs px-3 py-1 rounded-full border border-neutral-300 bg-neutral-100 text-neutral-700 hover:bg-neutral-200">Blended</button>
-          </div>
-        </div>
-
-        <div>
-          <span class="block font-bold text-neutral-700 mb-2">Vùng trồng:</span>
-          <div class="flex flex-wrap gap-1.5" id="region-filter-tags">
-            <button onclick="filterRegion('ALL')" class="region-tag text-xs px-3 py-1 rounded-full border border-neutral-300 bg-neutral-900 text-white font-medium">Tất cả</button>
-            <button onclick="filterRegion('Quảng Trị')" class="region-tag text-xs px-3 py-1 rounded-full border border-neutral-300 bg-neutral-100 text-neutral-700 hover:bg-neutral-200">Quảng Trị</button>
-            <button onclick="filterRegion('Điện Biên')" class="region-tag text-xs px-3 py-1 rounded-full border border-neutral-300 bg-neutral-100 text-neutral-700 hover:bg-neutral-200">Điện Biên</button>
-            <button onclick="filterRegion('Lâm Đồng')" class="region-tag text-xs px-3 py-1 rounded-full border border-neutral-300 bg-neutral-100 text-neutral-700 hover:bg-neutral-200">Lâm Đồng</button>
-            <button onclick="filterRegion('Đắk Lắk')" class="region-tag text-xs px-3 py-1 rounded-full border border-neutral-300 bg-neutral-100 text-neutral-700 hover:bg-neutral-200">Đắk Lắk</button>
-            <button onclick="filterRegion('Gia Lai')" class="region-tag text-xs px-3 py-1 rounded-full border border-neutral-300 bg-neutral-100 text-neutral-700 hover:bg-neutral-200">Gia Lai</button>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <!-- Product Grid 3x3 -->
-    <div id="product-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-      <div class="col-span-full text-center py-12 text-neutral-400 text-sm">Đang tải danh sách sản phẩm...</div>
-    </div>
-  </main>
 
   <!-- Footer -->
   <footer class="border-t border-neutral-200 py-8 text-center text-xs text-neutral-500 bg-white">
@@ -323,11 +296,9 @@ function renderProducts() {
     filtered.sort((a, b) => b.price - a.price);
   }
 
-  // (Đoạn bên dưới giữ nguyên từ dòng 316 trở đi để vẽ sản phẩm ra màn hình)
-
-      const grid = document.getElementById('product-grid');
+       const grid = document.getElementById('product-grid');
       if (filtered.length === 0) {
-        grid.innerHTML = `<div class="col-span-full text-center py-12 text-neutral-400 text-sm">Không tìm thấy sản phẩm phù hợp.</div>`;
+        grid.innerHTML = `<div class="col-span-full text-center py-12 text-neutral-400 text-sm">No products found matching your filter.</div>`;
         return;
       }
 
