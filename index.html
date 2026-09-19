@@ -1,389 +1,454 @@
 <!DOCTYPE html>
-<html lang="vi">
+<html lang="en">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Oriberry — Farm, Roastery, Shops</title>
-  <!-- Tailwind CSS CDN -->
+  <title>Oriberry Coffee | Specialty Coffee & Sustainable Roastery</title>
   <script src="https://cdn.tailwindcss.com"></script>
-  <!-- Google Fonts -->
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Comfortaa:wght@700&family=Inter:wght@300;400;500;600&family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;1,6..72,400&display=swap" rel="stylesheet">
-  
   <style>
-    /* KHAI BÁO FONT CHÍNH XÁC THEO TÊN FILE TRÊN GITHUB */
-    @font-face {
-      font-family: 'Aardvark-Cafe';
-      src: url('./AARDC___.TTF') format('truetype');
-      font-weight: normal;
-      font-style: normal;
-      font-display: swap;
+    .pop-grind-btn.active {
+      background-color: #171717;
+      color: #ffffff;
+      border-color: #171717;
     }
-    .font-logo {
-      font-family: 'Aardvark-Cafe', 'Comfortaa', cursive, sans-serif;
-    }
-    .no-scrollbar::-webkit-scrollbar { display: none; }
-    .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
   </style>
-
-  <script>
-    tailwind.config = {
-      theme: {
-        extend: {
-          fontFamily: {
-            sans: ['Inter', 'sans-serif'],
-            serif: ['Newsreader', 'serif'],
-          },
-          colors: {
-            brand: {
-              bg: '#F9F8F6',
-              card: '#F1EFEA',
-              text: '#1C1C1A',
-              muted: '#666560',
-              border: '#E2DFD7',
-            }
-          }
-        }
-      }
-    }
-  </script>
 </head>
-<body class="bg-brand-bg text-brand-text font-sans antialiased selection:bg-stone-200 overflow-x-hidden">
+<body class="bg-neutral-50 text-neutral-800 font-sans min-h-screen flex flex-col justify-between">
 
-  <!-- HEADER GÓC VUÔNG & LOGO TO RÕ -->
-  <header class="sticky top-0 z-50 bg-brand-bg/95 backdrop-blur-md border-b border-brand-border/80">
-    <div class="max-w-7xl mx-auto px-4 md:px-6 h-16 md:h-20 flex items-center justify-between">
-      <!-- LOGO FONT AARDVARK-CAFE -->
-      <a href="#" class="font-logo text-3xl md:text-5xl font-bold tracking-wider text-brand-text uppercase">ORIBERRY</a>
+  <!-- Header / Navigation -->
+  <header class="sticky top-0 bg-white border-b border-neutral-200 z-40">
+    <div class="max-w-6xl mx-auto px-4 py-4 flex justify-between items-center">
+      <a href="/" class="text-xl font-bold tracking-wider text-neutral-900">ORIBERRY</a>
       
-      <nav class="hidden md:flex space-x-8 text-sm font-medium tracking-wide text-brand-muted">
-        <a href="#farmers" class="hover:text-brand-text transition-colors">Farmers</a>
-        <a href="#roastery" class="hover:text-brand-text transition-colors">Roastery</a>
-        <a href="#shops" class="hover:text-brand-text transition-colors">Shops</a>
-        <a href="#stories" class="hover:text-brand-text transition-colors">We & Farmers</a>
+      <!-- Menu tinh gọn theo yêu cầu -->
+      <nav class="hidden md:flex items-center gap-6 text-sm font-medium text-neutral-600">
+        <a href="/" class="text-neutral-900 font-semibold">Home</a>
+        <a href="/shop/" class="hover:text-neutral-900 transition">Shop</a>
+        <a href="#our-coffee" class="hover:text-neutral-900 transition">Our Coffee</a>
+        <a href="#contact" class="hover:text-neutral-900 transition">Chat with us</a>
       </nav>
 
-      <div class="flex items-center space-x-2">
-        <a href="https://order.oriberry.com" target="_blank" class="text-xs md:text-sm font-medium bg-brand-text text-brand-bg px-4 py-2 hover:bg-stone-800 transition-all">
-          Order Drinks &rarr;
+      <div class="flex items-center gap-4">
+        <a href="/shop/" class="bg-neutral-900 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-neutral-800 transition">
+          Visit Shop
         </a>
-        <a href="/shop/" target="_blank" class="text-xs md:text-sm font-medium border border-brand-text/40 px-4 py-2 hover:bg-brand-text hover:text-brand-bg transition-all">
-          Shop Coffee
-        </a>
+        <button id="cart-btn" onclick="toggleCart()" class="relative bg-neutral-100 text-neutral-800 border border-neutral-300 px-3 py-2 rounded-lg text-sm font-medium hover:bg-neutral-200 flex items-center gap-2">
+          <span>Cart</span>
+          <span id="cart-count" class="bg-amber-700 text-white text-xs font-bold rounded-full w-5 h-5 flex items-center justify-center">0</span>
+        </button>
       </div>
     </div>
   </header>
 
-  <main>
-    <!-- HERO SECTION (ĐÃ THAY ẢNH HERO DRIVE CHUẨN) -->
-    <section class="pt-4 pb-6 md:pt-6 md:pb-10 px-4 md:px-6">
-      <div class="max-w-7xl mx-auto">
-        <div class="relative w-full h-[240px] md:h-[320px] bg-stone-300">
-          <img src="https://lh3.googleusercontent.com/d/1xEYdHop03BvfNEUPg95dpb4OfDej3OY6" 
-               alt="Oriberry Coffee Hero Banner" 
-               class="w-full h-full object-cover brightness-[0.8]">
-          <div class="absolute inset-0 bg-gradient-to-t from-black/85 via-black/30 to-transparent flex flex-col justify-end p-5 md:p-8 text-white">
-            <h1 class="text-2xl md:text-4xl font-serif font-light tracking-tight leading-tight">
-              Farm, Roastery, Shops.
-            </h1>
-            <p class="mt-1 text-xs md:text-sm font-semibold tracking-widest text-amber-300 uppercase">
-              ORIBERRY AS A DEVELOPMENT SOLUTION
-            </p>
-          </div>
-        </div>
-
-        <p class="mt-4 text-xs md:text-sm text-brand-text font-normal leading-relaxed max-w-4xl">
-          Oriberry is Vietnamese Social Enterprise. We and our farmers fight poverty together by producing great Vietnamese coffee.
-        </p>
-      </div>
-    </section>
-
-    <!-- ROOTED IN IMPACT (ĐÃ THAY 4 ẢNH FARMERS TỪ DRIVE) -->
-    <section id="core" class="py-6 md:py-10 border-t border-brand-border/60">
-      <div class="max-w-7xl mx-auto px-4 md:px-6">
-        <div class="mb-4 flex justify-between items-end">
-          <h2 class="text-xl md:text-3xl font-serif">Rooted in Impact, Crafted for Specialty Coffee</h2>
-          <div class="flex space-x-1.5 md:hidden mb-1">
-            <span class="w-2 h-2 bg-brand-text"></span>
-            <span class="w-2 h-2 bg-brand-border"></span>
-            <span class="w-2 h-2 bg-brand-border"></span>
-          </div>
-        </div>
-
-        <div class="flex md:grid md:grid-cols-3 gap-5 overflow-x-auto no-scrollbar snap-x snap-mandatory">
-          <!-- Cột 1: We work with farmers (Chạy Flash Carousel 4 ảnh Drive) -->
-          <div class="w-[calc(100vw-2rem)] md:w-auto flex-none snap-start">
-            <div class="aspect-[4/3] bg-stone-200 mb-3 relative">
-              <img id="img-farmers" src="https://lh3.googleusercontent.com/d/1ovCK034G7Ni-jasp8iwrcUnB-3uh-HqI" 
-                   alt="We work with farmers" class="w-full h-full object-cover transition-opacity duration-1000">
-              <span id="label-farmers" class="absolute bottom-2 left-2 bg-black/70 text-white text-[10px] font-medium px-2 py-0.5">
-                Quảng Trị
-              </span>
-            </div>
-            <h3 class="text-lg font-serif">We work with farmers</h3>
-            <p class="mt-1 text-xs text-brand-muted leading-relaxed">
-              Hợp tác trực tiếp cùng hộ nông dân tại Quảng Trị, Điện Biên, Lâm Đồng, Đắk Lắk.
-            </p>
-          </div>
-
-          <!-- Cột 2: We roast coffee -->
-          <div class="w-[calc(100vw-2rem)] md:w-auto flex-none snap-start">
-            <div class="aspect-[4/3] bg-stone-200 mb-3 relative">
-              <img id="img-roast" src="https://images.unsplash.com/photo-1514432324607-a09d9b4aefdd?q=80&w=800&auto=format&fit=crop" 
-                   alt="We roast coffee" class="w-full h-full object-cover transition-opacity duration-1000">
-              <span id="label-roast" class="absolute bottom-2 left-2 bg-black/70 text-white text-[10px] font-medium px-2 py-0.5">
-                Micro & Testing Roast
-              </span>
-            </div>
-            <h3 class="text-lg font-serif">We roast coffee</h3>
-            <p class="mt-1 text-xs text-brand-muted leading-relaxed">
-              Rang thử nghiệm mẻ nhỏ và rang thương mại kiểm soát chất lượng chặt chẽ.
-            </p>
-          </div>
-
-          <!-- Cột 3: We serve coffee and drinks -->
-          <div class="w-[calc(100vw-2rem)] md:w-auto flex-none snap-start">
-            <div class="aspect-[4/3] bg-stone-200 mb-3 relative">
-              <img id="img-shops" src="https://images.unsplash.com/photo-1554118811-1e0d58224f24?q=80&w=800&auto=format&fit=crop" 
-                   alt="We serve coffee and drinks" class="w-full h-full object-cover transition-opacity duration-1000">
-              <span id="label-shops" class="absolute bottom-2 left-2 bg-black/70 text-white text-[10px] font-medium px-2 py-0.5">
-                28 Quảng An
-              </span>
-            </div>
-            <h3 class="text-lg font-serif">We serve coffee and drinks</h3>
-            <p class="mt-1 text-xs text-brand-muted leading-relaxed">
-              Chuỗi 06 cửa hàng trải nghiệm không gian và hương vị đồ uống mộc mạc.
-            </p>
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <!-- OUR COFFEE -->
-    <section id="featured" class="py-6 md:py-10 bg-brand-card border-y border-brand-border/60">
-      <div class="max-w-7xl mx-auto px-4 md:px-6">
-        <div class="mb-4 flex justify-between items-center">
-          <h2 class="text-xl md:text-3xl font-serif">Our Coffee</h2>
-          <a href="/shop/" target="_blank" class="text-xs font-semibold text-brand-text underline underline-offset-4 hover:opacity-70">
-            See all coffee &rarr;
-          </a>
-        </div>
-
-        <div class="flex md:grid md:grid-cols-3 gap-5 overflow-x-auto no-scrollbar snap-x snap-mandatory">
-          <div class="w-[calc(100vw-2rem)] md:w-auto flex-none snap-start bg-brand-bg border border-brand-border p-4 flex flex-col justify-between">
-            <div>
-              <div class="aspect-square bg-stone-200 mb-3">
-                <img src="https://images.unsplash.com/photo-1559056199-641a0ac8b55e?q=80&w=800&auto=format&fit=crop" alt="Catimor Đà Lạt" class="w-full h-full object-cover">
-              </div>
-              <h3 class="text-lg font-serif">Catimor Đà Lạt</h3>
-              <p class="mt-1 text-xs text-brand-muted">Arabica Washed. Ghi chú vị Citrus, Floral, Sweet Honey.</p>
-            </div>
-            <a href="/shop/" target="_blank" class="mt-4 block text-center text-xs font-medium bg-brand-text text-brand-bg py-2 hover:bg-stone-800">
-              Buy this coffee &rarr;
-            </a>
-          </div>
-
-          <div class="w-[calc(100vw-2rem)] md:w-auto flex-none snap-start bg-brand-bg border border-brand-border p-4 flex flex-col justify-between">
-            <div>
-              <div class="aspect-square bg-stone-200 mb-3">
-                <img src="https://images.unsplash.com/photo-1514432324607-a09d9b4aefdd?q=80&w=800&auto=format&fit=crop" alt="Mường Phăng" class="w-full h-full object-cover">
-              </div>
-              <h3 class="text-lg font-serif">Mường Phăng Shade Grown</h3>
-              <p class="mt-1 text-xs text-brand-muted">Trồng dưới tán rừng Điện Biên. Vị Black Tea, Dark Chocolate.</p>
-            </div>
-            <a href="/shop/" target="_blank" class="mt-4 block text-center text-xs font-medium bg-brand-text text-brand-bg py-2 hover:bg-stone-800">
-              Buy this coffee &rarr;
-            </a>
-          </div>
-
-          <div class="w-[calc(100vw-2rem)] md:w-auto flex-none snap-start bg-brand-bg border border-brand-border p-4 flex flex-col justify-between">
-            <div>
-              <div class="aspect-square bg-stone-200 mb-3">
-                <img src="https://images.unsplash.com/photo-1511920170033-f8396924c348?q=80&w=800&auto=format&fit=crop" alt="Oriberry Blend" class="w-full h-full object-cover">
-              </div>
-              <h3 class="text-lg font-serif">Oriberry 64 Blend</h3>
-              <p class="mt-1 text-xs text-brand-muted">Phối trộn Arabica Sơn La & Fine Robusta Quảng Trị.</p>
-            </div>
-            <a href="/shop/" target="_blank" class="mt-4 block text-center text-xs font-medium bg-brand-text text-brand-bg py-2 hover:bg-stone-800">
-              Buy this coffee &rarr;
-            </a>
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <!-- OUR DRINKS AND MEALS -->
-    <section id="shops" class="py-6 md:py-10">
-      <div class="max-w-7xl mx-auto px-4 md:px-6">
-        <div class="mb-4 flex justify-between items-center">
-          <h2 class="text-xl md:text-3xl font-serif">Our Drinks and Meals</h2>
-          <a href="https://order.oriberry.com" target="_blank" class="text-xs font-semibold text-brand-text underline underline-offset-4 hover:opacity-70">
-            See our menu &rarr;
-          </a>
-        </div>
-
-        <div class="flex md:grid md:grid-cols-3 gap-5 overflow-x-auto no-scrollbar snap-x snap-mandatory">
-          <div class="w-[calc(100vw-2rem)] md:w-auto flex-none snap-start border border-brand-border bg-brand-bg p-4 flex flex-col justify-between">
-            <div>
-              <div class="aspect-[16/10] bg-stone-200 mb-3">
-                <img src="https://images.unsplash.com/photo-1517256064527-09c73fc73e38?q=80&w=800&auto=format&fit=crop" alt="Handbrew Specialty Coffee" class="w-full h-full object-cover">
-              </div>
-              <h3 class="text-lg font-serif">Handbrew Specialty Coffee</h3>
-              <p class="mt-1 text-xs text-brand-muted">Pha thủ công V60 / Aeropress chiết xuất hương vị hạt Arabica bản địa.</p>
-            </div>
-            <div class="mt-4 grid grid-cols-2 gap-2">
-              <a href="https://order.oriberry.com" target="_blank" class="text-center text-[11px] font-medium border border-brand-text py-1.5 hover:bg-brand-text hover:text-brand-bg">
-                Order Pickup
-              </a>
-              <a href="https://order.oriberry.com" target="_blank" class="text-center text-[11px] font-medium bg-brand-text text-brand-bg py-1.5 hover:bg-stone-800">
-                Order Delivery
-              </a>
-            </div>
-          </div>
-
-          <div class="w-[calc(100vw-2rem)] md:w-auto flex-none snap-start border border-brand-border bg-brand-bg p-4 flex flex-col justify-between">
-            <div>
-              <div class="aspect-[16/10] bg-stone-200 mb-3">
-                <img src="https://images.unsplash.com/photo-1541167760496-1628856ab772?q=80&w=800&auto=format&fit=crop" alt="Traditional Phin Coffee" class="w-full h-full object-cover">
-              </div>
-              <h3 class="text-lg font-serif">Traditional Phin & Milk Coffee</h3>
-              <p class="mt-1 text-xs text-brand-muted">Cà phê Phin truyền thống từ Robusta Quảng Trị đậm đà hậu vị ngọt.</p>
-            </div>
-            <div class="mt-4 grid grid-cols-2 gap-2">
-              <a href="https://order.oriberry.com" target="_blank" class="text-center text-[11px] font-medium border border-brand-text py-1.5 hover:bg-brand-text hover:text-brand-bg">
-                Order Pickup
-              </a>
-              <a href="https://order.oriberry.com" target="_blank" class="text-center text-[11px] font-medium bg-brand-text text-brand-bg py-1.5 hover:bg-stone-800">
-                Order Delivery
-              </a>
-            </div>
-          </div>
-
-          <div class="w-[calc(100vw-2rem)] md:w-auto flex-none snap-start border border-brand-border bg-brand-bg p-4 flex flex-col justify-between">
-            <div>
-              <div class="aspect-[16/10] bg-stone-200 mb-3">
-                <img src="https://images.unsplash.com/photo-1509722747041-616f39b57569?q=80&w=800&auto=format&fit=crop" alt="Artisanal Tea & Light Meals" class="w-full h-full object-cover">
-              </div>
-              <h3 class="text-lg font-serif">Artisanal Tea & Light Meals</h3>
-              <p class="mt-1 text-xs text-brand-muted">Trà cổ thụ vùng cao kết hợp bánh ngọt mộc mạc.</p>
-            </div>
-            <div class="mt-4 grid grid-cols-2 gap-2">
-              <a href="https://order.oriberry.com" target="_blank" class="text-center text-[11px] font-medium border border-brand-text py-1.5 hover:bg-brand-text hover:text-brand-bg">
-                Order Pickup
-              </a>
-              <a href="https://order.oriberry.com" target="_blank" class="text-center text-[11px] font-medium bg-brand-text text-brand-bg py-1.5 hover:bg-stone-800">
-                Order Delivery
-              </a>
-            </div>
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <!-- WE & OUR FARMERS -->
-    <section id="stories" class="py-6 md:py-10 bg-brand-card border-t border-brand-border/60">
-      <div class="max-w-7xl mx-auto px-4 md:px-6">
-        <div class="mb-4 flex justify-between items-center">
-          <h2 class="text-xl md:text-3xl font-serif uppercase">WE & OUR FARMERS</h2>
-          <div class="flex space-x-1.5 md:hidden">
-            <span class="w-2 h-2 bg-brand-text"></span>
-            <span class="w-2 h-2 bg-brand-border"></span>
-            <span class="w-2 h-2 bg-brand-border"></span>
-          </div>
-        </div>
-
-        <div class="flex md:grid md:grid-cols-3 gap-5 overflow-x-auto no-scrollbar snap-x snap-mandatory">
-          <article class="w-[calc(100vw-2rem)] md:w-auto flex-none snap-start">
-            <div class="aspect-[3/2] bg-stone-200 mb-3">
-              <img src="https://images.unsplash.com/photo-1495474472287-4d71bcdd2085?q=80&w=800&auto=format&fit=crop" alt="The Business" class="w-full h-full object-cover">
-            </div>
-            <h3 class="text-lg font-serif">The Business</h3>
-            <p class="mt-1 text-xs text-brand-muted leading-relaxed">Mô hình doanh nghiệp xã hội tạo tác động kinh tế bền vững và minh bạch chuỗi cung ứng.</p>
-          </article>
-
-          <article class="w-[calc(100vw-2rem)] md:w-auto flex-none snap-start">
-            <div class="aspect-[3/2] bg-stone-200 mb-3">
-              <img src="https://images.unsplash.com/photo-1606787366850-de6330128bfc?q=80&w=800&auto=format&fit=crop" alt="The Farmers" class="w-full h-full object-cover">
-            </div>
-            <h3 class="text-lg font-serif">The Farmers</h3>
-            <p class="mt-1 text-xs text-brand-muted leading-relaxed">Đồng hành trực tiếp cùng cộng đồng dân tộc thiểu số nâng cao năng lực thu hoạch.</p>
-          </article>
-
-          <article class="w-[calc(100vw-2rem)] md:w-auto flex-none snap-start">
-            <div class="aspect-[3/2] bg-stone-200 mb-3">
-              <img src="https://images.unsplash.com/photo-1511920170033-f8396924c348?q=80&w=800&auto=format&fit=crop" alt="Processing" class="w-full h-full object-cover">
-            </div>
-            <h3 class="text-lg font-serif">Processing</h3>
-            <p class="mt-1 text-xs text-brand-muted leading-relaxed">Ứng dụng phương pháp sơ chế Natural, Honey, Washed và Anaerobic tiêu chuẩn.</p>
-          </article>
-        </div>
-      </div>
-    </section>
-  </main>
-
-  <footer class="bg-brand-bg border-t border-brand-border py-8 md:py-12">
-    <div class="max-w-7xl mx-auto px-4 md:px-6 grid md:grid-cols-4 gap-6">
-      <div class="md:col-span-2">
-        <span class="font-logo text-3xl font-bold tracking-wider text-brand-text uppercase">ORIBERRY</span>
-        <p class="text-xs text-brand-muted mt-1 tracking-wide">Coffee roastery · Shops · Development</p>
-        <p class="text-xs text-brand-muted mt-3 max-w-sm leading-relaxed">Social enterprise developing specialty coffee & tea, empowering indigenous smallholders across Vietnam.</p>
-      </div>
-      <div class="text-xs text-brand-muted space-y-1.5">
-        <p class="font-semibold text-brand-text uppercase tracking-widest mb-2">Ecosystem</p>
-        <p><a href="/shop/" target="_blank" class="hover:text-brand-text">/shop/</a></p>
-        <p><a href="https://order.oriberry.com" target="_blank" class="hover:text-brand-text">order.oriberry.com</a></p>
-      </div>
-      <div class="text-xs text-brand-muted space-y-1.5">
-        <p class="font-semibold text-brand-text uppercase tracking-widest mb-2">System</p>
-        <p>© Oriberry Coffee</p>
-        <p>Google Workspace CMS Powered</p>
+  <!-- Hero Section -->
+  <section class="max-w-6xl mx-auto px-4 py-16 md:py-24 grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
+    <div class="space-y-6">
+      <span class="inline-block bg-amber-100 text-amber-800 text-xs font-bold px-3 py-1 rounded uppercase tracking-wider">Direct Trade & Specialty</span>
+      <h1 class="text-4xl md:text-5xl font-extrabold text-neutral-900 leading-tight">
+        Sustainably Crafted Specialty Coffee.
+      </h1>
+      <p class="text-neutral-600 text-sm md:text-base leading-relaxed">
+        Rooted in Vietnam's unique micro-climates, Oriberry connects passionate farmers directly to your cup. Every bean is carefully harvested, fermented, and roasted to absolute perfection.
+      </p>
+      <div class="flex items-center gap-4 pt-2">
+        <a href="/shop/" class="px-6 py-3 bg-amber-700 text-white text-sm font-bold rounded-lg hover:bg-amber-800 transition shadow-sm">
+          Explore Our Store
+        </a>
+        <a href="#our-coffee" class="px-6 py-3 bg-neutral-200 text-neutral-800 text-sm font-bold rounded-lg hover:bg-neutral-300 transition">
+          Discover Featured
+        </a>
       </div>
     </div>
+    <div class="w-full aspect-square bg-neutral-200 rounded-2xl overflow-hidden shadow-lg">
+      <img src="https://images.unsplash.com/photo-1559056199-641a0ac8b55e?w=800&auto=format&fit=crop&q=80" alt="Oriberry Coffee Roastery" class="w-full h-full object-cover">
+    </div>
+  </section>
+
+  <!-- Our Coffee Section (Tự động bốc ngẫu nhiên 3 sản phẩm từ Google Sheet) -->
+  <section id="our-coffee" class="max-w-6xl mx-auto px-4 py-16 w-full border-t border-neutral-200">
+    <div class="text-center max-w-xl mx-auto mb-12 space-y-2">
+      <h2 class="text-3xl font-extrabold text-neutral-900">Our Coffee Selections</h2>
+      <p class="text-xs text-neutral-500">Handpicked specialty batches, freshly roasted and ready for your daily ritual.</p>
+    </div>
+
+    <!-- Khối lưới chứa 3 cột sản phẩm -->
+    <div id="home-coffee-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+      <div class="col-span-full text-center py-12 text-neutral-400 text-sm">Loading featured specialty coffees...</div>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer id="contact" class="border-t border-neutral-200 py-12 text-center text-xs text-neutral-500 bg-white space-y-3">
+    <p class="font-bold text-neutral-900 text-sm">ORIBERRY COFFEE</p>
+    <p>Sustainable Direct Trade Specialty Coffee from Vietnam.</p>
+    <p>© 2026 Oriberry Coffee. All rights reserved.</p>
   </footer>
 
-  <!-- SCRIPT CAROUSEL SỬ DỤNG ẢNH DRIVE THẬT TỪ ANH -->
+  <!-- POPUP XEM CHI TIẾT SẢN PHẨM (SEE MORE) -->
+  <div id="detail-modal" class="fixed inset-0 z-50 hidden flex items-center justify-center p-4">
+    <div class="fixed inset-0 bg-black/60 transition-opacity" onclick="closeDetailModal()"></div>
+    <div class="relative w-full max-w-3xl bg-white rounded-xl shadow-2xl overflow-hidden z-10 p-6 max-h-[90vh] overflow-y-auto space-y-6">
+      <button onclick="closeDetailModal()" class="absolute top-4 right-4 text-neutral-400 hover:text-neutral-800 text-2xl font-bold">&times;</button>
+      
+      <div class="grid grid-cols-1 md:grid-cols-12 gap-6 items-start border-b border-neutral-200 pb-6">
+        <div class="md:col-span-5 space-y-3">
+          <div class="w-full aspect-square rounded-xl overflow-hidden bg-neutral-100 border border-neutral-200 shadow-sm">
+            <img id="detail-main-img" src="" class="w-full h-full object-cover">
+          </div>
+          <div id="detail-thumbnails" class="grid grid-cols-3 gap-2"></div>
+        </div>
+        
+        <div class="md:col-span-7 space-y-2">
+          <span id="detail-tag" class="text-[10px] font-bold bg-amber-100 text-amber-800 px-2.5 py-1 rounded uppercase tracking-wide"></span>
+          <h2 id="detail-name" class="text-xl font-bold text-neutral-900 mt-2"></h2>
+          <p id="detail-price" class="text-lg font-bold text-amber-700 mt-1"></p>
+          <p id="detail-weight" class="text-xs text-neutral-500 mt-1"></p>
+          
+          <div class="pt-4">
+            <button id="detail-buy-btn" class="w-full md:w-auto px-6 py-3 bg-neutral-900 text-white text-xs font-bold rounded-lg hover:bg-amber-700 transition shadow-sm">
+              Buy this coffee
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <div class="space-y-2 text-xs">
+        <h4 class="font-bold text-neutral-900 uppercase tracking-wide text-xs text-amber-800">Flavor Profile & Details:</h4>
+        <div id="detail-longdesc" class="text-neutral-700 bg-neutral-50 p-4 rounded-lg border border-neutral-200 whitespace-pre-line leading-relaxed max-h-60 overflow-y-auto"></div>
+      </div>
+
+      <div class="pt-2 flex justify-end">
+        <button onclick="closeDetailModal()" class="px-5 py-2.5 bg-neutral-200 text-neutral-800 text-xs font-bold rounded-lg hover:bg-neutral-300 transition">Close</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- POPUP CHỌN CỠ XAY & MUA HÀNG -->
+  <div id="option-modal" class="fixed inset-0 z-50 hidden flex items-end sm:items-center justify-center p-0 sm:p-4">
+    <div class="fixed inset-0 bg-black/60 transition-opacity" onclick="closeOptionModal()"></div>
+    <div class="relative w-full max-w-md bg-white rounded-t-2xl sm:rounded-xl shadow-2xl overflow-hidden z-10 p-5 space-y-4 max-h-[90vh] overflow-y-auto">
+      <button onclick="closeOptionModal()" class="absolute top-4 right-4 text-neutral-400 hover:text-neutral-800 text-2xl font-bold">&times;</button>
+      
+      <div class="flex gap-4 items-start border-b border-neutral-100 pb-4">
+        <img id="pop-img" src="" class="w-20 h-20 object-cover rounded-lg bg-neutral-100">
+        <div>
+          <h3 id="pop-name" class="font-bold text-sm text-neutral-900"></h3>
+          <p id="pop-price" class="text-base font-bold text-amber-700 mt-1"></p>
+        </div>
+      </div>
+
+      <div>
+        <label class="block text-xs font-bold text-neutral-800 mb-2">Select Grind Size:</label>
+        <div class="flex flex-wrap gap-2" id="pop-grind-options"></div>
+      </div>
+
+      <div>
+        <label class="block text-xs font-bold text-neutral-800 mb-1">Volume / Weight:</label>
+        <span id="pop-weight" class="inline-block bg-neutral-100 text-neutral-800 border border-neutral-300 px-3 py-1 rounded text-xs font-medium"></span>
+      </div>
+
+      <div class="flex items-center justify-between pt-2 border-t border-neutral-100">
+        <span class="text-xs font-bold text-neutral-800">Quantity:</span>
+        <div class="flex items-center border border-neutral-300 rounded">
+          <button onclick="changePopQty(-1)" class="px-3 py-1 text-sm font-bold text-neutral-600 hover:bg-neutral-100">-</button>
+          <span id="pop-qty" class="px-4 text-xs font-bold">1</span>
+          <button onclick="changePopQty(1)" class="px-3 py-1 text-sm font-bold text-neutral-600 hover:bg-neutral-100">+</button>
+        </div>
+      </div>
+
+      <button onclick="confirmAddToCart()" class="w-full bg-amber-700 text-white font-bold text-xs py-3.5 rounded-lg hover:bg-amber-800 transition">
+        Add to Cart
+      </button>
+    </div>
+  </div>
+
+  <!-- Slide-over Cart Modal -->
+  <div id="cart-modal" class="fixed inset-0 z-50 hidden">
+    <div class="fixed inset-0 bg-black/50 transition-opacity" onclick="toggleCart()"></div>
+    <div class="fixed inset-y-0 right-0 max-w-full flex pl-10">
+      <div class="w-screen max-w-md bg-white shadow-xl flex flex-col justify-between p-6">
+        <div>
+          <div class="flex items-center justify-between pb-4 border-b border-neutral-200">
+            <h3 class="text-lg font-bold text-neutral-900">Your Shopping Cart</h3>
+            <button onclick="toggleCart()" class="text-neutral-500 hover:text-neutral-800 text-xl font-bold">&times;</button>
+          </div>
+          <div id="cart-items-container" class="py-4 space-y-4 max-h-[50vh] overflow-y-auto"></div>
+        </div>
+
+        <div class="border-t border-neutral-200 pt-4">
+          <div class="flex justify-between items-center text-base font-bold text-neutral-900 mb-4">
+            <span>Total:</span>
+            <span id="cart-total-price">0đ</span>
+          </div>
+
+          <form id="checkout-form" onsubmit="submitOrder(event)" class="space-y-3">
+            <input type="text" id="cust-name" placeholder="Full Name *" required class="w-full text-xs border border-neutral-300 rounded-md p-2.5 focus:outline-none focus:ring-1 focus:ring-neutral-900">
+            <input type="tel" id="cust-phone" placeholder="Phone Number *" required class="w-full text-xs border border-neutral-300 rounded-md p-2.5 focus:outline-none focus:ring-1 focus:ring-neutral-900">
+            <textarea id="cust-address" placeholder="Delivery Address *" rows="2" required class="w-full text-xs border border-neutral-300 rounded-md p-2.5 focus:outline-none focus:ring-1 focus:ring-neutral-900"></textarea>
+            
+            <button type="submit" id="submit-btn" class="w-full bg-amber-700 text-white font-medium text-sm py-3 rounded-lg hover:bg-amber-800 transition">
+              Confirm Order
+            </button>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- JavaScript xử lý động cho trang chủ -->
   <script>
-    const farmersData = [
-      { url: "https://lh3.googleusercontent.com/d/1ovCK034G7Ni-jasp8iwrcUnB-3uh-HqI", label: "Quảng Trị" },
-      { url: "https://lh3.googleusercontent.com/d/1TegMGgnA8LYnRn-p1XCy0seyc4ZrTDpW", label: "Điện Biên" },
-      { url: "https://lh3.googleusercontent.com/d/1GVSQA7fut3hp4WGvivI_RXN5VszxJRAz", label: "Lâm Đồng" },
-      { url: "https://lh3.googleusercontent.com/d/1xI0kbZ5SIjkBDdb6Cw9d9bcViCyQALNH", label: "Đắk Lắk" }
+    const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzoWopdIwcIH1mI6i0LNZP3YLK_U7zjIc6iMwLEdyCNuZ4L4jAwop8QWc6g0v06Qs_f/exec";
+    
+    const GRIND_OPTIONS = [
+      "Whole grain", "Drip/V60 powder", "Coldbrew powder", 
+      "Espresso powder", "Staresso powder", "Aeropress powder", 
+      "Frenchpress Powder/Phin", "Moka powder"
     ];
 
-    const roastData = [
-      { url: "https://images.unsplash.com/photo-1514432324607-a09d9b4aefdd?q=80&w=800&auto=format&fit=crop", label: "Micro & Testing Roast" },
-      { url: "https://images.unsplash.com/photo-1511920170033-f8396924c348?q=80&w=800&auto=format&fit=crop", label: "Commercial Roast" }
-    ];
+    let PRODUCTS = [];
+    let activeProductForPop = null;
+    let selectedPopGrind = GRIND_OPTIONS[0];
+    let selectedPopQty = 1;
+    let cart = JSON.parse(localStorage.getItem('oriberry_cart') || '[]');
 
-    const shopsData = [
-      { url: "https://images.unsplash.com/photo-1501339847302-ac426a4a7cbb?q=80&w=800&auto=format&fit=crop", label: "28 Quảng An" },
-      { url: "https://images.unsplash.com/photo-1554118811-1e0d58224f24?q=80&w=800&auto=format&fit=crop", label: "24A Tô Ngọc Vân" },
-      { url: "https://images.unsplash.com/photo-1442512595331-e89e73853f31?q=80&w=800&auto=format&fit=crop", label: "1 Phạm Sư Mạnh" },
-      { url: "https://images.unsplash.com/photo-1495474472287-4d71bcdd2085?q=80&w=800&auto=format&fit=crop", label: "6A Phạm Sư Mạnh" },
-      { url: "https://images.unsplash.com/photo-1521017432531-fbd92d768814?q=80&w=800&auto=format&fit=crop", label: "11B Tông Đản" },
-      { url: "https://images.unsplash.com/photo-1559925393-8be0ec4767c8?q=80&w=800&auto=format&fit=crop", label: "23-25 Đặng Tiến Đông" }
-    ];
+    async function loadHomepageCoffee() {
+      const grid = document.getElementById('home-coffee-grid');
+      if (!grid) return;
 
-    function startFlashCarousel(imgId, labelId, dataArray, intervalMs) {
-      let index = 0;
-      const imgEl = document.getElementById(imgId);
-      const labelEl = document.getElementById(labelId);
+      try {
+        const res = await fetch(SCRIPT_URL);
+        const data = await res.json();
 
-      setInterval(() => {
-        index = (index + 1) % dataArray.length;
-        imgEl.style.opacity = '0';
-        setTimeout(() => {
-          imgEl.src = dataArray[index].url;
-          labelEl.textContent = dataArray[index].label;
-          imgEl.style.opacity = '1';
-        }, 300);
-      }, intervalMs);
+        if (Array.isArray(data) && data.length > 0) {
+          PRODUCTS = data;
+          
+          // Xáo trộn ngẫu nhiên và bốc ra 3 sản phẩm cho khối Our Coffee
+          let shuffled = [...PRODUCTS].sort(() => 0.5 - Math.random());
+          let selectedProducts = shuffled.slice(0, 3);
+
+          grid.innerHTML = selectedProducts.map(p => `
+            <div class="bg-white border border-neutral-200 rounded-xl overflow-hidden shadow-sm hover:shadow-md transition flex flex-col justify-between">
+              <div>
+                <div class="relative">
+                  <img src="${p.img1}" alt="${p.name}" class="w-full aspect-[4/5] object-cover bg-neutral-100">
+                  <span class="absolute top-2 left-2 bg-neutral-900/80 text-white text-[10px] font-medium px-2 py-0.5 rounded backdrop-blur-sm">${p.type} • ${p.region}</span>
+                </div>
+                <div class="p-4">
+                  <h3 class="text-sm font-bold text-neutral-900 line-clamp-1">${p.name}</h3>
+                  <p class="text-xs text-neutral-500 mt-1 line-clamp-2 h-8">${p.shortDesc}</p>
+                  
+                  <div class="mt-3 flex items-center justify-between">
+                    <span class="text-sm font-bold text-amber-700">${p.price.toLocaleString('vi-VN')}đ</span>
+                    <span class="text-[11px] bg-neutral-100 text-neutral-600 px-2 py-0.5 rounded border border-neutral-200">${p.weight}</span>
+                  </div>
+                </div>
+              </div>
+
+              <div class="p-4 pt-0 grid grid-cols-2 gap-2">
+                <button onclick="openDetailModal('${p.id}')" class="w-full bg-neutral-100 text-neutral-800 text-xs font-semibold py-2.5 rounded-lg hover:bg-neutral-200 transition">
+                  See more
+                </button>
+                <button onclick="openOptionModal('${p.id}')" class="w-full bg-neutral-900 text-white text-xs font-semibold py-2.5 rounded-lg hover:bg-amber-700 transition">
+                  Buy this coffee
+                </button>
+              </div>
+            </div>
+          `).join('');
+        } else {
+          grid.innerHTML = `<div class="col-span-full text-center py-12 text-neutral-400 text-sm">No products available.</div>`;
+        }
+      } catch (err) {
+        grid.innerHTML = `<div class="col-span-full text-center py-12 text-red-400 text-sm">Failed to load coffee products.</div>`;
+      }
     }
 
-    startFlashCarousel('img-farmers', 'label-farmers', farmersData, 3500);
-    startFlashCarousel('img-roast', 'label-roast', roastData, 4500);
-    startFlashCarousel('img-shops', 'label-shops', shopsData, 3000);
+    // Modal xem chi tiết
+    function openDetailModal(productId) {
+      const p = PRODUCTS.find(item => item.id === productId);
+      if (!p) return;
+
+      const imgList = [p.img1, p.img2, p.img3].filter(img => img && img.trim() !== "");
+      const mainImg = imgList.length > 0 ? imgList[0] : "https://images.unsplash.com/photo-1559056199-641a0ac8b55e?w=500&auto=format&fit=crop&q=80";
+
+      document.getElementById('detail-main-img').src = mainImg;
+      document.getElementById('detail-tag').innerText = `${p.type} • ${p.region}`;
+      document.getElementById('detail-name').innerText = p.name;
+      document.getElementById('detail-price').innerText = p.price.toLocaleString('vi-VN') + 'đ';
+      document.getElementById('detail-weight').innerText = `Specification: ${p.weight}`;
+      document.getElementById('detail-longdesc').innerText = p.longDesc || p.shortDesc;
+
+      const thumbContainer = document.getElementById('detail-thumbnails');
+      if (imgList.length > 1) {
+        thumbContainer.innerHTML = imgList.map((imgUrl) => `
+          <img src="${imgUrl}" onclick="changeMainImage('${imgUrl}')" class="w-full aspect-square object-cover rounded-lg border-2 border-neutral-200 cursor-pointer hover:border-amber-700 hover:opacity-100 opacity-80 transition shadow-sm">
+        `).join('');
+        thumbContainer.classList.remove('hidden');
+      } else {
+        thumbContainer.innerHTML = "";
+        thumbContainer.classList.add('hidden');
+      }
+
+      document.getElementById('detail-buy-btn').onclick = function() {
+        closeDetailModal();
+        openOptionModal(p.id);
+      };
+
+      document.getElementById('detail-modal').classList.remove('hidden');
+    }
+
+    function changeMainImage(url) {
+      document.getElementById('detail-main-img').src = url;
+    }
+
+    function closeDetailModal() {
+      document.getElementById('detail-modal').classList.add('hidden');
+    }
+
+    // Modal chọn cỡ xay & mua hàng
+    function openOptionModal(productId) {
+      activeProductForPop = PRODUCTS.find(p => p.id === productId);
+      selectedPopGrind = GRIND_OPTIONS[0];
+      selectedPopQty = 1;
+
+      document.getElementById('pop-img').src = activeProductForPop.img1;
+      document.getElementById('pop-name').innerText = activeProductForPop.name;
+      document.getElementById('pop-price').innerText = activeProductForPop.price.toLocaleString('vi-VN') + 'đ';
+      document.getElementById('pop-weight').innerText = activeProductForPop.weight;
+      document.getElementById('pop-qty').innerText = selectedPopQty;
+
+      document.getElementById('pop-grind-options').innerHTML = GRIND_OPTIONS.map(g => `
+        <button type="button" onclick="selectPopGrind('${g}')" class="pop-grind-btn text-[11px] px-3 py-2 rounded border border-neutral-200 bg-neutral-100 text-neutral-700 hover:border-neutral-900 transition ${g === selectedPopGrind ? 'active' : ''}">
+          ${g}
+        </button>
+      `).join('');
+
+      document.getElementById('option-modal').classList.remove('hidden');
+    }
+
+    function closeOptionModal() { document.getElementById('option-modal').classList.add('hidden'); }
+
+    function selectPopGrind(grind) {
+      selectedPopGrind = grind;
+      document.querySelectorAll('.pop-grind-btn').forEach(b => {
+        if (b.innerText.trim() === grind) b.classList.add('active');
+        else b.classList.remove('active');
+      });
+    }
+
+    function changePopQty(delta) {
+      selectedPopQty = Math.max(1, selectedPopQty + delta);
+      document.getElementById('pop-qty').innerText = selectedPopQty;
+    }
+
+    function confirmAddToCart() {
+      if (!activeProductForPop) return;
+      const cartKey = `${activeProductForPop.id}-${selectedPopGrind}`;
+      const existingIndex = cart.findIndex(item => item.key === cartKey);
+
+      if (existingIndex > -1) cart[existingIndex].qty += selectedPopQty;
+      else {
+        cart.push({
+          key: cartKey,
+          id: activeProductForPop.id,
+          name: activeProductForPop.name,
+          grind: selectedPopGrind,
+          price: activeProductForPop.price,
+          qty: selectedPopQty
+        });
+      }
+
+      saveCart();
+      closeOptionModal();
+      toggleCart(true);
+    }
+
+    function updateQty(key, delta) {
+      const index = cart.findIndex(item => item.key === key);
+      if (index > -1) {
+        cart[index].qty += delta;
+        if (cart[index].qty <= 0) cart.splice(index, 1);
+      }
+      saveCart();
+    }
+
+    function saveCart() {
+      localStorage.setItem('oriberry_cart', JSON.stringify(cart));
+      updateCartUI();
+    }
+
+    function updateCartUI() {
+      document.getElementById('cart-count').innerText = cart.reduce((sum, item) => sum + item.qty, 0);
+
+      const container = document.getElementById('cart-items-container');
+      if (cart.length === 0) {
+        container.innerHTML = `<p class="text-xs text-neutral-400 text-center py-8">Your cart is empty.</p>`;
+      } else {
+        container.innerHTML = cart.map(item => `
+          <div class="flex items-center justify-between border-b border-neutral-100 pb-3">
+            <div>
+              <h4 class="text-xs font-bold text-neutral-900">${item.name}</h4>
+              <p class="text-[11px] text-neutral-500">Grind: ${item.grind}</p>
+              <p class="text-xs font-medium text-amber-700 mt-0.5">${(item.price * item.qty).toLocaleString('vi-VN')}đ</p>
+            </div>
+            <div class="flex items-center border border-neutral-300 rounded">
+              <button onclick="updateQty('${item.key}', -1)" class="px-2 py-0.5 text-xs text-neutral-600 hover:bg-neutral-100">-</button>
+              <span class="px-2 text-xs font-bold">${item.qty}</span>
+              <button onclick="updateQty('${item.key}', 1)" class="px-2 py-0.5 text-xs text-neutral-600 hover:bg-neutral-100">+</button>
+            </div>
+          </div>
+        `).join('');
+      }
+
+      document.getElementById('cart-total-price').innerText = cart.reduce((sum, item) => sum + (item.price * item.qty), 0).toLocaleString('vi-VN') + 'đ';
+    }
+
+    function toggleCart(open = null) {
+      const modal = document.getElementById('cart-modal');
+      if (open === true) modal.classList.remove('hidden');
+      else if (open === false) modal.classList.add('hidden');
+      else modal.classList.toggle('hidden');
+    }
+
+    async function submitOrder(e) {
+      e.preventDefault();
+      if (cart.length === 0) return alert("Your cart is empty!");
+
+      const submitBtn = document.getElementById('submit-btn');
+      submitBtn.disabled = true;
+      submitBtn.innerText = "Submitting order...";
+
+      const name = document.getElementById('cust-name').value;
+      const phone = document.getElementById('cust-phone').value;
+      const address = document.getElementById('cust-address').value;
+      const itemsDetail = cart.map(i => `${i.name} [Grind: ${i.grind}] x${i.qty}`).join(' | ');
+      const totalAmount = cart.reduce((sum, i) => sum + (i.price * i.qty), 0).toLocaleString('vi-VN') + 'đ';
+
+      const payload = { customerName: name, phone: phone, address: address, itemsDetail: itemsDetail, totalAmount: totalAmount };
+      
+      try {
+        await fetch(SCRIPT_URL, {
+          method: 'POST',
+          mode: 'no-cors',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload)
+        });
+
+        alert("🎉 Order placed successfully! Your order has been saved and sent to Oriberry.");
+        cart = [];
+        saveCart();
+        toggleCart(false);
+        document.getElementById('checkout-form').reset();
+      } catch (err) {
+        alert("An error occurred while submitting your order. Please try again!");
+      } finally {
+        submitBtn.disabled = false;
+        submitBtn.innerText = "Confirm Order";
+      }
+    }
+
+    // Khởi chạy khi load trang chủ
+    loadHomepageCoffee();
+    updateCartUI();
   </script>
 </body>
 </html>
