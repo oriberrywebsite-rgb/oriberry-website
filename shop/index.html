@@ -179,11 +179,30 @@
           <div id="cart-items-container" class="py-4 space-y-4 max-h-[50vh] overflow-y-auto"></div>
         </div>
 
-        <div class="border-t border-neutral-200 pt-4">
-          <div class="flex justify-between items-center text-base font-bold text-neutral-900 mb-4">
-            <span>Total:</span>
-            <span id="cart-total-price">0đ</span>
-          </div>
+<div id="cart-items-container" class="py-4 space-y-4 max-h-[50vh] overflow-y-auto"></div>
+  </div>
+
+  <!-- Bảng chi tiết tính tiền mới dán vào đây -->
+  <div class="border-t border-neutral-200 pt-3 mb-3 text-xs space-y-1.5">
+    <div class="flex justify-between text-neutral-600">
+      <span>Subtotal (Tiền hàng):</span>
+      <span id="cart-subtotal" class="font-medium text-neutral-900">0đ</span>
+    </div>
+    <div class="flex justify-between text-emerald-700">
+      <span>Discount (Giảm giá 5%):</span>
+      <span id="cart-discount" class="font-medium">0đ</span>
+    </div>
+    <div class="flex justify-between text-neutral-600">
+      <span>Shipping (Phí ship):</span>
+      <span id="cart-shipping" class="font-medium text-neutral-900">FREE</span>
+    </div>
+    <div class="flex justify-between text-sm font-bold text-neutral-900 border-t border-neutral-200 pt-2 mt-2">
+      <span>Total (Tổng thanh toán):</span>
+      <span id="cart-total-price">0đ</span>
+    </div>
+  </div>
+
+  <form id="checkout-form" onsubmit="submitOrder(event)" class="space-y-3">
 
           <form id="checkout-form" onsubmit="submitOrder(event)" class="space-y-3">
             <!-- Bổ sung ô chọn Khu vực / Khoảng cách giao hàng -->
@@ -565,9 +584,23 @@ const address = document.getElementById('cust-address').value;
 const note = document.getElementById('cust-note') ? document.getElementById('cust-note').value : '';
 
 const itemsDetail = cart.map(i => `${i.name} (${i.grind}) x${i.qty}`).join(' | ');
-const totalAmount = cart.reduce((sum, i) => sum + (i.price * i.qty), 0).toLocaleString('vi-VN') + 'đ';
 
-const payload = { customerName: name, phone: phone, address: address, note: note, itemsDetail: itemsDetail, totalAmount: totalAmount };      
+const subtotalVal = document.getElementById('cart-subtotal') ? document.getElementById('cart-subtotal').textContent : '';
+const discountVal = document.getElementById('cart-discount') ? document.getElementById('cart-discount').textContent : '0đ';
+const shippingVal = document.getElementById('cart-shipping') ? document.getElementById('cart-shipping').textContent : '0đ';
+const totalVal = document.getElementById('cart-total-price') ? document.getElementById('cart-total-price').textContent : '';
+
+const payload = { 
+  customerName: name, 
+  phone: phone, 
+  address: address, 
+  note: note, 
+  itemsDetail: itemsDetail, 
+  subtotal: subtotalVal,
+  discount: discountVal,
+  shippingFee: shippingVal,
+  totalAmount: totalVal 
+};
       try {
         await fetch(SCRIPT_URL, {
           method: 'POST',
