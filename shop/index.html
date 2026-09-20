@@ -19,11 +19,9 @@
   <header class="sticky top-0 z-50 bg-brand-bg/95 backdrop-blur-md border-b border-brand-border/80">
     <div class="max-w-7xl mx-auto px-4 md:px-6 h-16 md:h-20 flex items-center justify-between">
       <!-- 1. ONLINE SHOP (BỎ LINK QUAY VỀ TRANG CHỦ, HẠ KÍCH THƯỚC CHỮ) -->
-<a href="/shop/" class="flex items-center py-1">
-  <img src="https://lh3.googleusercontent.com/d/1UWH1PUiwIDbG9RQsOsBZWDObkaveurvW" 
-       alt="Oriberry Shop Logo" 
-       class="h-12 md:h-16 w-auto object-contain">
-</a>
+      <h1 class="font-logo text-xl md:text-2xl font-bold tracking-wider text-brand-text uppercase">
+        ONLINE SHOP
+      </h1>
       
       <!-- 2. TRANG CHỦ & GIỎ HÀNG -->
       <div class="flex items-center space-x-6">
@@ -179,51 +177,16 @@
           <div id="cart-items-container" class="py-4 space-y-4 max-h-[50vh] overflow-y-auto"></div>
         </div>
 
-<div id="cart-items-container" class="py-4 space-y-4 max-h-[50vh] overflow-y-auto"></div>
-  </div>
-
-  <!-- Bảng chi tiết tính tiền mới dán vào đây -->
-  <div class="border-t border-neutral-200 pt-3 mb-3 text-xs space-y-1.5">
-    <div class="flex justify-between text-neutral-600">
-      <span>Subtotal (Tiền hàng):</span>
-      <span id="cart-subtotal" class="font-medium text-neutral-900">0đ</span>
-    </div>
-    <div class="flex justify-between text-emerald-700">
-      <span>Discount (Giảm giá 5%):</span>
-      <span id="cart-discount" class="font-medium">0đ</span>
-    </div>
-    <div class="flex justify-between text-neutral-600">
-      <span>Shipping (Phí ship):</span>
-      <span id="cart-shipping" class="font-medium text-neutral-900">FREE</span>
-    </div>
-    <div class="flex justify-between text-sm font-bold text-neutral-900 border-t border-neutral-200 pt-2 mt-2">
-      <span>Total (Tổng thanh toán):</span>
-      <span id="cart-total-price">0đ</span>
-    </div>
-  </div>
-
-  <form id="checkout-form" onsubmit="submitOrder(event)" class="space-y-3">
+        <div class="border-t border-neutral-200 pt-4">
+          <div class="flex justify-between items-center text-base font-bold text-neutral-900 mb-4">
+            <span>Total:</span>
+            <span id="cart-total-price">0đ</span>
+          </div>
 
           <form id="checkout-form" onsubmit="submitOrder(event)" class="space-y-3">
-            <!-- Bổ sung ô chọn Khu vực / Khoảng cách giao hàng -->
-<div class="my-3 space-y-1 text-xs">
-  <label class="font-medium text-neutral-700 block">Shipping Zone / Distance *</label>
-  <select id="shipping-zone" onchange="updateCartTotals()" class="w-full bg-stone-100 border border-neutral-300 rounded-md p-2.5 focus:outline-none focus:ring-1 focus:ring-neutral-900 text-xs">
-    <option value="within2km">Within 2km from Oriberry shop (FREE)</option>
-    <option value="hanoi_inner">Inner Hanoi (>2km) - ~25.000đ</option>
-    <option value="hanoi_outer">Outer Hanoi - ~35.000đ</option>
-    <option value="provinces">Other Provinces (Tỉnh khác) - ~45.000đ</option>
-  </select>
-</div>
-
-<!-- Banner thông báo Ưu đãi / Tiến trình nhận quà -->
-<div id="shipping-promo-banner" class="bg-amber-50 border border-amber-200 text-amber-900 text-[11px] p-2.5 rounded-md mb-3">
-  <!-- Nội dung ưu đãi sẽ tính toán tự động -->
-</div>
             <input type="text" id="cust-name" placeholder="Full Name *" required class="w-full text-xs border border-neutral-300 rounded-md p-2.5 focus:outline-none focus:ring-1 focus:ring-neutral-900">
             <input type="tel" id="cust-phone" placeholder="Phone Number *" required class="w-full text-xs border border-neutral-300 rounded-md p-2.5 focus:outline-none focus:ring-1 focus:ring-neutral-900">
             <textarea id="cust-address" placeholder="Shipping Address *" rows="2" required class="w-full text-xs border border-neutral-300 rounded-md p-2.5 focus:outline-none focus:ring-1 focus:ring-neutral-900"></textarea>
-            <textarea id="cust-note" placeholder="Note for Oriberry (optional)" rows="2" class="w-full text-xs border border-neutral-300 rounded-md p-2.5 focus:outline-none focus:ring-1 focus:ring-neutral-900 mt-2"></textarea>
             
             <button type="submit" id="submit-btn" class="w-full bg-amber-700 text-white font-medium text-sm py-3 rounded-lg hover:bg-amber-800 transition">
               Place Order
@@ -504,62 +467,10 @@
         `).join('');
       }
 
-updateCartTotals();
-function updateCartTotals() {
-  const subtotal = cart.reduce((sum, item) => sum + (item.price * item.qty), 0);
-  
-  const zoneSelect = document.getElementById('shipping-zone');
-  const selectedZone = zoneSelect ? zoneSelect.value : 'within2km';
-
-  const MOC_2_FREESHIP_HN = 1000000;
-  const MOC_3_DISCOUNT = 2000000;
-  const DISCOUNT_RATE = 0.05;
-
-  let discount = 0;
-  let shipFee = 0;
-  let promoText = "";
-
-  if (subtotal >= MOC_3_DISCOUNT) {
-    discount = subtotal * DISCOUNT_RATE;
-  }
-
-  if (selectedZone === 'within2km') {
-    shipFee = 0;
-  } else if (selectedZone === 'hanoi_inner') {
-    if (subtotal >= MOC_2_FREESHIP_HN) {
-      shipFee = 0;
-    } else {
-      shipFee = 25000;
+      document.getElementById('cart-total-price').innerText = cart.reduce((sum, item) => sum + (item.price * item.qty), 0).toLocaleString('vi-VN') + 'đ';
     }
-  } else if (selectedZone === 'hanoi_outer') {
-    shipFee = 35000;
-  } else if (selectedZone === 'provinces') {
-    shipFee = 45000;
-  }
 
-  if (subtotal >= MOC_3_DISCOUNT) {
-    promoText = "🎉 <b>Congrats!</b> You unlocked <b>5% OFF</b> + Inner Hanoi Free Shipping!";
-  } else if (subtotal >= MOC_2_FREESHIP_HN) {
-    const needForDiscount = MOC_3_DISCOUNT - subtotal;
-    promoText = `🚚 Inner Hanoi <b>FREE Shipping</b> applied! Add <b>${needForDiscount.toLocaleString('vi-VN')}đ</b> more for <b>5% OFF</b>.`;
-} else {
-    const needForFreeShip = MOC_2_FREESHIP_HN - subtotal;
-    promoText = `💡 Add <b>${needForFreeShip.toLocaleString('vi-VN')}đ</b> more to get FREE Shipping in Inner Hanoi!`;
-  }
-
-  const grandTotal = subtotal - discount + shipFee;
-
-  const promoBanner = document.getElementById('shipping-promo-banner');
-  if (promoBanner) promoBanner.innerHTML = promoText;
-
-  if (document.getElementById('cart-subtotal')) document.getElementById('cart-subtotal').textContent = subtotal.toLocaleString('vi-VN') + 'đ';
-  if (document.getElementById('cart-discount')) document.getElementById('cart-discount').textContent = discount > 0 ? '-' + discount.toLocaleString('vi-VN') + 'đ' : '0đ';
-  if (document.getElementById('cart-shipping')) document.getElementById('cart-shipping').textContent = shipFee === 0 ? 'FREE' : shipFee.toLocaleString('vi-VN') + 'đ';
-  if (document.getElementById('cart-total-price')) document.getElementById('cart-total-price').textContent = grandTotal.toLocaleString('vi-VN') + 'đ';
-}
-    
     function openCart() {
-      updateCartTotals();
       toggleCart(true);
     }
 
@@ -578,29 +489,14 @@ function updateCartTotals() {
       submitBtn.disabled = true;
       submitBtn.innerText = "Submitting order...";
 
-const name = document.getElementById('cust-name').value;
-const phone = document.getElementById('cust-phone').value;
-const address = document.getElementById('cust-address').value;
-const note = document.getElementById('cust-note') ? document.getElementById('cust-note').value : '';
+      const name = document.getElementById('cust-name').value;
+      const phone = document.getElementById('cust-phone').value;
+      const address = document.getElementById('cust-address').value;
+      const itemsDetail = cart.map(i => `${i.name} [Grind: ${i.grind}] x${i.qty}`).join(' | ');
+      const totalAmount = cart.reduce((sum, i) => sum + (i.price * i.qty), 0).toLocaleString('vi-VN') + 'đ';
 
-const itemsDetail = cart.map(i => `${i.name} (${i.grind}) x${i.qty}`).join(' | ');
-
-const subtotalVal = document.getElementById('cart-subtotal') ? document.getElementById('cart-subtotal').textContent : '';
-const discountVal = document.getElementById('cart-discount') ? document.getElementById('cart-discount').textContent : '0đ';
-const shippingVal = document.getElementById('cart-shipping') ? document.getElementById('cart-shipping').textContent : '0đ';
-const totalVal = document.getElementById('cart-total-price') ? document.getElementById('cart-total-price').textContent : '';
-
-const payload = { 
-  customerName: name, 
-  phone: phone, 
-  address: address, 
-  note: note, 
-  itemsDetail: itemsDetail, 
-  subtotal: subtotalVal,
-  discount: discountVal,
-  shippingFee: shippingVal,
-  totalAmount: totalVal 
-};
+      const payload = { customerName: name, phone: phone, address: address, itemsDetail: itemsDetail, totalAmount: totalAmount };
+      
       try {
         await fetch(SCRIPT_URL, {
           method: 'POST',
@@ -609,21 +505,7 @@ const payload = {
           body: JSON.stringify(payload)
         });
 
-// Thay cho dòng alert() ở dòng 509
-const successModal = document.createElement('div');
-successModal.className = 'fixed inset-0 bg-black/50 z-[100] flex items-center justify-center p-4';
-successModal.innerHTML = `
-  <div class="bg-white rounded-lg p-6 max-w-sm w-full text-center shadow-xl">
-    <div class="text-3xl mb-2">🎉</div>
-    <h3 class="text-lg font-bold text-stone-900 mb-1">Success!</h3>
-    <p class="text-sm text-stone-600 mb-5">Order placed successfully! Your order has been saved.</p>
-    <button id="close-success-btn" class="w-full bg-stone-900 text-white font-medium py-2.5 rounded text-sm hover:bg-stone-800 transition-colors uppercase tracking-wider">
-      OK
-    </button>
-  </div>
-`;
-document.body.appendChild(successModal);
-document.getElementById('close-success-btn').onclick = () => { successModal.remove(); };
+        alert("🎉 Order placed successfully! Your order has been saved.");
         cart = [];
         saveCart();
         toggleCart(false);
