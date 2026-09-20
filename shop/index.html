@@ -26,9 +26,6 @@
       
       <!-- 2. TRANG CHỦ & GIỎ HÀNG -->
       <div class="flex items-center space-x-6">
-        <a href="/" class="text-sm font-medium text-neutral-800 hover:opacity-70 transition-opacity">
-          Home
-        </a>
         <button id="cart-btn" onclick="openCart()" class="text-sm font-medium bg-neutral-900 text-white px-4 py-2 flex items-center space-x-2 hover:bg-stone-800 transition-all cursor-pointer rounded-lg">
           <span>Cart</span>
           <span id="cart-count" class="bg-amber-500 text-black text-xs font-bold rounded-full w-5 h-5 flex items-center justify-center">0</span>
@@ -372,7 +369,7 @@
         <div class="bg-white border border-neutral-200 rounded-xl overflow-hidden shadow-sm hover:shadow-md transition flex flex-col justify-between">
           <div>
             <div class="relative">
-              <img src="${p.img1}" alt="${p.name}" class="w-full aspect-square object-cover bg-neutral-100">
+              <img src="${p.img1}" alt="${p.name}" onclick="openDetailModal('${p.id}')" class="w-full aspect-square object-cover bg-neutral-100 cursor-pointer">
               <span class="absolute top-2 left-2 bg-neutral-900/80 text-white text-[10px] font-medium px-2 py-0.5 rounded backdrop-blur-sm">${p.type} • ${p.region}</span>
             </div>
             <div class="p-4">
