@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Oriberry Office - Quản Lý Đơn Hàng Cà Phê Gói</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    body { font-family: 'Plus Jakarta Sans', sans-serif; }
+  </style>
+</head>
+<body class="bg-slate-100 text-slate-800 min-h-screen">
+
+  <!-- Header -->
+  <header class="bg-amber-900 text-white px-6 py-4 shadow-md flex justify-between items-center sticky top-0 z-10">
+    <div>
+      <h1 class="text-xl font-bold tracking-wide">ORIBERRY OFFICE</h1>
+      <p class="text-xs text-amber-200">Hệ thống nhận đơn Cà phê gói (/shop)</p>
+    </div>
+    <div class="flex items-center gap-3">
+      <button id="audioToggleBtn" onclick="enableAudio()" class="px-3 py-1.5 bg-amber-700 hover:bg-amber-600 rounded-lg text-xs font-semibold transition flex items-center gap-1.5">
+        🔊 Bật Âm Thanh Báo Đơn
+      </button>
+      <span id="statusIndicator" class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium bg-emerald-100 text-emerald-800">
+        ● Đã kết nối
+      </span>
+    </div>
+  </header>
+
+  <!-- Main Content -->
+  <main class="max-w-6xl mx-auto p-4 md:p-6">
+    <div class="flex justify-between items-center mb-6">
+      <h2 class="text-lg font-bold text-slate-700">Danh Sách Đơn Hàng Mới Nhất</h2>
+      <button onclick="fetchOrders()" class="text-sm font-semibold text-amber-900 hover:underline">↻ Tải lại</button>
+    </div>
+
+    <!-- Order List Table -->
+    <div class="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
+      <div class="overflow-x-auto">
+        <table class="w-full text-left border-collapse">
+          <thead>
+            <tr class="bg-slate-50 border-b border-slate-200 text-xs font-bold text-slate-500 uppercase tracking-wider">
+              <th class="p-4">Mã Đơn</th>
+              <th class="p-4">Thời Gian</th>
+              <th class="p-4">Khách Hàng</th>
+              <th class="p-4">Sản Phẩm</th>
+              <th class="p-4">Tổng Tiền</th>
+              <th class="p-4">Trạng Thái</th>
+              <th class="p-4 text-center">Thao Tác</th>
+            </tr>
+          </thead>
+          <tbody id="orderTableBody" class="divide-y divide-slate-100 text-sm">
+            <tr>
+              <td colspan="7" class="p-8 text-center text-slate-400">Đang tải dữ liệu đơn hàng...</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </main>
+
+  <!-- POPUP NỔI KHI CÓ ĐƠN MỚI -->
+  <div id="orderModal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center hidden p-4">
+    <div class="bg-white rounded-2xl shadow-2xl max-w-lg w-full p-6 animate-bounce-short border-4 border-amber-500">
+      <div class="flex justify-between items-start mb-4 border-b pb-3">
+        <div>
+          <span class="inline-block px-2.5 py-0.5 bg-red-100 text-red-700 font-bold text-xs rounded-full uppercase tracking-wider mb-1">🔥 Đơn hàng mới!</span>
+          <h3 id="modalOrderId" class="text-xl font-extrabold text-slate-900">Mã đơn: #---</h3>
+        </div>
+        <span id="modalTime" class="text-xs text-slate-400">00:00</span>
+      </div>
+
+      <div class="space-y-3 text-sm">
+        <div class="bg-amber-50 p-3 rounded-lg border border-amber-200">
+          <p class="font-bold text-amber-900 text-base" id="modalCustomerName">Khách hàng: ---</p>
+          <p class="text-slate-700 font-semibold" id="modalCustomerPhone">SĐT: ---</p>
+          <p class="text-slate-600 text-xs mt-1" id="modalCustomerAddress">Địa chỉ: ---</p>
+        </div>
+
+        <div>
+          <p class="font-bold text-slate-700 mb-1">Chi tiết sản phẩm:</p>
+          <div id="modalItems" class="bg-slate-50 p-3 rounded-lg text-slate-800 font-medium">---</div>
+        </div>
+
+        <div class="flex justify-between items-center pt-2">
+          <span class="font-bold text-slate-600">Tổng tiền thanh toán:</span>
+          <span id="modalTotal" class="text-xl font-extrabold text-amber-900">0 VNĐ</span>
+        </div>
+      </div>
+
+      <div class="mt-6 flex gap-3">
+        <button onclick="confirmOrder()" class="flex-1 bg-amber-900 hover:bg-amber-800 text-white font-bold py-3 rounded-xl shadow-lg transition text-center">
+          ✓ Đã Xác Nhận / Gọi Khách
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Audio Chuông Báo -->
+  <audio id="bellAudio" loop src="https://assets.mixkit.co/active_storage/sfx/2869/2869-preview.mp3"></audio>
+
+  <script>
+    // Cấu hình URL Worker API của anh
+    const API_URL = 'https://oriberry-api.your-worker.workers.dev/api/orders'; // Sẽ cập nhật link Worker thật của anh
+    let knownOrders = new Set();
+    let currentProcessingOrder = null;
+    let audioAllowed = false;
+
+    // Cho phép bật âm thanh khi bấm nút/click trang
+    function enableAudio() {
+      const audio = document.getElementById('bellAudio');
+      audio.play().then(() => {
+        audio.pause();
+        audioAllowed = true;
+        document.getElementById('audioToggleBtn').classList.replace('bg-amber-700', 'bg-emerald-700');
+        document.getElementById('audioToggleBtn').innerText = '🔊 Âm Thanh Đã Bật';
+      }).catch(e => console.log("Audio permission denied", e));
+    }
+
+    // Phát âm thanh báo
+    function playBell() {
+      if (audioAllowed) {
+        const audio = document.getElementById('bellAudio');
+        audio.currentTime = 0;
+        audio.play();
+      }
+    }
+
+    // Tắt âm thanh
+    function stopBell() {
+      const audio = document.getElementById('bellAudio');
+      audio.pause();
+      audio.currentTime = 0;
+    }
+
+    // Quét lấy danh sách đơn từ Worker / Google Sheet
+    async function fetchOrders() {
+      try {
+        const res = await fetch(API_URL);
+        const data = await res.json();
+        
+        if (data && data.orders) {
+          renderTable(data.orders);
+          checkForNewOrders(data.orders);
+        }
+      } catch (err) {
+        console.error("Lỗi kết nối API đơn hàng:", err);
+      }
+    }
+
+    // Kiểm tra có đơn mới dạng PENDING không
+    function checkForNewOrders(orders) {
+      const pendingOrders = orders.filter(o => o.status === 'PENDING' || !o.status);
+      
+      if (pendingOrders.length > 0) {
+        const newest = pendingOrders[0];
+        // Nếu phát hiện mã đơn mới chưa có trong danh sách đã biết
+        if (!knownOrders.has(newest.orderId)) {
+          showModal(newest);
+          playBell();
+        }
+      }
+    }
+
+    // Bật Popup Pop-up
+    function showModal(order) {
+      currentProcessingOrder = order;
+      document.getElementById('modalOrderId').innerText = 'Mã đơn: #' + order.orderId;
+      document.getElementById('modalCustomerName').innerText = 'Khách hàng: ' + order.name;
+      document.getElementById('modalCustomerPhone').innerText = 'SĐT: ' + order.phone;
+      document.getElementById('modalCustomerAddress').innerText = 'Địa chỉ: ' + order.address;
+      document.getElementById('modalItems').innerText = order.items;
+      document.getElementById('modalTotal').innerText = order.total;
+      document.getElementById('modalTime').innerText = order.date || '';
+
+      document.getElementById('orderModal').classList.remove('hidden');
+    }
+
+    // Bấm nút Đã Xác Nhận
+    async function confirmOrder() {
+      if (!currentProcessingOrder) return;
+      
+      stopBell();
+      document.getElementById('orderModal').classList.add('hidden');
+      knownOrders.add(currentProcessingOrder.orderId);
+
+      // Gửi yêu cầu cập nhật trạng thái lên Sheet qua Worker
+      try {
+        await fetch(API_URL + '/update', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ orderId: currentProcessingOrder.orderId, status: 'CONFIRMED' })
+        });
+        fetchOrders(); // Tải lại bảng
+      } catch (e) {
+        console.error("Lỗi cập nhật trạng thái đơn:", e);
+      }
+    }
+
+    // Render dữ liệu ra bảng
+    function renderTable(orders) {
+      const tbody = document.getElementById('orderTableBody');
+      if (orders.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="7" class="p-8 text-center text-slate-400">Chưa có đơn hàng nào</td></tr>';
+        return;
+      }
+
+      tbody.innerHTML = orders.map(o => `
+        <tr class="hover:bg-slate-50 transition">
+          <td class="p-4 font-bold text-slate-900">#${o.orderId}</td>
+          <td class="p-4 text-xs text-slate-500">${o.date || ''}</td>
+          <td class="p-4">
+            <div class="font-semibold text-slate-800">${o.name}</div>
+            <div class="text-xs text-slate-500">${o.phone}</div>
+          </td>
+          <td class="p-4 text-xs font-medium text-slate-700">${o.items}</td>
+          <td class="p-4 font-bold text-amber-900">${o.total}</td>
+          <td class="p-4">
+            <span class="px-2.5 py-1 rounded-full text-xs font-bold ${o.status === 'CONFIRMED' ? 'bg-emerald-100 text-emerald-700' : 'bg-amber-100 text-amber-800'}">
+              ${o.status === 'CONFIRMED' ? 'Đã Xác Nhận' : 'Chờ Xử Lý'}
+            </span>
+          </td>
+          <td class="p-4 text-center">
+            ${o.status !== 'CONFIRMED' ? `
+              <button onclick="showModal(${JSON.stringify(o).replace(/"/g, '&quot;')}); playBell();" class="px-3 py-1 bg-amber-900 text-white rounded-lg text-xs font-bold hover:bg-amber-800">
+                Xử lý
+              </button>
+            ` : '<span class="text-xs text-slate-400">✓ Hoàn tất</span>'}
+          </td>
+        </tr>
+      `).join('');
+    }
+
+    // Tự động quét đơn mới mỗi 10 giây
+    setInterval(fetchOrders, 10000);
+    // Chạy lần đầu khi mở trang
+    fetchOrders();
+  </script>
+</body>
+</html>
