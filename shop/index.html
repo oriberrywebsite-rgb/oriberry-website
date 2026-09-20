@@ -542,7 +542,7 @@ function updateCartTotals() {
   } else if (subtotal >= MOC_2_FREESHIP_HN) {
     const needForDiscount = MOC_3_DISCOUNT - subtotal;
     promoText = `🚚 Inner Hanoi <b>FREE Shipping</b> applied! Add <b>${needForDiscount.toLocaleString('vi-VN')}đ</b> more for <b>5% OFF</b>.`;
-  } else {
+} else {
     const needForFreeShip = MOC_2_FREESHIP_HN - subtotal;
     promoText = `💡 Add <b>${needForFreeShip.toLocaleString('vi-VN')}đ</b> more to get FREE Shipping in Inner Hanoi!`;
   }
