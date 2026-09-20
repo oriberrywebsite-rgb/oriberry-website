@@ -186,6 +186,21 @@
           </div>
 
           <form id="checkout-form" onsubmit="submitOrder(event)" class="space-y-3">
+            <!-- Bổ sung ô chọn Khu vực / Khoảng cách giao hàng -->
+<div class="my-3 space-y-1 text-xs">
+  <label class="font-medium text-neutral-700 block">Shipping Zone / Distance *</label>
+  <select id="shipping-zone" onchange="updateCartTotals()" class="w-full bg-stone-100 border border-neutral-300 rounded-md p-2.5 focus:outline-none focus:ring-1 focus:ring-neutral-900 text-xs">
+    <option value="within2km">Within 2km from Oriberry shop (FREE)</option>
+    <option value="hanoi_inner">Inner Hanoi (>2km) - ~25.000đ</option>
+    <option value="hanoi_outer">Outer Hanoi - ~35.000đ</option>
+    <option value="provinces">Other Provinces (Tỉnh khác) - ~45.000đ</option>
+  </select>
+</div>
+
+<!-- Banner thông báo Ưu đãi / Tiến trình nhận quà -->
+<div id="shipping-promo-banner" class="bg-amber-50 border border-amber-200 text-amber-900 text-[11px] p-2.5 rounded-md mb-3">
+  <!-- Nội dung ưu đãi sẽ tính toán tự động -->
+</div>
             <input type="text" id="cust-name" placeholder="Full Name *" required class="w-full text-xs border border-neutral-300 rounded-md p-2.5 focus:outline-none focus:ring-1 focus:ring-neutral-900">
             <input type="tel" id="cust-phone" placeholder="Phone Number *" required class="w-full text-xs border border-neutral-300 rounded-md p-2.5 focus:outline-none focus:ring-1 focus:ring-neutral-900">
             <textarea id="cust-address" placeholder="Shipping Address *" rows="2" required class="w-full text-xs border border-neutral-300 rounded-md p-2.5 focus:outline-none focus:ring-1 focus:ring-neutral-900"></textarea>
