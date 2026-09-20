@@ -16,19 +16,19 @@
 <body class="bg-neutral-50 text-neutral-800 font-sans min-h-screen flex flex-col justify-between">
 
   <!-- HEADER -->
-  <header class="sticky top-0 z-50 bg-brand-bg/95 backdrop-blur-md border-b border-brand-border/80">
+  <header class="sticky top-0 z-50 bg-white/95 backdrop-blur-md border-b border-neutral-200">
     <div class="max-w-7xl mx-auto px-4 md:px-6 h-16 md:h-20 flex items-center justify-between">
-      <!-- 1. ONLINE SHOP (BỎ LINK QUAY VỀ TRANG CHỦ, HẠ KÍCH THƯỚC CHỮ) -->
-      <h1 class="font-logo text-xl md:text-2xl font-bold tracking-wider text-brand-text uppercase">
+      <!-- 1. ONLINE SHOP -->
+      <h1 class="font-logo text-xl md:text-2xl font-bold tracking-wider text-neutral-900 uppercase">
         ONLINE SHOP
       </h1>
       
       <!-- 2. TRANG CHỦ & GIỎ HÀNG -->
       <div class="flex items-center space-x-6">
-        <a href="/" class="text-sm font-medium text-brand-text hover:opacity-70 transition-opacity">
+        <a href="/" class="text-sm font-medium text-neutral-800 hover:opacity-70 transition-opacity">
           Home
         </a>
-        <button id="cart-btn" onclick="openCart()" class="text-sm font-medium bg-brand-text text-brand-bg px-4 py-2 flex items-center space-x-2 hover:bg-stone-800 transition-all cursor-pointer">
+        <button id="cart-btn" onclick="openCart()" class="text-sm font-medium bg-neutral-900 text-white px-4 py-2 flex items-center space-x-2 hover:bg-stone-800 transition-all cursor-pointer">
           <span>Cart</span>
           <span id="cart-count" class="bg-amber-500 text-black text-xs font-bold rounded-full w-5 h-5 flex items-center justify-center">0</span>
         </button>
@@ -61,7 +61,7 @@
           </select>
         </div>
 
-        <!-- 3. FILTER BY REGION (ĐÃ ĐỔI "Đắc Lắc" THÀNH "Đắk Lắk") -->
+        <!-- 3. FILTER BY REGION -->
         <div>
           <select id="filter-region" onchange="renderProducts()" class="w-full text-xs border border-neutral-300 rounded-lg p-2.5 bg-white focus:outline-none focus:ring-1 focus:ring-neutral-900 cursor-pointer">
             <option value="ALL" selected>Filter by Region (All)</option>
@@ -174,16 +174,46 @@
             <h3 class="text-lg font-bold text-neutral-900">Your Cart</h3>
             <button onclick="toggleCart(false)" class="text-neutral-500 hover:text-neutral-800 text-xl font-bold">&times;</button>
           </div>
-          <div id="cart-items-container" class="py-4 space-y-4 max-h-[50vh] overflow-y-auto"></div>
+          <div id="cart-items-container" class="py-4 space-y-4 max-h-[40vh] overflow-y-auto"></div>
         </div>
 
-        <div class="border-t border-neutral-200 pt-4">
-          <div class="flex justify-between items-center text-base font-bold text-neutral-900 mb-4">
-            <span>Total:</span>
-            <span id="cart-total-price">0đ</span>
+        <div class="border-t border-neutral-200 pt-4 space-y-3">
+          <!-- KHU VỰC GIAO HÀNG (SHIPPING ZONE) -->
+          <div>
+            <label class="block text-xs font-bold text-neutral-800 mb-1">Shipping Zone:</label>
+            <select id="shipping-zone" onchange="updateCartTotals()" class="w-full text-xs border border-neutral-300 rounded-md p-2 bg-white focus:outline-none focus:ring-1 focus:ring-neutral-900 cursor-pointer">
+              <option value="within2km">Inner Hanoi (<2km) - Free Ship</option>
+              <option value="hanoi_inner" selected>Inner Hanoi - 25,000đ (Free from 1,000,000đ)</option>
+              <option value="hanoi_outer">Outer Hanoi - 35,000đ</option>
+              <option value="provinces">Provinces / Other Cities - 45,000đ</option>
+            </select>
           </div>
 
-          <form id="checkout-form" onsubmit="submitOrder(event)" class="space-y-3">
+          <!-- BANNER KHUYẾN MÃI ĐỘNG -->
+          <div id="shipping-promo-banner" class="text-xs p-2.5 rounded-lg bg-amber-50 text-amber-900 border border-amber-200 leading-relaxed"></div>
+
+          <!-- BẢNG TÍNH TIỀN CHI TIẾT -->
+          <div class="border-t border-neutral-200 pt-3 text-xs space-y-1.5">
+            <div class="flex justify-between text-neutral-600">
+              <span>Subtotal:</span>
+              <span id="cart-subtotal" class="font-medium text-neutral-900">0đ</span>
+            </div>
+            <div class="flex justify-between text-emerald-700">
+              <span>Discount (5%):</span>
+              <span id="cart-discount" class="font-medium">0đ</span>
+            </div>
+            <div class="flex justify-between text-neutral-600">
+              <span>Shipping:</span>
+              <span id="cart-shipping" class="font-medium text-neutral-900">FREE</span>
+            </div>
+            <div class="flex justify-between text-sm font-bold text-neutral-900 border-t border-neutral-200 pt-2 mt-2">
+              <span>Total:</span>
+              <span id="cart-total-price">0đ</span>
+            </div>
+          </div>
+
+          <!-- FORM THÔNG TIN ĐẶT HÀNG -->
+          <form id="checkout-form" onsubmit="submitOrder(event)" class="space-y-2.5 pt-1">
             <input type="text" id="cust-name" placeholder="Full Name *" required class="w-full text-xs border border-neutral-300 rounded-md p-2.5 focus:outline-none focus:ring-1 focus:ring-neutral-900">
             <input type="tel" id="cust-phone" placeholder="Phone Number *" required class="w-full text-xs border border-neutral-300 rounded-md p-2.5 focus:outline-none focus:ring-1 focus:ring-neutral-900">
             <textarea id="cust-address" placeholder="Shipping Address *" rows="2" required class="w-full text-xs border border-neutral-300 rounded-md p-2.5 focus:outline-none focus:ring-1 focus:ring-neutral-900"></textarea>
@@ -197,7 +227,7 @@
     </div>
   </div>
 
-  <!-- Script logic with Caching & Query Params -->
+  <!-- Script logic với Caching, Shipping & Multi-tier Discount -->
   <script>
     const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzoWopdIwcIH1mI6i0LNZP3YLK_U7zjIc6iMwLEdyCNuZ4L4jAwop8QWc6g0v06Qs_f/exec";
     const CACHE_KEY = "oriberry_products_cache_v1";
@@ -215,7 +245,6 @@
     let selectedPopQty = 1;
     let cart = JSON.parse(localStorage.getItem('oriberry_cart') || '[]');
 
-    // Hàm chuẩn hóa chuỗi tiếng Việt để so sánh bộ lọc chính xác
     function normalizeStr(str) {
       if (!str) return '';
       return str.toLowerCase()
@@ -227,7 +256,6 @@
     async function fetchProducts() {
       const cachedData = localStorage.getItem(CACHE_KEY);
 
-      // 1. Render ngay lập tức từ Cache nếu có
       if (cachedData) {
         try {
           PRODUCTS = JSON.parse(cachedData);
@@ -238,7 +266,6 @@
         }
       }
 
-      // 2. Fetch ngầm dữ liệu mới nhất từ Google Apps Script
       try {
         const res = await fetch(SCRIPT_URL);
         const data = await res.json();
@@ -260,7 +287,6 @@
       }
     }
 
-    // Hàm đọc đường dẫn URL dạng /shop/?id=DMDL để tự động bật Popup
     function checkUrlForProduct() {
       const urlParams = new URLSearchParams(window.location.search);
       const productId = urlParams.get('id');
@@ -274,7 +300,6 @@
       const regionVal = document.getElementById('filter-region')?.value || 'ALL';
       const sortVal = document.getElementById('sort-price')?.value || 'default';
 
-      // Lọc theo Type & Region
       let filtered = PRODUCTS.filter(p => {
         const pType = normalizeStr(p.type);
         const pRegion = normalizeStr(p.region);
@@ -285,7 +310,6 @@
         return matchType && matchRegion;
       });
 
-      // Sắp xếp theo giá
       if (sortVal === 'low-to-high') {
         filtered.sort((a, b) => Number(a.price) - Number(b.price));
       } else if (sortVal === 'high-to-low') {
@@ -444,6 +468,55 @@
       updateCartUI();
     }
 
+    // HÀM TÍNH TOÁN VÀ CẬP NHẬT TỔNG TIỀN + PHÍ SHIP + GIẢM GIÁ
+    function updateCartTotals() {
+      const subtotal = cart.reduce((sum, item) => sum + (item.price * item.qty), 0);
+      const zoneSelect = document.getElementById('shipping-zone');
+      const selectedZone = zoneSelect ? zoneSelect.value : 'hanoi_inner';
+
+      const MOC_2_FREESHIP_HN = 1000000;
+      const MOC_3_DISCOUNT = 2000000;
+      const DISCOUNT_RATE = 0.05;
+
+      let discount = 0;
+      let shipFee = 0;
+      let promoText = "";
+
+      if (subtotal >= MOC_3_DISCOUNT) {
+        discount = subtotal * DISCOUNT_RATE;
+      }
+
+      if (selectedZone === 'within2km') {
+        shipFee = 0;
+      } else if (selectedZone === 'hanoi_inner') {
+        shipFee = (subtotal >= MOC_2_FREESHIP_HN) ? 0 : 25000;
+      } else if (selectedZone === 'hanoi_outer') {
+        shipFee = 35000;
+      } else if (selectedZone === 'provinces') {
+        shipFee = 45000;
+      }
+
+      if (subtotal >= MOC_3_DISCOUNT) {
+        promoText = "🎉 <b>Congrats!</b> You unlocked <b>5% OFF</b> + Inner Hanoi Free Shipping!";
+      } else if (subtotal >= MOC_2_FREESHIP_HN) {
+        const needForDiscount = MOC_3_DISCOUNT - subtotal;
+        promoText = `🚚 Inner Hanoi <b>FREE Shipping</b> applied! Add <b>${needForDiscount.toLocaleString('vi-VN')}đ</b> more for <b>5% OFF</b>.`;
+      } else {
+        const needForFreeShip = MOC_2_FREESHIP_HN - subtotal;
+        promoText = `💡 Add <b>${needForFreeShip.toLocaleString('vi-VN')}đ</b> more to get FREE Shipping in Inner Hanoi!`;
+      }
+
+      const grandTotal = subtotal - discount + shipFee;
+
+      const promoBanner = document.getElementById('shipping-promo-banner');
+      if (promoBanner) promoBanner.innerHTML = promoText;
+
+      if (document.getElementById('cart-subtotal')) document.getElementById('cart-subtotal').textContent = subtotal.toLocaleString('vi-VN') + 'đ';
+      if (document.getElementById('cart-discount')) document.getElementById('cart-discount').textContent = discount > 0 ? '-' + discount.toLocaleString('vi-VN') + 'đ' : '0đ';
+      if (document.getElementById('cart-shipping')) document.getElementById('cart-shipping').textContent = shipFee === 0 ? 'FREE' : shipFee.toLocaleString('vi-VN') + 'đ';
+      if (document.getElementById('cart-total-price')) document.getElementById('cart-total-price').textContent = grandTotal.toLocaleString('vi-VN') + 'đ';
+    }
+
     function updateCartUI() {
       document.getElementById('cart-count').innerText = cart.reduce((sum, item) => sum + item.qty, 0);
 
@@ -467,10 +540,11 @@
         `).join('');
       }
 
-      document.getElementById('cart-total-price').innerText = cart.reduce((sum, item) => sum + (item.price * item.qty), 0).toLocaleString('vi-VN') + 'đ';
+      updateCartTotals();
     }
 
     function openCart() {
+      updateCartTotals();
       toggleCart(true);
     }
 
@@ -492,10 +566,31 @@
       const name = document.getElementById('cust-name').value;
       const phone = document.getElementById('cust-phone').value;
       const address = document.getElementById('cust-address').value;
-      const itemsDetail = cart.map(i => `${i.name} [Grind: ${i.grind}] x${i.qty}`).join(' | ');
-      const totalAmount = cart.reduce((sum, i) => sum + (i.price * i.qty), 0).toLocaleString('vi-VN') + 'đ';
+      const zoneSelect = document.getElementById('shipping-zone');
+      const zoneText = zoneSelect ? zoneSelect.options[zoneSelect.selectedIndex].text : '';
 
-      const payload = { customerName: name, phone: phone, address: address, itemsDetail: itemsDetail, totalAmount: totalAmount };
+      const itemsDetail = cart.map(i => `${i.name} [Grind: ${i.grind}] x${i.qty}`).join(' | ');
+      
+      const subtotal = cart.reduce((sum, item) => sum + (item.price * item.qty), 0);
+      const discount = (subtotal >= 2000000) ? subtotal * 0.05 : 0;
+      let shipFee = 0;
+      const selectedZone = zoneSelect ? zoneSelect.value : 'hanoi_inner';
+      if (selectedZone === 'hanoi_inner') shipFee = (subtotal >= 1000000) ? 0 : 25000;
+      else if (selectedZone === 'hanoi_outer') shipFee = 35000;
+      else if (selectedZone === 'provinces') shipFee = 45000;
+
+      const grandTotal = subtotal - discount + shipFee;
+      const totalAmount = grandTotal.toLocaleString('vi-VN') + 'đ';
+
+      const fullDetails = `${itemsDetail} | Zone: ${zoneText} | Ship: ${shipFee.toLocaleString('vi-VN')}đ | Discount: -${discount.toLocaleString('vi-VN')}đ`;
+
+      const payload = { 
+        customerName: name, 
+        phone: phone, 
+        address: address, 
+        itemsDetail: fullDetails, 
+        totalAmount: totalAmount 
+      };
       
       try {
         await fetch(SCRIPT_URL, {
