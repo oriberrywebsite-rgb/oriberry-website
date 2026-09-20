@@ -485,10 +485,62 @@
         `).join('');
       }
 
-      document.getElementById('cart-total-price').innerText = cart.reduce((sum, item) => sum + (item.price * item.qty), 0).toLocaleString('vi-VN') + 'đ';
-    }
+updateCartTotals();
+function updateCartTotals() {
+  const subtotal = cart.reduce((sum, item) => sum + (item.price * item.qty), 0);
+  
+  const zoneSelect = document.getElementById('shipping-zone');
+  const selectedZone = zoneSelect ? zoneSelect.value : 'within2km';
 
+  const MOC_2_FREESHIP_HN = 1000000;
+  const MOC_3_DISCOUNT = 2000000;
+  const DISCOUNT_RATE = 0.05;
+
+  let discount = 0;
+  let shipFee = 0;
+  let promoText = "";
+
+  if (subtotal >= MOC_3_DISCOUNT) {
+    discount = subtotal * DISCOUNT_RATE;
+  }
+
+  if (selectedZone === 'within2km') {
+    shipFee = 0;
+  } else if (selectedZone === 'hanoi_inner') {
+    if (subtotal >= MOC_2_FREESHIP_HN) {
+      shipFee = 0;
+    } else {
+      shipFee = 25000;
+    }
+  } else if (selectedZone === 'hanoi_outer') {
+    shipFee = 35000;
+  } else if (selectedZone === 'provinces') {
+    shipFee = 45000;
+  }
+
+  if (subtotal >= MOC_3_DISCOUNT) {
+    promoText = "🎉 <b>Congrats!</b> You unlocked <b>5% OFF</b> + Inner Hanoi Free Shipping!";
+  } else if (subtotal >= MOC_2_FREESHIP_HN) {
+    const needForDiscount = MOC_3_DISCOUNT - subtotal;
+    promoText = `🚚 Inner Hanoi <b>FREE Shipping</b> applied! Add <b>${needForDiscount.toLocaleString('vi-VN')}đ</b> more for <b>5% OFF</b>.`;
+  } else {
+    const needForFreeShip = MOC_2_FREESHIP_HN - subtotal;
+    promoText = `💡 Add <b>${needForFreeShip.toLocaleString('vi-VN')}đ</b> more to get FREE Shipping in Inner Hanoi!`;
+  }
+
+  const grandTotal = subtotal - discount + shipFee;
+
+  const promoBanner = document.getElementById('shipping-promo-banner');
+  if (promoBanner) promoBanner.innerHTML = promoText;
+
+  if (document.getElementById('cart-subtotal')) document.getElementById('cart-subtotal').textContent = subtotal.toLocaleString('vi-VN') + 'đ';
+  if (document.getElementById('cart-discount')) document.getElementById('cart-discount').textContent = discount > 0 ? '-' + discount.toLocaleString('vi-VN') + 'đ' : '0đ';
+  if (document.getElementById('cart-shipping')) document.getElementById('cart-shipping').textContent = shipFee === 0 ? 'FREE' : shipFee.toLocaleString('vi-VN') + 'đ';
+  if (document.getElementById('cart-total-price')) document.getElementById('cart-total-price').textContent = grandTotal.toLocaleString('vi-VN') + 'đ';
+}
+    
     function openCart() {
+      updateCartTotals();
       toggleCart(true);
     }
 
