@@ -515,39 +515,41 @@
     }
 
 function updateCartTotals() {
-  const cart = JSON.parse(localStorage.getItem('cart')) || [];
-  
-  // 1. Mốc điều kiện
-  const MOC_2_FREESHIP_HN = 1000000; // Đơn Hà Nội từ 1tr được freeship
-  const MOC_3_DISCOUNT = 2000000;    // Đơn từ 2tr được giảm 5%
-  const DISCOUNT_RATE = 0.05;        // Giảm 5%
+  const MOC_2_FREESHIP_HN = 1000000; // 1tr freeship HN
+  const MOC_3_DISCOUNT = 2000000;    // 2tr giảm 5%
+  const DISCOUNT_RATE = 0.05;
+
+  // 1. Lấy dữ liệu từ biến toàn cục 'cart' (nếu không có mới dùng localStorage)
+  const currentCart = (typeof cart !== 'undefined' && Array.isArray(cart)) 
+    ? cart 
+    : (JSON.parse(localStorage.getItem('cart')) || []);
 
   // 2. Tính tổng tiền hàng gốc
-  const subtotal = cart.reduce((sum, item) => sum + (item.price * (item.qty || item.quantity || 1)), 0);
-  
-  // 3. Giảm giá 5% NẾU tổng tiền hàng >= 2.000.000đ
+  const subtotal = currentCart.reduce((sum, item) => {
+    const q = item.qty || item.quantity || 1;
+    return sum + (item.price * q);
+  }, 0);
+
+  // 3. Tính giảm giá 5% khi đơn >= 2 triệu
   let discount = 0;
   if (subtotal >= MOC_3_DISCOUNT) {
     discount = Math.round(subtotal * DISCOUNT_RATE);
   }
   const totalAfterDiscount = subtotal - discount;
 
-  // 4. Lấy khu vực giao hàng từ ô select (cust-province)
-  const provinceSelect = document.getElementById('cust-province');
-  const selectedZone = provinceSelect ? provinceSelect.value : '';
+  // 4. Lấy khu vực giao hàng (kiểm tra cả shipping-zone và cust-province)
+  const zoneSelect = document.getElementById('shipping-zone') || document.getElementById('cust-province');
+  const selectedZone = zoneSelect ? zoneSelect.value : '';
 
   // 5. Tính phí ship
   let shippingFee = 0;
-  if (selectedZone === 'hanoi_inner' || selectedZone === 'within2km') {
-    if (selectedZone === 'within2km') {
-      shippingFee = 0;
-    } else {
-      // Nội thành HN: Đơn sau giảm giá >= 1tr được freeship, ngược lại 25k
-      shippingFee = totalAfterDiscount >= MOC_2_FREESHIP_HN ? 0 : 25000;
-    }
+  if (selectedZone === 'within2km') {
+    shippingFee = 0;
+  } else if (selectedZone === 'hanoi_inner') {
+    shippingFee = totalAfterDiscount >= MOC_2_FREESHIP_HN ? 0 : 25000;
   } else if (selectedZone === 'hanoi_outer') {
     shippingFee = 35000;
-  } else if (selectedZone === 'northern' || selectedZone === 'provinces') {
+  } else if (selectedZone === 'provinces' || selectedZone === 'northern') {
     shippingFee = 45000;
   } else if (selectedZone === 'central') {
     shippingFee = 40000;
@@ -573,7 +575,7 @@ function updateCartTotals() {
     promoBanner.innerHTML = promoText;
   }
 
-  // 7. Cập nhật các con số lên giao diện HTML
+  // 7. Cập nhật số tiền lên giao diện HTML
   if (document.getElementById('cart-subtotal')) {
     document.getElementById('cart-subtotal').textContent = subtotal.toLocaleString('vi-VN') + 'đ';
   }
@@ -593,7 +595,6 @@ function updateCartTotals() {
     document.getElementById('cart-total-price').textContent = finalTotal.toLocaleString('vi-VN') + 'đ';
   }
 }
-
     function updateCartUI() {
       document.getElementById('cart-count').innerText = cart.reduce((sum, item) => sum + item.qty, 0);
 
