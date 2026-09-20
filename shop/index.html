@@ -194,38 +194,63 @@
           <div id="shipping-promo-banner" class="text-xs p-2.5 rounded-lg bg-amber-50 text-amber-900 border border-amber-200 leading-relaxed"></div>
 
           <!-- BẢNG TÍNH TIỀN CHI TIẾT -->
-          <div class="border-t border-neutral-200 pt-3 text-xs space-y-1.5">
-            <div class="flex justify-between text-neutral-600">
-              <span>Subtotal:</span>
-              <span id="cart-subtotal" class="font-medium text-neutral-900">0đ</span>
-            </div>
-            <div class="flex justify-between text-emerald-700">
-              <span>Discount (5%):</span>
-              <span id="cart-discount" class="font-medium">0đ</span>
-            </div>
-            <div class="flex justify-between text-neutral-600">
-              <span>Shipping:</span>
-              <span id="cart-shipping" class="font-medium text-neutral-900">FREE</span>
-            </div>
-            <div class="flex justify-between text-sm font-bold text-neutral-900 border-t border-neutral-200 pt-2 mt-2">
-              <span>Total:</span>
-              <span id="cart-total-price">0đ</span>
-            </div>
-          </div>
+       <div class="border-t border-neutral-200 pt-3 mb-3 text-xs space-y-1.5">
+  <div class="flex justify-between text-neutral-600">
+    <span>Subtotal (Tiền hàng):</span>
+    <span id="cart-subtotal" class="font-medium text-neutral-900">0đ</span>
+  </div>
+  <div class="flex justify-between text-emerald-700">
+    <span>Discount (Giảm giá 5%):</span>
+    <span id="cart-discount" class="font-medium">0đ</span>
+  </div>
+  <div class="flex justify-between text-neutral-600">
+    <span>Shipping (Phí ship):</span>
+    <span id="cart-shipping" class="font-medium text-neutral-900">FREE</span>
+  </div>
+  <div class="flex justify-between text-sm font-bold text-neutral-900 border-t border-neutral-200 pt-2 mt-2">
+    <span>Total (Tổng thanh toán):</span>
+    <span id="cart-total-price">0đ</span>
+  </div>
 
-          <!-- FORM THÔNG TIN ĐẶT HÀNG & NOTE FOR ORIBERRY -->
-          <form id="checkout-form" onsubmit="submitOrder(event)" class="space-y-2.5 pt-1">
-            <input type="text" id="cust-name" placeholder="Full Name *" required class="w-full text-xs border border-neutral-300 rounded-md p-2.5 focus:outline-none focus:ring-1 focus:ring-neutral-900">
-            <input type="tel" id="cust-phone" placeholder="Phone Number *" required class="w-full text-xs border border-neutral-300 rounded-md p-2.5 focus:outline-none focus:ring-1 focus:ring-neutral-900">
-            <textarea id="cust-address" placeholder="Shipping Address *" rows="2" required class="w-full text-xs border border-neutral-300 rounded-md p-2.5 focus:outline-none focus:ring-1 focus:ring-neutral-900"></textarea>
-            
-            <!-- KHỐI NOTE FOR ORIBERRY (ĐÃ KHÔI PHỤC) -->
-            <textarea id="cust-note" placeholder="Note for Oriberry (e.g. Roasting preference, Delivery time...)" rows="2" class="w-full text-xs border border-neutral-300 rounded-md p-2.5 focus:outline-none focus:ring-1 focus:ring-neutral-900"></textarea>
+  <p class="text-[11px] text-amber-700 bg-amber-50 p-2 rounded border border-amber-200 mt-2 italic leading-tight">
+    * <b>Lưu ý:</b> Phí vận chuyển trên là <b>tạm tính</b>. Phí thực tế sẽ được Oriberry xác nhận lại với Quý khách sau khi nhận báo giá chính xác từ đơn vị vận chuyển.
+  </p>
+</div>
 
-            <button type="submit" id="submit-btn" class="w-full bg-amber-700 text-white font-bold text-sm py-3 rounded-lg hover:bg-amber-800 transition">
-              Place Order
-            </button>
-          </form>
+<!-- FORM THÔNG TIN ĐẶT HÀNG & NOTE FOR ORIBERRY -->
+      <form id="checkout-form" onsubmit="submitOrder(event)" class="space-y-3">
+        <div>
+          <input type="text" id="cust-name" placeholder="Full Name *" required minlength="2" class="w-full text-xs border border-neutral-300 rounded-md p-2.5 focus:outline-none focus:ring-1 focus:ring-neutral-900">
+        </div>
+        
+        <div>
+          <input type="tel" id="cust-phone" placeholder="Phone Number * (VD: 0912345678)" required pattern="^(0[3|5|7|8|9])+([0-9]{8})$" title="Vui lòng nhập số điện thoại hợp lệ (10 chữ số)" class="w-full text-xs border border-neutral-300 rounded-md p-2.5 focus:outline-none focus:ring-1 focus:ring-neutral-900">
+        </div>
+
+        <div>
+          <label class="font-medium text-neutral-700 block text-xs mb-1">Tỉnh / Thành phố *</label>
+          <select id="cust-province" onchange="updateCartTotals()" required class="w-full bg-stone-100 border border-neutral-300 rounded-md p-2.5 focus:outline-none focus:ring-1 focus:ring-neutral-900 text-xs">
+            <option value="">-- Chọn khu vực giao hàng --</option>
+            <option value="hanoi_inner">Hà Nội (Nội thành)</option>
+            <option value="hanoi_outer">Hà Nội (Ngoại thành - ~25k)</option>
+            <option value="northern">Các tỉnh Miền Bắc (~30k)</option>
+            <option value="central">Các tỉnh Miền Trung (~40k)</option>
+            <option value="southern">TP.HCM & Các tỉnh Miền Nam (~50k)</option>
+          </select>
+        </div>
+
+        <div>
+          <textarea id="cust-address" placeholder="Shipping Address * (Số nhà, tên đường, phường/xã, quận/huyện...)" rows="2" required minlength="8" class="w-full text-xs border border-neutral-300 rounded-md p-2.5 focus:outline-none focus:ring-1 focus:ring-neutral-900"></textarea>
+        </div>
+
+        <div>
+          <textarea id="cust-note" placeholder="Note for Oriberry (optional)" rows="2" class="w-full text-xs border border-neutral-300 rounded-md p-2.5 focus:outline-none focus:ring-1 focus:ring-neutral-900"></textarea>
+        </div>
+
+        <button type="submit" id="submit-btn" class="w-full bg-neutral-900 text-white font-medium py-3 rounded-md text-xs hover:bg-neutral-800 transition-colors uppercase tracking-wider">
+          Place Order
+        </button>
+      </form>
         </div>
       </div>
     </div>
@@ -489,53 +514,85 @@
       updateCartUI();
     }
 
-    function updateCartTotals() {
-      const subtotal = cart.reduce((sum, item) => sum + (item.price * item.qty), 0);
-      const zoneSelect = document.getElementById('shipping-zone');
-      const selectedZone = zoneSelect ? zoneSelect.value : 'hanoi_inner';
+function updateCartTotals() {
+  const cart = JSON.parse(localStorage.getItem('cart')) || [];
+  
+  // 1. Mốc điều kiện
+  const MOC_2_FREESHIP_HN = 1000000; // Đơn Hà Nội từ 1tr được freeship
+  const MOC_3_DISCOUNT = 2000000;    // Đơn từ 2tr được giảm 5%
+  const DISCOUNT_RATE = 0.05;        // Giảm 5%
 
-      const MOC_2_FREESHIP_HN = 1000000;
-      const MOC_3_DISCOUNT = 2000000;
-      const DISCOUNT_RATE = 0.05;
+  // 2. Tính tổng tiền hàng gốc
+  const subtotal = cart.reduce((sum, item) => sum + (item.price * (item.qty || item.quantity || 1)), 0);
+  
+  // 3. Giảm giá 5% NẾU tổng tiền hàng >= 2.000.000đ
+  let discount = 0;
+  if (subtotal >= MOC_3_DISCOUNT) {
+    discount = Math.round(subtotal * DISCOUNT_RATE);
+  }
+  const totalAfterDiscount = subtotal - discount;
 
-      let discount = 0;
-      let shipFee = 0;
-      let promoText = "";
+  // 4. Lấy khu vực giao hàng từ ô select (cust-province)
+  const provinceSelect = document.getElementById('cust-province');
+  const selectedZone = provinceSelect ? provinceSelect.value : '';
 
-      if (subtotal >= MOC_3_DISCOUNT) {
-        discount = subtotal * DISCOUNT_RATE;
-      }
-
-      if (selectedZone === 'within2km') {
-        shipFee = 0;
-      } else if (selectedZone === 'hanoi_inner') {
-        shipFee = (subtotal >= MOC_2_FREESHIP_HN) ? 0 : 25000;
-      } else if (selectedZone === 'hanoi_outer') {
-        shipFee = 35000;
-      } else if (selectedZone === 'provinces') {
-        shipFee = 45000;
-      }
-
-      if (subtotal >= MOC_3_DISCOUNT) {
-        promoText = "🎉 <b>Congrats!</b> You unlocked <b>5% OFF</b> + Inner Hanoi Free Shipping!";
-      } else if (subtotal >= MOC_2_FREESHIP_HN) {
-        const needForDiscount = MOC_3_DISCOUNT - subtotal;
-        promoText = `🚚 Inner Hanoi <b>FREE Shipping</b> applied! Add <b>${needForDiscount.toLocaleString('vi-VN')}đ</b> more for <b>5% OFF</b>.`;
-      } else {
-        const needForFreeShip = MOC_2_FREESHIP_HN - subtotal;
-        promoText = `💡 Add <b>${needForFreeShip.toLocaleString('vi-VN')}đ</b> more to get FREE Shipping in Inner Hanoi!`;
-      }
-
-      const grandTotal = subtotal - discount + shipFee;
-
-      const promoBanner = document.getElementById('shipping-promo-banner');
-      if (promoBanner) promoBanner.innerHTML = promoText;
-
-      if (document.getElementById('cart-subtotal')) document.getElementById('cart-subtotal').textContent = subtotal.toLocaleString('vi-VN') + 'đ';
-      if (document.getElementById('cart-discount')) document.getElementById('cart-discount').textContent = discount > 0 ? '-' + discount.toLocaleString('vi-VN') + 'đ' : '0đ';
-      if (document.getElementById('cart-shipping')) document.getElementById('cart-shipping').textContent = shipFee === 0 ? 'FREE' : shipFee.toLocaleString('vi-VN') + 'đ';
-      if (document.getElementById('cart-total-price')) document.getElementById('cart-total-price').textContent = grandTotal.toLocaleString('vi-VN') + 'đ';
+  // 5. Tính phí ship
+  let shippingFee = 0;
+  if (selectedZone === 'hanoi_inner' || selectedZone === 'within2km') {
+    if (selectedZone === 'within2km') {
+      shippingFee = 0;
+    } else {
+      // Nội thành HN: Đơn sau giảm giá >= 1tr được freeship, ngược lại 25k
+      shippingFee = totalAfterDiscount >= MOC_2_FREESHIP_HN ? 0 : 25000;
     }
+  } else if (selectedZone === 'hanoi_outer') {
+    shippingFee = 35000;
+  } else if (selectedZone === 'northern' || selectedZone === 'provinces') {
+    shippingFee = 45000;
+  } else if (selectedZone === 'central') {
+    shippingFee = 40000;
+  } else if (selectedZone === 'southern') {
+    shippingFee = 50000;
+  } else {
+    shippingFee = 0;
+  }
+
+  const finalTotal = totalAfterDiscount + shippingFee;
+
+  // 6. Cập nhật banner thông báo khuyến mãi
+  let promoText = "";
+  if (subtotal >= MOC_3_DISCOUNT) {
+    promoText = "🎉 <b>Congrats!</b> You unlocked <b>5% OFF</b>!";
+  } else {
+    const needForDiscount = MOC_3_DISCOUNT - subtotal;
+    promoText = `🎁 Add <b>${needForDiscount.toLocaleString('vi-VN')}đ</b> more to get <b>5% OFF</b>!`;
+  }
+
+  const promoBanner = document.getElementById('shipping-promo-banner');
+  if (promoBanner) {
+    promoBanner.innerHTML = promoText;
+  }
+
+  // 7. Cập nhật các con số lên giao diện HTML
+  if (document.getElementById('cart-subtotal')) {
+    document.getElementById('cart-subtotal').textContent = subtotal.toLocaleString('vi-VN') + 'đ';
+  }
+  if (document.getElementById('cart-discount')) {
+    document.getElementById('cart-discount').textContent = '-' + discount.toLocaleString('vi-VN') + 'đ';
+  }
+  if (document.getElementById('cart-shipping')) {
+    if (!selectedZone) {
+      document.getElementById('cart-shipping').textContent = 'Chưa chọn khu vực';
+    } else if (shippingFee === 0) {
+      document.getElementById('cart-shipping').textContent = 'FREE';
+    } else {
+      document.getElementById('cart-shipping').textContent = shippingFee.toLocaleString('vi-VN') + 'đ';
+    }
+  }
+  if (document.getElementById('cart-total-price')) {
+    document.getElementById('cart-total-price').textContent = finalTotal.toLocaleString('vi-VN') + 'đ';
+  }
+}
 
     function updateCartUI() {
       document.getElementById('cart-count').innerText = cart.reduce((sum, item) => sum + item.qty, 0);
@@ -583,67 +640,93 @@
       document.getElementById('order-success-modal').classList.add('hidden');
     }
 
-    async function submitOrder(e) {
-      e.preventDefault();
-      if (cart.length === 0) return alert("Your cart is empty!");
+async function submitOrder(e) {
+  e.preventDefault();
+  if (cart.length === 0) return alert("Giỏ hàng của bạn đang trống!");
 
-      const submitBtn = document.getElementById('submit-btn');
-      submitBtn.disabled = true;
-      submitBtn.innerText = "Submitting order...";
+  const name = document.getElementById('cust-name').value.trim();
+  const phone = document.getElementById('cust-phone').value.trim();
+  const provinceSelect = document.getElementById('cust-province');
+  const detailAddress = document.getElementById('cust-address').value.trim();
+  const note = document.getElementById('cust-note') ? document.getElementById('cust-note').value.trim() : '';
 
-      const name = document.getElementById('cust-name').value;
-      const phone = document.getElementById('cust-phone').value;
-      const address = document.getElementById('cust-address').value;
-      const note = document.getElementById('cust-note')?.value || '';
-      const zoneSelect = document.getElementById('shipping-zone');
-      const zoneText = zoneSelect ? zoneSelect.options[zoneSelect.selectedIndex].text : '';
+  // 1. Chống Spam SĐT (đúng 10 số đầu 03, 05, 07, 08, 09)
+  const phoneRegex = /^(0[3|5|7|8|9])+([0-9]{8})$/;
+  if (!phoneRegex.test(phone)) {
+    alert("Số điện thoại không hợp lệ. Vui lòng nhập đúng 10 chữ số.");
+    return;
+  }
 
-      const itemsDetail = cart.map(i => `${i.name} [Grind: ${i.grind}] x${i.qty}`).join(' | ');
-      
-      const subtotal = cart.reduce((sum, item) => sum + (item.price * item.qty), 0);
-      const discount = (subtotal >= 2000000) ? subtotal * 0.05 : 0;
-      let shipFee = 0;
-      const selectedZone = zoneSelect ? zoneSelect.value : 'hanoi_inner';
-      if (selectedZone === 'hanoi_inner') shipFee = (subtotal >= 1000000) ? 0 : 25000;
-      else if (selectedZone === 'hanoi_outer') shipFee = 35000;
-      else if (selectedZone === 'provinces') shipFee = 45000;
+  // 2. Chống Spam Địa chỉ
+  if (!provinceSelect || !provinceSelect.value) {
+    alert("Vui lòng chọn Tỉnh / Thành phố giao hàng.");
+    return;
+  }
+  if (detailAddress.length < 8 || /^([a-zA-Z0-9])\1+$/.test(detailAddress)) {
+    alert("Địa chỉ giao hàng quá ngắn hoặc không hợp lệ.");
+    return;
+  }
 
-      const grandTotal = subtotal - discount + shipFee;
-      const totalAmount = grandTotal.toLocaleString('vi-VN') + 'đ';
+  // Ghép Tỉnh/Thành vào địa chỉ chi tiết gửi về Google Sheets
+  const provinceText = provinceSelect.options[provinceSelect.selectedIndex].text;
+  const fullAddress = `${detailAddress} (${provinceText})`;
+  const itemsDetail = cart.map(i => `${i.name} (${i.grind || 'Hạt'}) x${i.qty}`).join(' | ');
 
-      let fullDetails = `${itemsDetail} | Zone: ${zoneText} | Ship: ${shipFee.toLocaleString('vi-VN')}đ | Discount: -${discount.toLocaleString('vi-VN')}đ`;
-      if (note.trim() !== '') {
-        fullDetails += ` | Note: ${note.trim()}`;
-      }
+  const subtotalVal = document.getElementById('cart-subtotal') ? document.getElementById('cart-subtotal').textContent : '';
+  const discountVal = document.getElementById('cart-discount') ? document.getElementById('cart-discount').textContent : '0đ';
+  const shippingVal = document.getElementById('cart-shipping') ? document.getElementById('cart-shipping').textContent : '0đ';
+  const totalVal = document.getElementById('cart-total-price') ? document.getElementById('cart-total-price').textContent : '';
 
-      const payload = { 
-        customerName: name, 
-        phone: phone, 
-        address: address, 
-        itemsDetail: fullDetails, 
-        totalAmount: totalAmount 
-      };
-      
-      try {
-        await fetch(SCRIPT_URL, {
-          method: 'POST',
-          mode: 'no-cors',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(payload)
-        });
+  const submitBtn = document.getElementById('submit-btn');
+  if (submitBtn) {
+    submitBtn.disabled = true;
+    submitBtn.innerText = "SUBMITTING ORDER...";
+  }
 
-        cart = [];
-        saveCart();
-        toggleCart(false);
-        document.getElementById('checkout-form').reset();
-        openSuccessModal(); // Mở Popup thông báo đặt hàng thành công riêng
-      } catch (err) {
-        alert("An error occurred while sending your order. Please try again!");
-      } finally {
-        submitBtn.disabled = false;
-        submitBtn.innerText = "Place Order";
-      }
+  const payload = { 
+    customerName: name, 
+    phone: phone, 
+    address: fullAddress, 
+    note: note, 
+    itemsDetail: itemsDetail, 
+    subtotal: subtotalVal,
+    discount: discountVal,
+    shippingFee: shippingVal,
+    totalAmount: totalVal 
+  };
+
+  try {
+    await fetch(SCRIPT_URL, {
+      method: 'POST',
+      mode: 'no-cors',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload)
+    });
+
+    // Mở popup thông báo thành công
+    const successModal = document.getElementById('order-success-modal');
+    if (successModal) {
+      successModal.classList.remove('hidden');
+    } else {
+      alert("Cảm ơn bạn! Đơn hàng đã được gửi thành công.");
     }
+
+    // Reset giỏ hàng
+    cart = [];
+    if (typeof saveCart === 'function') saveCart();
+    if (typeof updateCartUI === 'function') updateCartUI();
+    if (typeof toggleCart === 'function') toggleCart(false);
+    document.getElementById('checkout-form').reset();
+
+  } catch (err) {
+    alert("Có lỗi xảy ra khi gửi đơn hàng. Vui lòng thử lại!");
+  } finally {
+    if (submitBtn) {
+      submitBtn.disabled = false;
+      submitBtn.innerText = "PLACE ORDER";
+    }
+  }
+}
 
     // Khởi tạo trang
     fetchProducts();
