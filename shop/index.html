@@ -491,14 +491,15 @@
       submitBtn.disabled = true;
       submitBtn.innerText = "Submitting order...";
 
-      const name = document.getElementById('cust-name').value;
-      const phone = document.getElementById('cust-phone').value;
-      const address = document.getElementById('cust-address').value;
-      const itemsDetail = cart.map(i => `${i.name} [Grind: ${i.grind}] x${i.qty}`).join(' | ');
-      const totalAmount = cart.reduce((sum, i) => sum + (i.price * i.qty), 0).toLocaleString('vi-VN') + 'đ';
+const name = document.getElementById('cust-name').value;
+const phone = document.getElementById('cust-phone').value;
+const address = document.getElementById('cust-address').value;
+const note = document.getElementById('cust-note') ? document.getElementById('cust-note').value : '';
 
-      const payload = { customerName: name, phone: phone, address: address, itemsDetail: itemsDetail, totalAmount: totalAmount };
-      
+const itemsDetail = cart.map(i => `${i.name} (${i.grind}) x${i.qty}`).join(' | ');
+const totalAmount = cart.reduce((sum, i) => sum + (i.price * i.qty), 0).toLocaleString('vi-VN') + 'đ';
+
+const payload = { customerName: name, phone: phone, address: address, note: note, itemsDetail: itemsDetail, totalAmount: totalAmount };      
       try {
         await fetch(SCRIPT_URL, {
           method: 'POST',
@@ -507,7 +508,21 @@
           body: JSON.stringify(payload)
         });
 
-        alert("🎉 Order placed successfully! Your order has been saved.");
+// Thay cho dòng alert() ở dòng 509
+const successModal = document.createElement('div');
+successModal.className = 'fixed inset-0 bg-black/50 z-[100] flex items-center justify-center p-4';
+successModal.innerHTML = `
+  <div class="bg-white rounded-lg p-6 max-w-sm w-full text-center shadow-xl">
+    <div class="text-3xl mb-2">🎉</div>
+    <h3 class="text-lg font-bold text-stone-900 mb-1">Success!</h3>
+    <p class="text-sm text-stone-600 mb-5">Order placed successfully! Your order has been saved.</p>
+    <button id="close-success-btn" class="w-full bg-stone-900 text-white font-medium py-2.5 rounded text-sm hover:bg-stone-800 transition-colors uppercase tracking-wider">
+      OK
+    </button>
+  </div>
+`;
+document.body.appendChild(successModal);
+document.getElementById('close-success-btn').onclick = () => { successModal.remove(); };
         cart = [];
         saveCart();
         toggleCart(false);
