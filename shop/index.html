@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Cửa hàng Oriberry Coffee</title>
+  <title>Oriberry Coffee Store</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <style>
     .grind-btn.active, .pop-grind-btn.active {
@@ -18,17 +18,18 @@
   <!-- HEADER -->
   <header class="sticky top-0 z-50 bg-white/95 backdrop-blur-md border-b border-neutral-200">
     <div class="max-w-7xl mx-auto px-4 md:px-6 h-16 md:h-20 flex items-center justify-between">
-      <!-- 1. ONLINE SHOP -->
-      <h1 class="font-logo text-xl md:text-2xl font-bold tracking-wider text-neutral-900 uppercase">
-        ONLINE SHOP
-      </h1>
+      <!-- 1. LOGO ORIBERRY -->
+      <a href="/" class="flex items-center space-x-2">
+        <img src="/assets/logo.png" alt="Oriberry Coffee" class="h-8 md:h-10 object-contain" onError="this.onerror=null; this.src='https://oriberry.com/assets/logo.png'; this.onerror=function(){this.style.display='none'; document.getElementById('logo-text-fallback').classList.remove('hidden');}">
+        <span id="logo-text-fallback" class="hidden text-xl md:text-2xl font-bold tracking-wider text-neutral-900 uppercase">ORIBERRY</span>
+      </a>
       
       <!-- 2. TRANG CHỦ & GIỎ HÀNG -->
       <div class="flex items-center space-x-6">
         <a href="/" class="text-sm font-medium text-neutral-800 hover:opacity-70 transition-opacity">
           Home
         </a>
-        <button id="cart-btn" onclick="openCart()" class="text-sm font-medium bg-neutral-900 text-white px-4 py-2 flex items-center space-x-2 hover:bg-stone-800 transition-all cursor-pointer">
+        <button id="cart-btn" onclick="openCart()" class="text-sm font-medium bg-neutral-900 text-white px-4 py-2 flex items-center space-x-2 hover:bg-stone-800 transition-all cursor-pointer rounded-lg">
           <span>Cart</span>
           <span id="cart-count" class="bg-amber-500 text-black text-xs font-bold rounded-full w-5 h-5 flex items-center justify-center">0</span>
         </button>
@@ -37,7 +38,7 @@
   </header>
 
   <main class="max-w-7xl mx-auto px-4 md:px-6 py-6">
-    <!-- KHỐI BỘ LỌC DẠNG DROPDOWN (TIẾNG ANH) -->
+    <!-- KHỐI BỘ LỌC DẠNG DROPDOWN -->
     <div class="bg-white p-4 rounded-xl border border-neutral-200 shadow-sm mb-6">
       <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
         
@@ -68,7 +69,7 @@
             <option value="Quảng Trị">Quảng Trị</option>
             <option value="Điện Biên">Điện Biên</option>
             <option value="Lâm Đồng">Lâm Đồng</option>
-            <option value="Đắk Lắk">Đắk Lắk</option>
+            <option value="Đắc Lắc">Đắc Lắc</option>
             <option value="Gia Lai">Gia Lai</option>
           </select>
         </div>
@@ -168,13 +169,13 @@
   <div id="cart-modal" class="fixed inset-0 z-50 hidden">
     <div class="fixed inset-0 bg-black/50 transition-opacity" onclick="toggleCart(false)"></div>
     <div class="fixed inset-y-0 right-0 max-w-full flex pl-10">
-      <div class="w-screen max-w-md bg-white shadow-xl flex flex-col justify-between p-6">
+      <div class="w-screen max-w-md bg-white shadow-xl flex flex-col justify-between p-6 overflow-y-auto">
         <div>
           <div class="flex items-center justify-between pb-4 border-b border-neutral-200">
             <h3 class="text-lg font-bold text-neutral-900">Your Cart</h3>
             <button onclick="toggleCart(false)" class="text-neutral-500 hover:text-neutral-800 text-xl font-bold">&times;</button>
           </div>
-          <div id="cart-items-container" class="py-4 space-y-4 max-h-[40vh] overflow-y-auto"></div>
+          <div id="cart-items-container" class="py-4 space-y-4 max-h-[35vh] overflow-y-auto"></div>
         </div>
 
         <div class="border-t border-neutral-200 pt-4 space-y-3">
@@ -212,13 +213,16 @@
             </div>
           </div>
 
-          <!-- FORM THÔNG TIN ĐẶT HÀNG -->
+          <!-- FORM THÔNG TIN ĐẶT HÀNG & NOTE FOR ORIBERRY -->
           <form id="checkout-form" onsubmit="submitOrder(event)" class="space-y-2.5 pt-1">
             <input type="text" id="cust-name" placeholder="Full Name *" required class="w-full text-xs border border-neutral-300 rounded-md p-2.5 focus:outline-none focus:ring-1 focus:ring-neutral-900">
             <input type="tel" id="cust-phone" placeholder="Phone Number *" required class="w-full text-xs border border-neutral-300 rounded-md p-2.5 focus:outline-none focus:ring-1 focus:ring-neutral-900">
             <textarea id="cust-address" placeholder="Shipping Address *" rows="2" required class="w-full text-xs border border-neutral-300 rounded-md p-2.5 focus:outline-none focus:ring-1 focus:ring-neutral-900"></textarea>
             
-            <button type="submit" id="submit-btn" class="w-full bg-amber-700 text-white font-medium text-sm py-3 rounded-lg hover:bg-amber-800 transition">
+            <!-- KHỐI NOTE FOR ORIBERRY (ĐÃ KHÔI PHỤC) -->
+            <textarea id="cust-note" placeholder="Note for Oriberry (e.g. Roasting preference, Delivery time...)" rows="2" class="w-full text-xs border border-neutral-300 rounded-md p-2.5 focus:outline-none focus:ring-1 focus:ring-neutral-900"></textarea>
+
+            <button type="submit" id="submit-btn" class="w-full bg-amber-700 text-white font-bold text-sm py-3 rounded-lg hover:bg-amber-800 transition">
               Place Order
             </button>
           </form>
@@ -227,7 +231,24 @@
     </div>
   </div>
 
-  <!-- Script logic với Caching, Shipping & Multi-tier Discount -->
+  <!-- POPUP THÔNG BÁO THÀNH CÔNG RÊNG (CUSTOM ORDER SUCCESS MODAL - ĐÃ KHÔI PHỤC) -->
+  <div id="order-success-modal" class="fixed inset-0 z-50 hidden flex items-center justify-center p-4">
+    <div class="fixed inset-0 bg-black/60 backdrop-blur-sm" onclick="closeSuccessModal()"></div>
+    <div class="relative w-full max-w-sm bg-white rounded-2xl shadow-2xl p-6 text-center z-10 space-y-4">
+      <div class="w-14 h-14 bg-amber-100 text-amber-800 rounded-full flex items-center justify-center mx-auto text-2xl font-bold">
+        ✓
+      </div>
+      <h3 class="text-lg font-bold text-neutral-900">Order Placed Successfully!</h3>
+      <p class="text-xs text-neutral-600 leading-relaxed">
+        Thank you for choosing Oriberry Coffee. We have received your order details and will contact you shortly for confirmation.
+      </p>
+      <button onclick="closeSuccessModal()" class="w-full bg-neutral-900 text-white font-bold text-xs py-3 rounded-lg hover:bg-amber-700 transition">
+        Continue Shopping
+      </button>
+    </div>
+  </div>
+
+  <!-- Script logic -->
   <script>
     const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzoWopdIwcIH1mI6i0LNZP3YLK_U7zjIc6iMwLEdyCNuZ4L4jAwop8QWc6g0v06Qs_f/exec";
     const CACHE_KEY = "oriberry_products_cache_v1";
@@ -468,7 +489,6 @@
       updateCartUI();
     }
 
-    // HÀM TÍNH TOÁN VÀ CẬP NHẬT TỔNG TIỀN + PHÍ SHIP + GIẢM GIÁ
     function updateCartTotals() {
       const subtotal = cart.reduce((sum, item) => sum + (item.price * item.qty), 0);
       const zoneSelect = document.getElementById('shipping-zone');
@@ -555,6 +575,14 @@
       else modal.classList.toggle('hidden');
     }
 
+    function openSuccessModal() {
+      document.getElementById('order-success-modal').classList.remove('hidden');
+    }
+
+    function closeSuccessModal() {
+      document.getElementById('order-success-modal').classList.add('hidden');
+    }
+
     async function submitOrder(e) {
       e.preventDefault();
       if (cart.length === 0) return alert("Your cart is empty!");
@@ -566,6 +594,7 @@
       const name = document.getElementById('cust-name').value;
       const phone = document.getElementById('cust-phone').value;
       const address = document.getElementById('cust-address').value;
+      const note = document.getElementById('cust-note')?.value || '';
       const zoneSelect = document.getElementById('shipping-zone');
       const zoneText = zoneSelect ? zoneSelect.options[zoneSelect.selectedIndex].text : '';
 
@@ -582,7 +611,10 @@
       const grandTotal = subtotal - discount + shipFee;
       const totalAmount = grandTotal.toLocaleString('vi-VN') + 'đ';
 
-      const fullDetails = `${itemsDetail} | Zone: ${zoneText} | Ship: ${shipFee.toLocaleString('vi-VN')}đ | Discount: -${discount.toLocaleString('vi-VN')}đ`;
+      let fullDetails = `${itemsDetail} | Zone: ${zoneText} | Ship: ${shipFee.toLocaleString('vi-VN')}đ | Discount: -${discount.toLocaleString('vi-VN')}đ`;
+      if (note.trim() !== '') {
+        fullDetails += ` | Note: ${note.trim()}`;
+      }
 
       const payload = { 
         customerName: name, 
@@ -600,11 +632,11 @@
           body: JSON.stringify(payload)
         });
 
-        alert("🎉 Order placed successfully! Your order has been saved.");
         cart = [];
         saveCart();
         toggleCart(false);
         document.getElementById('checkout-form').reset();
+        openSuccessModal(); // Mở Popup thông báo đặt hàng thành công riêng
       } catch (err) {
         alert("An error occurred while sending your order. Please try again!");
       } finally {
