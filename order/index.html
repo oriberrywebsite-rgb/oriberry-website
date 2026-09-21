@@ -8,92 +8,91 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
-        /* Ẩn thanh cuộn nhưng vẫn cho phép cuộn mượt */
         .no-scrollbar::-webkit-scrollbar { display: none; }
         .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
     </style>
 </head>
 <body class="bg-gray-50 text-gray-800 font-sans antialiased flex flex-col min-h-screen">
 
-    <!-- 1. HEADER & THÀNH PHỐ / PHƯƠNG THỨC NHẬN HÀNG -->
+    <!-- HEADER: LOGO TRÁI, BỘ PHẬN NHẬN HÀNG PHẢI -->
     <header class="bg-white shadow-sm sticky top-0 z-40 border-b border-gray-100">
-        <div class="max-w-4xl mx-auto px-4 py-3 flex items-center justify-between">
-            <div class="flex items-center space-x-3 cursor-pointer" onclick="openFulfillmentModal()">
-                <div class="bg-amber-100 text-amber-800 p-2 rounded-full flex items-center justify-center">
-                    <i class="fa-solid fa-store text-lg" id="headerIcon"></i>
+        <div class="max-w-6xl mx-auto px-4 py-3 flex items-center justify-between">
+            <div class="flex items-center space-x-4">
+                <a href="/" class="flex items-center gap-2 font-black text-xl tracking-wider text-gray-900">
+                    <i class="fa-solid fa-mug-saucer text-amber-700"></i> ORIBERRY
+                </a>
+                <a href="/" class="text-xs font-medium text-gray-600 hover:text-amber-700 px-3 py-1.5 rounded-lg bg-gray-100 hidden sm:inline-block">Trang chủ</a>
+            </div>
+            
+            <div class="flex items-center space-x-3 cursor-pointer bg-gray-50 hover:bg-gray-100 px-3 py-1.5 rounded-xl border border-gray-200 transition" onclick="openFulfillmentModal()">
+                <div class="bg-amber-100 text-amber-800 w-7 h-7 rounded-full flex items-center justify-center">
+                    <i class="fa-solid fa-store text-xs" id="headerIcon"></i>
                 </div>
                 <div>
-                    <div class="text-xs text-gray-500 flex items-center gap-1">
+                    <div class="text-[10px] text-gray-500 flex items-center gap-1">
                         <span id="fulfillmentLabel">Hình thức nhận hàng</span> 
-                        <i class="fa-solid fa-chevron-down text-[10px]"></i>
+                        <i class="fa-solid fa-chevron-down text-[8px]"></i>
                     </div>
-                    <div class="font-bold text-sm text-gray-900 truncate max-w-[200px]" id="fulfillmentValue">Chọn cửa hàng / địa chỉ</div>
+                    <div class="font-bold text-xs text-gray-900 truncate max-w-[150px] sm:max-w-[220px]" id="fulfillmentValue">Chọn cửa hàng / địa chỉ</div>
                 </div>
-            </div>
-            <div class="flex items-center space-x-2">
-                <a href="/" class="text-sm font-medium text-gray-600 hover:text-amber-700 px-3 py-1.5 rounded-lg bg-gray-100">Trang chủ</a>
             </div>
         </div>
     </header>
 
-    <!-- 2. MAIN LAYOUT: 2 CỘT CUỘN ĐỘC LẬP -->
-    <main class="flex-1 max-w-4xl w-full mx-auto flex overflow-hidden bg-white shadow-sm mb-20">
+    <!-- MAIN LAYOUT: 2 CỘT CUỘN ĐỘC LẬP (Tối ưu Desktop x2 & Mobile cân đối) -->
+    <main class="flex-1 max-w-6xl w-full mx-auto flex overflow-hidden bg-white shadow-sm mb-20 md:my-4 md:rounded-2xl md:border border-gray-200">
         
-        <!-- CỘT NHỎ (DANH MỤC): Chiếm ~30% -->
-        <aside class="w-1/3 md:w-1/4 bg-gray-50 border-r border-gray-200 overflow-y-auto no-scrollbar h-[calc(100vh-130px)] sticky top-[65px]" id="categorySidebar">
-            <div class="py-2" id="categoryListContainer">
-                <!-- Danh mục sẽ được render tự động qua JS -->
-            </div>
+        <!-- CỘT NHỎ (DANH MỤC): Chiếm ~25% -->
+        <aside class="w-1/4 md:w-1/5 bg-gray-50 border-r border-gray-200 overflow-y-auto no-scrollbar h-[calc(100vh-80px)] md:h-[75vh] sticky top-[65px]" id="categorySidebar">
+            <div class="py-2" id="categoryListContainer"></div>
         </aside>
 
-        <!-- CỘT LỚN (DANH SÁCH MÓN): Chiếm ~70% -->
-        <section class="w-2/3 md:w-3/4 overflow-y-auto h-[calc(100vh-130px)] p-4 space-y-6" id="menuContainer">
-            <!-- Các nhóm món sẽ được render tự động qua JS -->
-        </section>
+        <!-- CỘT LỚN (DANH SÁCH MÓN - ẨN GIÁ): Chiếm ~75% -->
+        <section class="w-3/4 md:w-4/5 overflow-y-auto h-[calc(100vh-80px)] md:h-[75vh] p-4 md:p-6 space-y-6" id="menuContainer"></div>
     </main>
 
-    <!-- 3. THANH GIỎ HÀNG DƯỚI ĐÁY -->
-    <div id="cartBar" class="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 shadow-lg p-3 z-45 hidden">
-        <div class="max-w-4xl mx-auto flex items-center justify-between">
+    <!-- THANH GIỎ HÀNG DƯỚI ĐÁY -->
+    <div id="cartBar" class="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 shadow-xl p-3 z-45 hidden">
+        <div class="max-w-6xl mx-auto flex items-center justify-between">
             <div class="flex items-center space-x-3">
-                <div class="bg-amber-600 text-white w-10 h-10 rounded-full flex items-center justify-center font-bold text-sm shadow" id="cartCount">0</div>
+                <div class="bg-amber-700 text-white w-10 h-10 rounded-full flex items-center justify-center font-bold text-sm shadow" id="cartCount">0</div>
                 <div>
                     <div class="text-xs text-gray-500">Tổng giỏ hàng</div>
                     <div class="font-bold text-base text-gray-900" id="cartTotal">0đ</div>
                 </div>
             </div>
             <button onclick="openCartModal()" class="bg-amber-700 hover:bg-amber-800 text-white px-6 py-2.5 rounded-xl font-bold text-sm shadow-md transition flex items-center gap-2">
-                <span>Xem giỏ hàng</span>
+                <span>Xem giỏ hàng & Lên đơn</span>
                 <i class="fa-solid fa-arrow-right"></i>
             </button>
         </div>
     </div>
 
-    <!-- ================= POPUPS / MODALS ================= -->
+    <!-- ================= MODALS ================= -->
 
     <!-- MODAL 1: CHỌN PHƯƠNG THỨC NHẬN HÀNG -->
     <div id="fulfillmentModal" class="fixed inset-0 bg-black/50 z-50 flex items-end md:items-center justify-center hidden">
-        <div class="bg-white w-full max-w-lg rounded-t-2xl md:rounded-2xl p-5 max-h-[90vh] overflow-y-auto animate-in fade-in duration-200">
+        <div class="bg-white w-full max-w-lg rounded-t-3xl md:rounded-2xl p-5 max-h-[90vh] overflow-y-auto">
             <div class="flex justify-between items-center mb-4">
                 <h3 class="font-bold text-lg">Chọn phương thức nhận hàng</h3>
                 <button onclick="closeModal('fulfillmentModal')" class="text-gray-400 hover:text-gray-600 p-1"><i class="fa-solid fa-xmark text-xl"></i></button>
             </div>
             <div class="space-y-3">
-                <div onclick="selectFulfillment('DELIVERY')" class="border border-gray-200 p-4 rounded-xl cursor-pointer hover:border-amber-600 hover:bg-amber-50/30 transition flex items-start gap-3">
+                <div onclick="selectFulfillment('DELIVERY')" class="border border-gray-200 p-4 rounded-xl cursor-pointer hover:border-amber-700 hover:bg-amber-50/30 transition flex items-start gap-3">
                     <i class="fa-solid fa-motorcycle text-xl text-amber-700 mt-1"></i>
                     <div>
                         <div class="font-bold text-gray-900">Giao hàng tận nơi (Delivery)</div>
-                        <div class="text-xs text-gray-500 mt-0.5">Nhập địa chỉ, chọn phường giao hàng & tính phí ship tạm tính.</div>
+                        <div class="text-xs text-gray-500 mt-0.5">Chọn phường giao hàng, tính phí ship tạm tính & xác nhận trước khi giao.</div>
                     </div>
                 </div>
-                <div onclick="selectFulfillment('PICKUP')" class="border border-gray-200 p-4 rounded-xl cursor-pointer hover:border-amber-600 hover:bg-amber-50/30 transition flex items-start gap-3">
+                <div onclick="selectFulfillment('PICKUP')" class="border border-gray-200 p-4 rounded-xl cursor-pointer hover:border-amber-700 hover:bg-amber-50/30 transition flex items-start gap-3">
                     <i class="fa-solid fa-bag-shopping text-xl text-amber-700 mt-1"></i>
                     <div>
                         <div class="font-bold text-gray-900">Đến lấy mang đi (Pickup)</div>
                         <div class="text-xs text-gray-500 mt-0.5">Chọn cơ sở gần nhất để ghé lấy đồ uống nhanh chóng.</div>
                     </div>
                 </div>
-                <div onclick="selectFulfillment('DINE_IN')" class="border border-gray-200 p-4 rounded-xl cursor-pointer hover:border-amber-600 hover:bg-amber-50/30 transition flex items-start gap-3">
+                <div onclick="selectFulfillment('DINE_IN')" class="border border-gray-200 p-4 rounded-xl cursor-pointer hover:border-amber-700 hover:bg-amber-50/30 transition flex items-start gap-3">
                     <i class="fa-solid fa-utensils text-xl text-amber-700 mt-1"></i>
                     <div>
                         <div class="font-bold text-gray-900">Uống tại quán (Dine-in tại bàn)</div>
@@ -104,78 +103,75 @@
         </div>
     </div>
 
-    <!-- MODAL 2: CHỌN CỬA HÀNG (Dành cho Pickup / Dine-in) -->
+    <!-- MODAL 2: CHỌN CỬA HÀNG -->
     <div id="storeModal" class="fixed inset-0 bg-black/50 z-50 flex items-end md:items-center justify-center hidden">
-        <div class="bg-white w-full max-w-lg rounded-t-2xl md:rounded-2xl p-5 max-h-[90vh] overflow-y-auto">
+        <div class="bg-white w-full max-w-lg rounded-t-3xl md:rounded-2xl p-5 max-h-[90vh] overflow-y-auto">
             <div class="flex justify-between items-center mb-4">
-                <button onclick="backToFulfillmentModal()" class="text-gray-600"><i class="fa-solid fa-arrow-left"></i> Quay lại</button>
+                <button onclick="backToFulfillmentModal()" class="text-gray-600 text-sm font-medium"><i class="fa-solid fa-arrow-left"></i> Quay lại</button>
                 <h3 class="font-bold text-lg">Chọn cửa hàng Oriberry</h3>
                 <button onclick="closeModal('storeModal')" class="text-gray-400"><i class="fa-solid fa-xmark text-xl"></i></button>
             </div>
-            <div class="mb-3">
-                <input type="text" placeholder="Tìm kiếm cửa hàng..." class="w-full px-3 py-2 border rounded-lg text-sm focus:outline-none focus:border-amber-600">
-            </div>
-            <div class="space-y-3" id="storeListContainer">
-                <!-- Render danh sách cửa hàng -->
-            </div>
+            <div class="space-y-3" id="storeListContainer"></div>
         </div>
     </div>
 
-    <!-- MODAL 3: CHỌN ĐỊA CHỈ & PHƯỜNG (Dành cho Delivery) -->
+    <!-- MODAL 3: CHỌN PHƯỜNG & ĐỊA CHỈ DELIVERY -->
     <div id="deliveryModal" class="fixed inset-0 bg-black/50 z-50 flex items-end md:items-center justify-center hidden">
-        <div class="bg-white w-full max-w-lg rounded-t-2xl md:rounded-2xl p-5 max-h-[90vh] overflow-y-auto">
+        <div class="bg-white w-full max-w-lg rounded-t-3xl md:rounded-2xl p-5 max-h-[90vh] overflow-y-auto">
             <div class="flex justify-between items-center mb-4">
-                <button onclick="backToFulfillmentModal()" class="text-gray-600"><i class="fa-solid fa-arrow-left"></i> Quay lại</button>
+                <button onclick="backToFulfillmentModal()" class="text-gray-600 text-sm font-medium"><i class="fa-solid fa-arrow-left"></i> Quay lại</button>
                 <h3 class="font-bold text-lg">Địa chỉ giao hàng</h3>
                 <button onclick="closeModal('deliveryModal')" class="text-gray-400"><i class="fa-solid fa-xmark text-xl"></i></button>
             </div>
             <div class="space-y-3">
                 <div>
-                    <label class="block text-xs font-bold text-gray-600 mb-1">Chọn Phường / Khu vực giao hàng:</label>
-                    <select id="wardSelect" class="w-full p-2.5 border rounded-lg text-sm bg-white focus:border-amber-600">
-                        <option value="">-- Chọn phường phụ trách --</option>
-                        <option value="PHUONG_TRANG_TIEN">Phường Tràng Tiền / Hàng Bài (Giao từ Ấu Triệu)</option>
-                        <option value="PHUONG_QUANG_AN">Phường Quảng An / Tây Hồ (Giao từ Quảng An)</option>
-                        <option value="PHUONG_DANG_TIEN_DONG">Phường Trung Liệt / Đặng Tiến Đông (Giao từ Đặng Tiến Đông)</option>
+                    <label class="block text-xs font-bold text-gray-600 mb-1">Chọn Phường phụ trách:</label>
+                    <select id="wardSelect" class="w-full p-2.5 border rounded-xl text-sm bg-white focus:border-amber-700">
+                        <option value="">-- Chọn phường giao hàng --</option>
+                        <option value="TRANG_TIEN">Phường Tràng Tiền / Hàng Bài (Giao từ Ấu Triệu)</option>
+                        <option value="QUANG_AN">Phường Quảng An / Tây Hồ (Giao từ Quảng An)</option>
+                        <option value="TRUNG_LIET">Phường Trung Liệt / Đặng Tiến Đông (Giao từ Đặng Tiến Đông)</option>
                     </select>
                 </div>
                 <div>
                     <label class="block text-xs font-bold text-gray-600 mb-1">Số nhà, tên đường cụ thể:</label>
-                    <input type="text" id="deliveryAddressDetail" placeholder="Ví dụ: Số 12 ngõ..." class="w-full p-2.5 border rounded-lg text-sm focus:border-amber-600">
+                    <input type="text" id="deliveryAddressDetail" placeholder="Ví dụ: Số 12 ngõ..." class="w-full p-2.5 border rounded-xl text-sm focus:border-amber-700">
                 </div>
-                <div class="bg-amber-50 p-3 rounded-lg text-xs text-amber-800">
-                    <i class="fa-solid fa-circle-info"></i> Phí ship tạm tính sẽ được hiển thị và nhân viên sẽ gọi điện xác nhận lại với anh/chị trước khi giao hàng.
+                <div class="bg-amber-50 p-3 rounded-xl text-xs text-amber-800">
+                    <i class="fa-solid fa-circle-info"></i> Phí ship tạm tính sẽ hiển thị và nhân viên sẽ gọi điện confirm với anh/chị trước khi giao.
                 </div>
-                <button onclick="confirmDeliveryAddress()" class="w-full bg-amber-700 text-white py-2.5 rounded-xl font-bold text-sm shadow">Xác nhận địa chỉ</button>
+                <button onclick="confirmDeliveryAddress()" class="w-full bg-amber-700 hover:bg-amber-800 text-white py-3 rounded-xl font-bold text-sm shadow transition">Xác nhận địa chỉ giao hàng</button>
             </div>
         </div>
     </div>
 
-    <!-- MODAL 4: CHI TIẾT MÒN & CROSS-SELLING (GIỐNG ẢNH CUỐI) -->
+    <!-- MODAL 4: CHI TIẾT MÓN, CROSS-SELLING & NOTE FOR ORIBERRY -->
     <div id="productDetailModal" class="fixed inset-0 bg-black/50 z-50 flex items-end md:items-center justify-center hidden">
         <div class="bg-white w-full max-w-lg rounded-t-3xl md:rounded-2xl max-h-[90vh] overflow-y-auto flex flex-col">
-            <!-- Ảnh lớn -->
             <div class="relative w-full h-56 bg-gray-100">
                 <img id="modalProdImg" src="" alt="" class="w-full h-full object-cover">
                 <button onclick="closeModal('productDetailModal')" class="absolute top-3 right-3 bg-black/50 text-white w-8 h-8 rounded-full flex items-center justify-center"><i class="fa-solid fa-xmark"></i></button>
             </div>
-            <!-- Nội dung chi tiết -->
             <div class="p-5 flex-1 space-y-4">
                 <div>
                     <h2 id="modalProdName" class="text-xl font-bold text-gray-900">Tên món</h2>
                     <div id="modalProdPrice" class="text-amber-700 font-bold text-lg mt-1">0đ</div>
                 </div>
-                <p id="modalProdDesc" class="text-sm text-gray-600 leading-relaxed">Mô tả chi tiết món ăn/thức uống...</p>
+                <p id="modalProdDesc" class="text-sm text-gray-600 leading-relaxed"></p>
                 
-                <!-- Gợi ý dùng kèm (Cross-selling slider) -->
+                <!-- NOTE FOR ORIBERRY (Ghi chú riêng cho món) -->
                 <div>
-                    <div class="text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">Gợi ý dùng kèm (Cross-sell)</div>
-                    <div class="flex gap-3 overflow-x-auto no-scrollbar pb-2" id="crossSellContainer">
-                        <!-- Render các món gợi ý vuốt ngang -->
-                    </div>
+                    <label class="block text-xs font-bold text-gray-700 mb-1">Note for Oriberry (Ghi chú cho món này):</label>
+                    <input type="text" id="modalItemNote" placeholder="Ví dụ: Ít đá, nhiều sữa, không đường..." class="w-full p-2.5 border rounded-xl text-xs focus:border-amber-700">
                 </div>
 
-                <!-- Tăng giảm số lượng & Thêm vào giỏ -->
+                <!-- GỢI Ý DÙNG KÈM (CROSS-SELLING VUỐT NGANG) -->
+                <div>
+                    <div class="text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">Gợi ý dùng kèm (3-5 món)</div>
+                    <div class="flex gap-3 overflow-x-auto no-scrollbar pb-2" id="crossSellContainer"></div>
+                </div>
+
+                <!-- SỐ LƯỢNG & NÚT THÊM VÀO GIỎ -->
                 <div class="pt-3 border-t flex items-center justify-between gap-4">
                     <div class="flex items-center border rounded-xl overflow-hidden">
                         <button onclick="adjustModalQty(-1)" class="px-3 py-2 bg-gray-100 hover:bg-gray-200"><i class="fa-solid fa-minus text-xs"></i></button>
@@ -190,9 +186,8 @@
         </div>
     </div>
 
-    <!-- SCRIPT LOGIC MOCKUP -->
+    <!-- SCRIPT LOGIC -->
     <script>
-        // 1. DỮ LIỆU MOCKUP CHUẨN MÔ HÌNH
         const categories = [
             { id: 'coffee', name: 'Coffee', icon: 'fa-mug-hot' },
             { id: 'tea', name: 'Tea', icon: 'fa-leaf' },
@@ -209,16 +204,52 @@
             { code: 'DANG_TIEN_DONG', name: 'Oriberry Đặng Tiến Đông', address: '155 Đặng Tiến Đông, Đống Đa, Hà Nội' }
         ];
 
+        // Đảm bảo mỗi nhóm đồ uống >= 5 món, mỗi nhóm đồ ăn >= 3 món, và KHÔNG HIỂN THỊ GIÁ trên menu chính
         const products = [
-            { id: 'p1', cat: 'coffee', name: 'Airy-cano Classic', price: 55000, img: 'https://images.unsplash.com/photo-1514432324607-a09d9b4aefdd?auto=format&fit=crop&w=500&q=80', desc: 'Vẫn là hương vị Americano nguyên bản, nhưng được nâng tầm hương vị đậm đà hơn với lớp bọt khí mịn màng.' },
-            { id: 'p2', cat: 'coffee', name: 'Airy-cano Yuzu', price: 75000, img: 'https://images.unsplash.com/photo-1517701550927-30cf4ba1dba5?auto=format&fit=crop&w=500&q=80', desc: 'Sự kết hợp hoàn hảo giữa espresso và hương vị cam Yuzu thanh mát.' },
-            { id: 'p3', cat: 'coffee', name: 'Specialty Coffee Đá', price: 69000, img: 'https://images.unsplash.com/photo-1511920170033-f8396924c348?auto=format&fit=crop&w=500&q=80', desc: 'Pha thủ công V60 chiết xuất hương vị hạt Arabica bản địa đặc sắc.' },
-            { id: 'p4', cat: 'tea', name: 'Trà Sen Vàng Cao Cấp', price: 65000, img: 'https://images.unsplash.com/photo-1576092768241-dec231879fc3?auto=format&fit=crop&w=500&q=80', desc: 'Trà ô long thượng hạng kết hợp hương sen mộc mạc.' },
-            { id: 'p5', cat: 'juices', name: 'Nước Ép Cam Tươi', price: 60000, img: 'https://images.unsplash.com/photo-1613478223719-2ab802602423?auto=format&fit=crop&w=500&q=80', desc: 'Cam tươi nguyên chất giàu vitamin C.' },
-            { id: 'p6', cat: 'smoothies', name: 'Sinh Tố Bơ Đắk Lắk', price: 69000, img: 'https://images.unsplash.com/photo-1553530666-ba11a7da3888?auto=format&fit=crop&w=500&q=80', desc: 'Bơ sáp Đắk Lắk dẻo mịn béo ngậy.' },
-            { id: 'p7', cat: 'cake', name: 'Burnt Cheesecake', price: 55000, img: 'https://images.unsplash.com/photo-1533134242443-d4fd215305ad?auto=format&fit=crop&w=500&q=80', desc: 'Bánh phô mai nướng thơm ngậy mùi bơ sữa.' },
-            { id: 'p8', cat: 'banh-mi', name: 'Bánh Mì Kẹp Thịt Nướng', price: 45000, img: 'https://images.unsplash.com/photo-1509722747041-616f39b57569?auto=format&fit=crop&w=500&q=80', desc: 'Bánh mì giòn rụm nhân thịt nướng đậm đà.' },
-            { id: 'p9', cat: 'spagetti', name: 'Wafu Pasta Bò Bằm', price: 85000, img: 'https://images.unsplash.com/photo-1621996346565-e3d5d6281298?auto=format&fit=crop&w=500&q=80', desc: 'Mỳ Ý sốt bò bằm phong cách Á Đông.' }
+            // Coffee (5 món)
+            { id: 'c1', cat: 'coffee', name: 'Airy-cano Classic', price: 55000, img: 'https://images.unsplash.com/photo-1514432324607-a09d9b4aefdd?auto=format&fit=crop&w=500&q=80', desc: 'Hương vị Americano nguyên bản nâng tầm đậm đà.' },
+            { id: 'c2', cat: 'coffee', name: 'Airy-cano Yuzu', price: 75000, img: 'https://images.unsplash.com/photo-1517701550927-30cf4ba1dba5?auto=format&fit=crop&w=500&q=80', desc: 'Kết hợp espresso và hương cam Yuzu thanh mát.' },
+            { id: 'c3', cat: 'coffee', name: 'Specialty Coffee Đá', price: 69000, img: 'https://images.unsplash.com/photo-1511920170033-f8396924c348?auto=format&fit=crop&w=500&q=80', desc: 'Pha thủ công V60 chiết xuất hạt Arabica đặc sắc.' },
+            { id: 'c4', cat: 'coffee', name: 'Phin Sữa Đá Truyền Thống', price: 45000, img: 'https://images.unsplash.com/photo-1509042239860-f550ce710b93?auto=format&fit=crop&w=500&q=80', desc: 'Cà phê Phin truyền thống từ Robusta Quảng Trị đậm đà.' },
+            { id: 'c5', cat: 'coffee', name: 'Espresso Macchiato', price: 50000, img: 'https://images.unsplash.com/photo-1534778101976-62847782c213?auto=format&fit=crop&w=500&q=80', desc: 'Espresso đậm đặc điểm thêm chút bọt sữa mịn.' },
+
+            // Tea (5 món)
+            { id: 't1', cat: 'tea', name: 'Trà Sen Vàng Cao Cấp', price: 65000, img: 'https://images.unsplash.com/photo-1576092768241-dec231879fc3?auto=format&fit=crop&w=500&q=80', desc: 'Trà ô long thượng hạng kết hợp hương sen mộc mạc.' },
+            { id: 't2', cat: 'tea', name: 'Trà Đào Cam Sả', price: 60000, img: 'https://images.unsplash.com/photo-1556679343-c7306c1976bc?auto=format&fit=crop&w=500&q=80', desc: 'Trà đen thanh mát kết hợp đào miếng và sả tươi.' },
+            { id: 't3', cat: 'tea', name: 'Trà Xanh Mật Ngọt', price: 55000, img: 'https://images.unsplash.com/photo-1563911892120-177659832e02?auto=format&fit=crop&w=500&q=80', desc: 'Trà xanh nguyên bản hòa quyện mật ong rừng.' },
+            { id: 't4', cat: 'tea', name: 'Trà Ô Long Vải', price: 62000, img: 'https://images.unsplash.com/photo-1546171753-97d7676eefa0?auto=format&fit=crop&w=500&q=80', desc: 'Vị ô long đậm đà cùng những trái vải ngọt lịm.' },
+            { id: 't5', cat: 'tea', name: 'Trà Thảo Mộc Hoa Cúc', price: 58000, img: 'https://images.unsplash.com/photo-1597481499750-3e6b22637e12?auto=format&fit=crop&w=500&q=80', desc: 'Thư giãn tinh thần với trà hoa cúc mật ong ấm áp.' },
+
+            // Juices (5 món)
+            { id: 'j1', cat: 'juices', name: 'Nước Ép Cam Tươi', price: 60000, img: 'https://images.unsplash.com/photo-1613478223719-2ab802602423?auto=format&fit=crop&w=500&q=80', desc: 'Cam tươi nguyên chất giàu vitamin C.' },
+            { id: 'j2', cat: 'juices', name: 'Nước Ép Tứa Dứa Thơm Mát', price: 55000, img: 'https://images.unsplash.com/photo-1589735928236-141451e4429e?auto=format&fit=crop&w=500&q=80', desc: 'Dứa tươi ép nguyên chất kích thích vị giác.' },
+            { id: 'j3', cat: 'juices', name: 'Nước Ép Cóc Xanh Lắc Muối Ớt', price: 50000, img: 'https://images.unsplash.com/photo-1622597447547-19c25f474b30?auto=format&fit=crop&w=500&q=80', desc: 'Thức uống thanh mát chua ngọt độc đáo.' },
+            { id: 'j4', cat: 'juices', name: 'Nước Ép Táo Nguyên Chất', price: 65000, img: 'https://images.unsplash.com/photo-1600271886742-f049cd451bba?auto=format&fit=crop&w=500&q=80', desc: 'Táo tươi giòn ngọt ép lấy trọn dưỡng chất.' },
+            { id: 'j5', cat: 'juices', name: 'Nước Ép Cà Rốt Mật Ong', price: 58000, img: 'https://images.unsplash.com/photo-1595981267035-7b04ca84a82d?auto=format&fit=crop&w=500&q=80', desc: 'Cà rốt tươi giàu beta-caroten tốt cho thị lực.' },
+
+            // Smoothies (5 món)
+            { id: 's1', cat: 'smoothies', name: 'Sinh Tố Bơ Đắk Lắk', price: 69000, img: 'https://images.unsplash.com/photo-1553530666-ba11a7da3888?auto=format&fit=crop&w=500&q=80', desc: 'Bơ sáp Đắk Lắk dẻo mịn béo ngậy.' },
+            { id: 's2', cat: 'smoothies', name: 'Sinh Tố Xoài Tươi Mát', price: 62000, img: 'https://images.unsplash.com/photo-1572490122747-3968b75cc699?auto=format&fit=crop&w=500&q=80', desc: 'Xoài chín cây thơm lừng ngọt đậm đà.' },
+            { id: 's3', cat: 'smoothies', name: 'Sinh Tố Mãng Cầu', price: 65000, img: 'https://images.unsplash.com/photo-1568827988772-1875e0d1ff14?auto=format&fit=crop&w=500&q=80', desc: 'Vị chua ngọt đặc trưng của mãng cầu xiêm.' },
+            { id: 's4', cat: 'smoothies', name: 'Sinh Tố Chuối Bơ Peanut', price: 70000, img: 'https://images.unsplash.com/photo-1577805947697-89e18249d767?auto=format&fit=crop&w=500&q=80', desc: 'Kết hợp dinh dưỡng từ chuối và bơ đậu phộng.' },
+            { id: 's5', cat: 'smoothies', name: 'Sinh Tố Dâu Tây Sữa Chua', price: 68000, img: 'https://images.unsplash.com/photo-1570197788417-0e82375c9371?auto=format&fit=crop&w=500&q=80', desc: 'Dâu tây tươi và sữa chua thanh dịu.' },
+
+            // Cake (5 món)
+            { id: 'k1', cat: 'cake', name: 'Burnt Cheesecake', price: 55000, img: 'https://images.unsplash.com/photo-1533134242443-d4fd215305ad?auto=format&fit=crop&w=500&q=80', desc: 'Bánh phô mai nướng thơm ngậy mùi bơ sữa.' },
+            { id: 'k2', cat: 'cake', name: 'Tiramisu Cổ Điển', price: 60000, img: 'https://images.unsplash.com/photo-1571877227200-a0d98ea607e9?auto=format&fit=crop&w=500&q=80', desc: 'Hương vị cà phê quyện lớp kem mascarpone mềm mịn.' },
+            { id: 'k3', cat: 'cake', name: 'Mousse Chanh Dây', price: 52000, img: 'https://images.unsplash.com/photo-1509440159596-0249088772ff?auto=format&fit=crop&w=500&q=80', desc: 'Vị chua thanh dịu mát từ chanh dây tươi.' },
+            { id: 'k4', cat: 'cake', name: 'Bánh Sô-cô-la Lava', price: 58000, img: 'https://images.unsplash.com/photo-1606313564200-e75d5e30476c?auto=format&fit=crop&w=500&q=80', desc: 'Sô-cô-la nguyên chất tan chảy ấm áp bên trong.' },
+            { id: 'k5', cat: 'cake', name: 'Croissant Bơ Pháp', price: 35000, img: 'https://images.unsplash.com/photo-1555507036-ab1f4038808a?auto=format&fit=crop&w=500&q=80', desc: 'Bánh sừng bò ngàn lớp thơm phức mùi bơ.' },
+
+            // Bánh Mì (3 món)
+            { id: 'b1', cat: 'banh-mi', name: 'Bánh Mì Kẹp Thịt Nướng', price: 45000, img: 'https://images.unsplash.com/photo-1509722747041-616f39b57569?auto=format&fit=crop&w=500&q=80', desc: 'Bánh mì giòn rụm nhân thịt nướng đậm đà.' },
+            { id: 'b2', cat: 'banh-mi', name: 'Bánh Mì Gà Xé Phay', price: 42000, img: 'https://images.unsplash.com/photo-1626777552726-4a6b54c97e46?auto=format&fit=crop&w=500&q=80', desc: 'Thịt gà xé trộn gia vị đậm đà cùng rau thơm tươi.' },
+            { id: 'b3', cat: 'banh-mi', name: 'Bánh Mì Ốp La Pate', price: 40000, img: 'https://images.unsplash.com/photo-1528735602780-2552fd46c7af?auto=format&fit=crop&w=500&q=80', desc: 'Trứng ốp la lòng đào kết hợp pate thơm ngậy.' },
+
+            // Spagetti (3 món)
+            { id: 'p1', cat: 'spagetti', name: 'Wafu Pasta Bò Bằm', price: 85000, img: 'https://images.unsplash.com/photo-1621996346565-e3d5d6281298?auto=format&fit=crop&w=500&q=80', desc: 'Mỳ Ý sốt bò bằm phong cách Á Đông.' },
+            { id: 'p2', cat: 'spagetti', name: 'Mỳ Ý Sốt Kem Nấm Trắng', price: 89000, img: 'https://images.unsplash.com/photo-1608897013039-887f21d8c804?auto=format&fit=crop&w=500&q=80', desc: 'Sốt kem tươi béo ngậy quyện nấm mỡ thơm lừng.' },
+            { id: 'p3', cat: 'spagetti', name: 'Mỳ Ý Hải Sản Sốt Cà Chua', price: 95000, img: 'https://images.unsplash.com/photo-1563379091339-03b21ab4a4f8?auto=format&fit=crop&w=500&q=80', desc: 'Hải sản tươi ngon kết hợp sốt cà chua đậm đà.' }
         ];
 
         let cart = [];
@@ -227,7 +258,6 @@
         let activeProductForModal = null;
         let currentModalQty = 1;
 
-        // 2. KHỞI TẠO GIAO DIỆN
         document.addEventListener('DOMContentLoaded', () => {
             renderCategories();
             renderMenu();
@@ -235,7 +265,6 @@
             checkUrlTableParam();
         });
 
-        // Kiểm tra xem có quét QR mã bàn không (?table=T2NH-04&store=AU_TRIEU)
         function checkUrlTableParam() {
             const urlParams = new URLSearchParams(window.location.search);
             const table = urlParams.get('table');
@@ -244,25 +273,25 @@
                 currentFulfillment = 'DINE_IN';
                 selectedStore = store;
                 const storeObj = stores.find(s => s.code === store);
-                document.getElementById('fulfillmentLabel').innerText = "Uống tại quán (Tại bàn)";
+                document.getElementById('fulfillmentLabel').innerText = "Uống tại quán";
                 document.getElementById('fulfillmentValue').innerText = `Bàn: ${table} (${storeObj ? storeObj.name : store})`;
-                document.getElementById('headerIcon').className = "fa-solid fa-utensils text-lg";
+                document.getElementById('headerIcon').className = "fa-solid fa-utensils text-xs";
             } else {
-                // Mặc định mở modal chọn phương thức nếu chưa có
                 openFulfillmentModal();
             }
         }
 
         function renderCategories() {
             const container = document.getElementById('categoryListContainer');
-            container.innerHTML = categories.map((cat, index) => `
-                <div onclick="scrollToCategory('${cat.id}')" id="cat-tab-${cat.id}" class="px-3 py-3 text-xs font-bold cursor-pointer text-gray-600 hover:text-amber-700 hover:bg-amber-50/50 border-l-4 border-transparent transition flex flex-col items-center text-center gap-1">
-                    <i class="fa-solid ${cat.icon} text-base"></i>
-                    <span>${cat.name}</span>
+            container.innerHTML = categories.map(cat => `
+                <div onclick="scrollToCategory('${cat.id}')" class="px-2 py-3 md:px-3 text-[11px] md:text-xs font-bold cursor-pointer text-gray-600 hover:text-amber-700 hover:bg-amber-50/50 border-l-4 border-transparent transition flex flex-col items-center text-center gap-1">
+                    <i class="fa-solid ${cat.icon} text-sm md:text-base"></i>
+                    <span class="line-clamp-1">${cat.name}</span>
                 </div>
             `).join('');
         }
 
+        // KHÔNG HIỂN THỊ GIÁ TIỀN Ở MENU CHÍNH
         function renderMenu() {
             const container = document.getElementById('menuContainer');
             container.innerHTML = categories.map(cat => {
@@ -270,17 +299,16 @@
                 if (items.length === 0) return '';
                 return `
                     <div id="section-${cat.id}" class="scroll-mt-4">
-                        <h3 class="font-bold text-base text-gray-900 mb-3 sticky top-0 bg-white py-1 z-10 border-b border-gray-100">${cat.name}</h3>
-                        <div class="space-y-3">
+                        <h3 class="font-bold text-sm md:text-base text-gray-900 mb-3 sticky top-0 bg-white py-2 z-10 border-b border-gray-100">${cat.name}</h3>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
                             ${items.map(item => `
                                 <div onclick="openProductModal('${item.id}')" class="bg-white border border-gray-100 rounded-xl p-3 shadow-sm hover:shadow-md transition cursor-pointer flex items-center justify-between gap-3">
                                     <img src="${item.img}" class="w-16 h-16 rounded-lg object-cover flex-shrink-0" alt="">
                                     <div class="flex-1 min-w-0">
-                                        <h4 class="font-bold text-sm text-gray-900 truncate">${item.name}</h4>
-                                        <p class="text-xs text-gray-500 line-clamp-1 mt-0.5">${item.desc}</p>
-                                        <div class="font-bold text-amber-700 text-sm mt-1">${item.price.toLocaleString()}đ</div>
+                                        <h4 class="font-bold text-xs md:text-sm text-gray-900 truncate">${item.name}</h4>
+                                        <p class="text-[11px] text-gray-500 line-clamp-1 mt-0.5">${item.desc}</p>
                                     </div>
-                                    <button class="w-8 h-8 rounded-full bg-amber-50 text-amber-700 flex items-center justify-center hover:bg-amber-600 hover:text-white transition flex-shrink-0">
+                                    <button class="w-8 h-8 rounded-full bg-amber-50 text-amber-700 flex items-center justify-center hover:bg-amber-700 hover:text-white transition flex-shrink-0">
                                         <i class="fa-solid fa-plus text-xs"></i>
                                     </button>
                                 </div>
@@ -294,7 +322,7 @@
         function renderStores() {
             const container = document.getElementById('storeListContainer');
             container.innerHTML = stores.map(s => `
-                <div onclick="chooseStore('${s.code}')" class="border p-3 rounded-xl cursor-pointer hover:border-amber-600 hover:bg-amber-50/20 transition">
+                <div onclick="chooseStore('${s.code}')" class="border p-3 rounded-xl cursor-pointer hover:border-amber-700 hover:bg-amber-50/20 transition">
                     <div class="font-bold text-sm text-gray-900">${s.name}</div>
                     <div class="text-xs text-gray-500 mt-0.5">${s.address}</div>
                 </div>
@@ -308,7 +336,6 @@
             }
         }
 
-        // 3. XỬ LÝ MODAL PHƯƠNG THỨC & CỬA HÀNG
         function openFulfillmentModal() { document.getElementById('fulfillmentModal').classList.remove('hidden'); }
         function closeModal(id) { document.getElementById(id).classList.add('hidden'); }
 
@@ -332,8 +359,7 @@
             selectedStore = code;
             const storeObj = stores.find(s => s.code === code);
             closeModal('storeModal');
-            
-            document.getElementById('headerIcon').className = currentFulfillment === 'DINE_IN' ? "fa-solid fa-utensils text-lg" : "fa-solid fa-bag-shopping text-lg";
+            document.getElementById('headerIcon').className = currentFulfillment === 'DINE_IN' ? "fa-solid fa-utensils text-xs" : "fa-solid fa-bag-shopping text-xs";
             document.getElementById('fulfillmentLabel').innerText = currentFulfillment === 'DINE_IN' ? "Uống tại quán" : "Đến lấy mang đi";
             document.getElementById('fulfillmentValue').innerText = storeObj.name;
         }
@@ -346,12 +372,12 @@
                 return;
             }
             closeModal('deliveryModal');
-            document.getElementById('headerIcon').className = "fa-solid fa-motorcycle text-lg";
+            document.getElementById('headerIcon').className = "fa-solid fa-motorcycle text-xs";
             document.getElementById('fulfillmentLabel').innerText = "Giao hàng tận nơi";
             document.getElementById('fulfillmentValue').innerText = detail;
         }
 
-        // 4. POPUP CHI TIẾT MÓN & CROSS-SELLING
+        // POPUP CHI TIẾT MÓN (HIỆN GIÁ, CROSS-SELL & NOTE FOR ORIBERRY)
         function openProductModal(itemId) {
             activeProductForModal = products.find(p => p.id === itemId);
             currentModalQty = 1;
@@ -360,14 +386,15 @@
             document.getElementById('modalProdName').innerText = activeProductForModal.name;
             document.getElementById('modalProdPrice').innerText = activeProductForModal.price.toLocaleString() + 'đ';
             document.getElementById('modalProdDesc').innerText = activeProductForModal.desc;
+            document.getElementById('modalItemNote').value = '';
             document.getElementById('modalQty').innerText = currentModalQty;
             updateModalAddBtn();
 
-            // Render cross-sell (Lấy ngẫu nhiên 3 món khác làm gợi ý)
-            const crossSells = products.filter(p => p.id !== itemId).slice(0, 3);
+            // Lấy 3-5 món gợi ý dùng kèm (Cross-sell)
+            const crossSells = products.filter(p => p.id !== itemId).slice(0, 4);
             document.getElementById('crossSellContainer').innerHTML = crossSells.map(cs => `
-                <div class="w-32 flex-shrink-0 border rounded-lg p-2 bg-gray-50 flex flex-col justify-between">
-                    <img src="${cs.img}" class="w-full h-20 object-cover rounded-md mb-1">
+                <div class="w-32 flex-shrink-0 border rounded-xl p-2 bg-gray-50 flex flex-col justify-between">
+                    <img src="${cs.img}" class="w-full h-16 object-cover rounded-lg mb-1">
                     <div class="text-[11px] font-bold text-gray-800 truncate">${cs.name}</div>
                     <div class="text-[11px] text-amber-700 font-bold">${cs.price.toLocaleString()}đ</div>
                 </div>
@@ -389,7 +416,8 @@
         }
 
         function addToCartFromModal() {
-            cart.push({ ...activeProductForModal, qty: currentModalQty });
+            const itemNote = document.getElementById('modalItemNote').value;
+            cart.push({ ...activeProductForModal, qty: currentModalQty, note: itemNote });
             closeModal('productDetailModal');
             updateCartBar();
         }
@@ -408,7 +436,7 @@
         }
 
         function openCartModal() {
-            alert('Giỏ hàng hiện có ' + cart.length + ' món. Chức năng lên đơn & gọi confirm kết nối Google Sheets sẽ được tích hợp tiếp theo!');
+            alert('Giỏ hàng có ' + cart.length + ' loại món. Chức năng kết nối Google Sheets 12 cột & gọi xác nhận đơn hàng sẽ được tích hợp hoàn chỉnh tiếp theo!');
         }
     </script>
 </body>
