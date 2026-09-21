@@ -330,14 +330,21 @@
       }
     }
 
-    function checkUrlForProduct() {
-      const urlParams = new URLSearchParams(window.location.search);
-      const productId = urlParams.get('id');
-      if (productId && PRODUCTS.length > 0) {
-        openDetailModal(productId);
-      }
+function checkUrlForProduct() {
+    const urlParams = new URLSearchParams(window.location.search);
+    const productId = urlParams.get('id');
+    const action = urlParams.get('action');
+    
+    if (productId && PRODUCTS.length > 0) {
+        if (action === 'buy') {
+            // Nếu bấm Buy this coffee từ trang chủ -> Mở thẳng popup chọn cỡ xay
+            openOptionModal(productId);
+        } else {
+            // Nếu bấm See more hoặc link thường -> Mở popup chi tiết sản phẩm
+            openDetailModal(productId);
+        }
     }
-
+}
     function renderProducts() {
       const typeVal = document.getElementById('filter-type')?.value || 'ALL';
       const regionVal = document.getElementById('filter-region')?.value || 'ALL';
