@@ -101,13 +101,14 @@
   <audio id="bellAudio" loop src="https://assets.mixkit.co/active_storage/sfx/2869/2869-preview.mp3"></audio>
 
   <script>
-    // Cấu hình URL Worker API của anh
-    const API_URL = 'https://oriberry-api.your-worker.workers.dev/api/orders'; // Sẽ cập nhật link Worker thật của anh
+    // DÁN LINK GOOGLE APPS SCRIPT CỦA ANH VÀO ĐÂY:
+    const SCRIPT_URL = 'THAY_LINK_GOOGLE_APPS_SCRIPT_VAO_DAY'; 
+    
     let knownOrders = new Set();
     let currentProcessingOrder = null;
     let audioAllowed = false;
 
-    // Cho phép bật âm thanh khi bấm nút/click trang
+    // Kích hoạt quyền phát âm thanh trên trình duyệt
     function enableAudio() {
       const audio = document.getElementById('bellAudio');
       audio.play().then(() => {
@@ -118,7 +119,7 @@
       }).catch(e => console.log("Audio permission denied", e));
     }
 
-    // Phát âm thanh báo
+    // Phát chuông báo
     function playBell() {
       if (audioAllowed) {
         const audio = document.getElementById('bellAudio');
@@ -127,17 +128,19 @@
       }
     }
 
-    // Tắt âm thanh
+    // Tắt chuông báo
     function stopBell() {
       const audio = document.getElementById('bellAudio');
       audio.pause();
       audio.currentTime = 0;
     }
 
-    // Quét lấy danh sách đơn từ Worker / Google Sheet
+    // Lấy danh sách đơn từ Google Apps Script
     async function fetchOrders() {
+      if (!SCRIPT_URL || SCRIPT_URL.includes('THAY_LINK_')) return;
+
       try {
-        const res = await fetch(API_URL);
+        const res = await fetch(SCRIPT_URL + '?action=getOrders');
         const data = await res.json();
         
         if (data && data.orders) {
@@ -149,13 +152,12 @@
       }
     }
 
-    // Kiểm tra có đơn mới dạng PENDING không
+    // Kiểm tra đơn hàng mới trạng thái PENDING
     function checkForNewOrders(orders) {
       const pendingOrders = orders.filter(o => o.status === 'PENDING' || !o.status);
       
       if (pendingOrders.length > 0) {
         const newest = pendingOrders[0];
-        // Nếu phát hiện mã đơn mới chưa có trong danh sách đã biết
         if (!knownOrders.has(newest.orderId)) {
           showModal(newest);
           playBell();
@@ -163,7 +165,7 @@
       }
     }
 
-    // Bật Popup Pop-up
+    // Hiển thị Pop-up chi tiết
     function showModal(order) {
       currentProcessingOrder = order;
       document.getElementById('modalOrderId').innerText = 'Mã đơn: #' + order.orderId;
@@ -177,7 +179,7 @@
       document.getElementById('orderModal').classList.remove('hidden');
     }
 
-    // Bấm nút Đã Xác Nhận
+    // Xác nhận đơn hàng
     async function confirmOrder() {
       if (!currentProcessingOrder) return;
       
@@ -185,23 +187,25 @@
       document.getElementById('orderModal').classList.add('hidden');
       knownOrders.add(currentProcessingOrder.orderId);
 
-      // Gửi yêu cầu cập nhật trạng thái lên Sheet qua Worker
       try {
-        await fetch(API_URL + '/update', {
+        await fetch(SCRIPT_URL, {
           method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ orderId: currentProcessingOrder.orderId, status: 'CONFIRMED' })
+          body: JSON.stringify({ 
+            action: 'updateStatus', 
+            orderId: currentProcessingOrder.orderId, 
+            status: 'CONFIRMED' 
+          })
         });
-        fetchOrders(); // Tải lại bảng
+        fetchOrders();
       } catch (e) {
         console.error("Lỗi cập nhật trạng thái đơn:", e);
       }
     }
 
-    // Render dữ liệu ra bảng
+    // Đưa dữ liệu lên bảng giao diện
     function renderTable(orders) {
       const tbody = document.getElementById('orderTableBody');
-      if (orders.length === 0) {
+      if (!orders || orders.length === 0) {
         tbody.innerHTML = '<tr><td colspan="7" class="p-8 text-center text-slate-400">Chưa có đơn hàng nào</td></tr>';
         return;
       }
@@ -232,9 +236,8 @@
       `).join('');
     }
 
-    // Tự động quét đơn mới mỗi 10 giây
+    // Quét đơn mới mỗi 10 giây
     setInterval(fetchOrders, 10000);
-    // Chạy lần đầu khi mở trang
     fetchOrders();
   </script>
 </body>
