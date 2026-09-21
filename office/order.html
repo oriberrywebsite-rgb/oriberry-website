@@ -12,19 +12,42 @@
 </head>
 <body class="bg-slate-100 text-slate-800 min-h-screen">
 
+  <!-- MAN HINH NHAP PIN BẢO MẬT -->
+  <div id="pinOverlay" class="fixed inset-0 bg-slate-900 z-50 flex items-center justify-center p-4">
+    <div class="bg-white rounded-2xl shadow-2xl max-w-sm w-full p-6 text-center">
+      <div class="w-16 h-16 bg-amber-100 text-amber-900 rounded-full flex items-center justify-center mx-auto mb-4 text-2xl font-bold">
+        🔒
+      </div>
+      <h2 class="text-xl font-bold text-slate-900 mb-1">Oriberry Office</h2>
+      <p class="text-xs text-slate-500 mb-6">Vui lòng nhập mã PIN để truy cập đơn hàng</p>
+      
+      <form onsubmit="verifyPin(event)" class="space-y-4">
+        <input type="password" id="pinInput" maxlength="10" placeholder="Nhập mã PIN..." required
+          class="w-full text-center text-2xl tracking-widest font-bold py-3 border-2 border-slate-200 rounded-xl focus:border-amber-900 focus:outline-none transition">
+        <p id="pinError" class="text-xs text-red-600 font-semibold hidden">Mã PIN không đúng, vui lòng thử lại!</p>
+        <button type="submit" class="w-full bg-amber-900 hover:bg-amber-800 text-white font-bold py-3 rounded-xl shadow-md transition">
+          Mở Khóa Hệ Thống
+        </button>
+      </form>
+    </div>
+  </div>
+
   <!-- Header -->
   <header class="bg-amber-900 text-white px-6 py-4 shadow-md flex justify-between items-center sticky top-0 z-10">
     <div>
       <h1 class="text-xl font-bold tracking-wide">ORIBERRY OFFICE</h1>
       <p class="text-xs text-amber-200">Hệ thống nhận đơn Cà phê gói (/shop)</p>
     </div>
-    <div class="flex items-center gap-3">
+    <div class="flex items-center gap-2 md:gap-3">
       <button id="audioToggleBtn" onclick="enableAudio()" class="px-3 py-1.5 bg-amber-700 hover:bg-amber-600 rounded-lg text-xs font-semibold transition flex items-center gap-1.5">
-        🔊 Bật Âm Thanh Báo Đơn
+        🔊 Bật Âm Thanh
       </button>
-      <span id="statusIndicator" class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium bg-emerald-100 text-emerald-800">
-        ● Đã kết nối
-      </span>
+      <button onclick="changePinPrompt()" class="px-3 py-1.5 bg-amber-800 hover:bg-amber-700 rounded-lg text-xs font-semibold transition">
+        🔑 Đổi PIN
+      </button>
+      <button onclick="lockSystem()" class="px-3 py-1.5 bg-red-800 hover:bg-red-700 rounded-lg text-xs font-semibold transition">
+        🔒 Thoát
+      </button>
     </div>
   </header>
 
@@ -62,7 +85,7 @@
 
   <!-- POPUP NỔI KHI CÓ ĐƠN MỚI -->
   <div id="orderModal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center hidden p-4">
-    <div class="bg-white rounded-2xl shadow-2xl max-w-lg w-full p-6 animate-bounce-short border-4 border-amber-500">
+    <div class="bg-white rounded-2xl shadow-2xl max-w-lg w-full p-6 border-4 border-amber-500">
       <div class="flex justify-between items-start mb-4 border-b pb-3">
         <div>
           <span class="inline-block px-2.5 py-0.5 bg-red-100 text-red-700 font-bold text-xs rounded-full uppercase tracking-wider mb-1">🔥 Đơn hàng mới!</span>
@@ -101,25 +124,76 @@
   <audio id="bellAudio" loop src="https://assets.mixkit.co/active_storage/sfx/2869/2869-preview.mp3"></audio>
 
   <script>
-    // DÁN LINK GOOGLE APPS SCRIPT CỦA ANH VÀO ĐÂY:
     const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzoWopdIwcIH1mI6i0LNZP3YLK_U7zjIc6iMwLEdyCNuZ4L4jAwop8QWc6g0v06Qs_f/exec'; 
-    
+    const DEFAULT_PIN = '666666';
+
     let knownOrders = new Set();
     let currentProcessingOrder = null;
     let audioAllowed = false;
 
-    // Kích hoạt quyền phát âm thanh trên trình duyệt
+    // Lấy mã PIN hiện tại (Ưu tiên PIN lưu trên trình duyệt)
+    function getCurrentPin() {
+      return localStorage.getItem('oriberry_office_pin') || DEFAULT_PIN;
+    }
+
+    // Kiểm tra đăng nhập
+    function checkAuth() {
+      if (sessionStorage.getItem('oriberry_authenticated') === 'true') {
+        document.getElementById('pinOverlay').classList.add('hidden');
+        fetchOrders();
+      } else {
+        document.getElementById('pinOverlay').classList.remove('hidden');
+      }
+    }
+
+    // Xác nhận PIN
+    function verifyPin(e) {
+      e.preventDefault();
+      const input = document.getElementById('pinInput').value;
+      if (input === getCurrentPin()) {
+        sessionStorage.setItem('oriberry_authenticated', 'true');
+        document.getElementById('pinOverlay').classList.add('hidden');
+        document.getElementById('pinError').classList.add('hidden');
+        fetchOrders();
+      } else {
+        document.getElementById('pinError').classList.remove('hidden');
+      }
+    }
+
+    // Khóa hệ thống
+    function lockSystem() {
+      sessionStorage.removeItem('oriberry_authenticated');
+      document.getElementById('pinInput').value = '';
+      document.getElementById('pinOverlay').classList.remove('hidden');
+    }
+
+    // Đổi mã PIN
+    function changePinPrompt() {
+      const oldPin = prompt("Nhập mã PIN hiện tại:");
+      if (oldPin === getCurrentPin()) {
+        const newPin = prompt("Nhập mã PIN MỚI:");
+        if (newPin && newPin.trim().length >= 4) {
+          localStorage.setItem('oriberry_office_pin', newPin.trim());
+          alert("Đã đổi mã PIN thành công!");
+        } else {
+          alert("Mã PIN mới phải từ 4 ký tự trở lên.");
+        }
+      } else if (oldPin !== null) {
+        alert("Mã PIN cũ không chính xác!");
+      }
+    }
+
+    // Kích hoạt quyền phát âm thanh
     function enableAudio() {
       const audio = document.getElementById('bellAudio');
       audio.play().then(() => {
         audio.pause();
         audioAllowed = true;
         document.getElementById('audioToggleBtn').classList.replace('bg-amber-700', 'bg-emerald-700');
-        document.getElementById('audioToggleBtn').innerText = '🔊 Âm Thanh Đã Bật';
+        document.getElementById('audioToggleBtn').innerText = '🔊 Âm Thanh Bật';
       }).catch(e => console.log("Audio permission denied", e));
     }
 
-    // Phát chuông báo
     function playBell() {
       if (audioAllowed) {
         const audio = document.getElementById('bellAudio');
@@ -128,16 +202,14 @@
       }
     }
 
-    // Tắt chuông báo
     function stopBell() {
       const audio = document.getElementById('bellAudio');
       audio.pause();
       audio.currentTime = 0;
     }
 
-    // Lấy danh sách đơn từ Google Apps Script
     async function fetchOrders() {
-      if (!SCRIPT_URL || SCRIPT_URL.includes('THAY_LINK_')) return;
+      if (sessionStorage.getItem('oriberry_authenticated') !== 'true') return;
 
       try {
         const res = await fetch(SCRIPT_URL + '?action=getOrders');
@@ -148,14 +220,12 @@
           checkForNewOrders(data.orders);
         }
       } catch (err) {
-        console.error("Lỗi kết nối API đơn hàng:", err);
+        console.error("Lỗi kết nối API:", err);
       }
     }
 
-    // Kiểm tra đơn hàng mới trạng thái PENDING
     function checkForNewOrders(orders) {
       const pendingOrders = orders.filter(o => o.status === 'PENDING' || !o.status);
-      
       if (pendingOrders.length > 0) {
         const newest = pendingOrders[0];
         if (!knownOrders.has(newest.orderId)) {
@@ -165,7 +235,6 @@
       }
     }
 
-    // Hiển thị Pop-up chi tiết
     function showModal(order) {
       currentProcessingOrder = order;
       document.getElementById('modalOrderId').innerText = 'Mã đơn: #' + order.orderId;
@@ -179,7 +248,6 @@
       document.getElementById('orderModal').classList.remove('hidden');
     }
 
-    // Xác nhận đơn hàng
     async function confirmOrder() {
       if (!currentProcessingOrder) return;
       
@@ -198,11 +266,10 @@
         });
         fetchOrders();
       } catch (e) {
-        console.error("Lỗi cập nhật trạng thái đơn:", e);
+        console.error("Lỗi cập nhật đơn:", e);
       }
     }
 
-    // Đưa dữ liệu lên bảng giao diện
     function renderTable(orders) {
       const tbody = document.getElementById('orderTableBody');
       if (!orders || orders.length === 0) {
@@ -236,9 +303,9 @@
       `).join('');
     }
 
-    // Quét đơn mới mỗi 10 giây
+    // Khởi chạy
+    checkAuth();
     setInterval(fetchOrders, 10000);
-    fetchOrders();
   </script>
 </body>
 </html>
