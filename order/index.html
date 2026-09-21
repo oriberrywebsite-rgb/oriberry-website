@@ -10,50 +10,66 @@
     <style>
         .no-scrollbar::-webkit-scrollbar { display: none; }
         .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+        /* Smooth transitions for sidebar drawer */
+        #categorySidebar {
+            transition: transform 0.3s ease-in-out, opacity 0.3s ease-in-out;
+        }
     </style>
 </head>
 <body class="bg-gray-50 text-gray-800 font-sans antialiased flex flex-col min-h-screen">
 
     <!-- HEADER: LOGO TRÁI, BỘ PHẬN NHẬN HÀNG PHẢI -->
     <header class="bg-white shadow-sm sticky top-0 z-40 border-b border-gray-100">
-        <div class="max-w-6xl mx-auto px-4 py-3 flex items-center justify-between">
-            <div class="flex items-center space-x-4">
-                <a href="/" class="flex items-center gap-2 font-black text-xl tracking-wider text-gray-900">
+        <div class="max-w-4xl mx-auto px-4 py-3 flex items-center justify-between">
+            <div class="flex items-center space-x-3">
+                <!-- Nút toggle cột danh mục -->
+                <button onclick="toggleSidebar()" class="w-9 h-9 rounded-xl bg-amber-50 text-amber-700 flex items-center justify-center hover:bg-amber-100 transition shadow-sm">
+                    <i class="fa-solid fa-bars text-sm"></i>
+                </button>
+                <a href="/" class="flex items-center gap-2 font-black text-lg tracking-wider text-gray-900">
                     <i class="fa-solid fa-mug-saucer text-amber-700"></i> ORIBERRY
                 </a>
-                <a href="/" class="text-xs font-medium text-gray-600 hover:text-amber-700 px-3 py-1.5 rounded-lg bg-gray-100 hidden sm:inline-block">Trang chủ</a>
             </div>
             
-            <div class="flex items-center space-x-3 cursor-pointer bg-gray-50 hover:bg-gray-100 px-3 py-1.5 rounded-xl border border-gray-200 transition" onclick="openFulfillmentModal()">
-                <div class="bg-amber-100 text-amber-800 w-7 h-7 rounded-full flex items-center justify-center">
-                    <i class="fa-solid fa-store text-xs" id="headerIcon"></i>
+            <div class="flex items-center space-x-2 cursor-pointer bg-gray-50 hover:bg-gray-100 px-3 py-1.5 rounded-xl border border-gray-200 transition" onclick="openFulfillmentModal()">
+                <div class="bg-amber-100 text-amber-800 w-6 h-6 rounded-full flex items-center justify-center">
+                    <i class="fa-solid fa-store text-[10px]" id="headerIcon"></i>
                 </div>
                 <div>
-                    <div class="text-[10px] text-gray-500 flex items-center gap-1">
-                        <span id="fulfillmentLabel">Hình thức nhận hàng</span> 
-                        <i class="fa-solid fa-chevron-down text-[8px]"></i>
+                    <div class="text-[9px] text-gray-500 flex items-center gap-1">
+                        <span id="fulfillmentLabel">Hình thức</span> 
+                        <i class="fa-solid fa-chevron-down text-[7px]"></i>
                     </div>
-                    <div class="font-bold text-xs text-gray-900 truncate max-w-[150px] sm:max-w-[220px]" id="fulfillmentValue">Chọn cửa hàng / địa chỉ</div>
+                    <div class="font-bold text-xs text-gray-900 truncate max-w-[140px]" id="fulfillmentValue">Chọn cửa hàng</div>
                 </div>
             </div>
         </div>
     </header>
 
-    <!-- MAIN LAYOUT: 2 CỘT CUỘN ĐỘC LẬP (Tối ưu Desktop x2 & Mobile cân đối) -->
-    <main class="flex-1 max-w-6xl w-full mx-auto flex overflow-hidden bg-white shadow-sm mb-20 md:my-4 md:rounded-2xl md:border border-gray-200">
+    <!-- VÙNG CHẠM GẦN MÉP TRÁI ĐỂ KÍCH HOẠT HIỆN DANH MỤC NẾU ĐANG ẨN -->
+    <div onmouseenter="showSidebar()" class="fixed left-0 top-16 bottom-0 w-4 z-20 pointer-events-auto"></div>
+
+    <!-- MAIN LAYOUT -->
+    <main class="flex-1 max-w-4xl w-full mx-auto flex relative overflow-hidden bg-white shadow-sm mb-20">
         
-        <!-- CỘT NHỎ (DANH MỤC): Chiếm ~25% -->
-        <aside class="w-1/4 md:w-1/5 bg-gray-50 border-r border-gray-200 overflow-y-auto no-scrollbar h-[calc(100vh-80px)] md:h-[75vh] sticky top-[65px]" id="categorySidebar">
-            <div class="py-2" id="categoryListContainer"></div>
+        <!-- CỘT NHỎ (DANH MỤC): Nấp gọn, khi hiện ở dạng 50% opacity (xuyên thấu) & đè lên trên -->
+        <aside id="categorySidebar" class="-translate-x-full opacity-0 absolute left-0 top-0 bottom-0 w-2/5 sm:w-1/3 bg-white/50 backdrop-blur-md border-r border-gray-200 overflow-y-auto no-scrollbar z-30 shadow-2xl py-4">
+            <div class="flex items-center justify-between px-4 mb-2">
+                <span class="text-xs font-bold text-gray-500 uppercase tracking-wider">Danh mục</span>
+                <button onclick="hideSidebar()" class="text-gray-400 hover:text-gray-700"><i class="fa-solid fa-xmark text-sm"></i></button>
+            </div>
+            <div id="categoryListContainer"></div>
         </aside>
 
-        <!-- CỘT LỚN (DANH SÁCH MÓN - ẨN GIÁ): Chiếm ~75% -->
-        <section class="w-3/4 md:w-4/5 overflow-y-auto h-[calc(100vh-80px)] md:h-[75vh] p-4 md:p-6 space-y-6" id="menuContainer"></div>
+        <!-- CỘT LỚN (DANH SÁCH MÓN): Chiếm trọn 100% chiều ngang, card to rõ cân đối -->
+        <section class="w-full overflow-y-auto h-[calc(100vh-130px)] p-4 sm:p-6 space-y-8" id="menuContainer" onclick="maybeHideSidebarOnContentClick()">
+            <!-- Render danh sách món -->
+        </section>
     </main>
 
     <!-- THANH GIỎ HÀNG DƯỚI ĐÁY -->
     <div id="cartBar" class="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 shadow-xl p-3 z-45 hidden">
-        <div class="max-w-6xl mx-auto flex items-center justify-between">
+        <div class="max-w-4xl mx-auto flex items-center justify-between">
             <div class="flex items-center space-x-3">
                 <div class="bg-amber-700 text-white w-10 h-10 rounded-full flex items-center justify-center font-bold text-sm shadow" id="cartCount">0</div>
                 <div>
@@ -62,7 +78,7 @@
                 </div>
             </div>
             <button onclick="openCartModal()" class="bg-amber-700 hover:bg-amber-800 text-white px-6 py-2.5 rounded-xl font-bold text-sm shadow-md transition flex items-center gap-2">
-                <span>Xem giỏ hàng & Lên đơn</span>
+                <span>Xem giỏ hàng</span>
                 <i class="fa-solid fa-arrow-right"></i>
             </button>
         </div>
@@ -71,8 +87,8 @@
     <!-- ================= MODALS ================= -->
 
     <!-- MODAL 1: CHỌN PHƯƠNG THỨC NHẬN HÀNG -->
-    <div id="fulfillmentModal" class="fixed inset-0 bg-black/50 z-50 flex items-end md:items-center justify-center hidden">
-        <div class="bg-white w-full max-w-lg rounded-t-3xl md:rounded-2xl p-5 max-h-[90vh] overflow-y-auto">
+    <div id="fulfillmentModal" class="fixed inset-0 bg-black/50 z-50 flex items-end sm:items-center justify-center hidden">
+        <div class="bg-white w-full max-w-lg rounded-t-3xl sm:rounded-2xl p-5 max-h-[90vh] overflow-y-auto">
             <div class="flex justify-between items-center mb-4">
                 <h3 class="font-bold text-lg">Chọn phương thức nhận hàng</h3>
                 <button onclick="closeModal('fulfillmentModal')" class="text-gray-400 hover:text-gray-600 p-1"><i class="fa-solid fa-xmark text-xl"></i></button>
@@ -104,8 +120,8 @@
     </div>
 
     <!-- MODAL 2: CHỌN CỬA HÀNG -->
-    <div id="storeModal" class="fixed inset-0 bg-black/50 z-50 flex items-end md:items-center justify-center hidden">
-        <div class="bg-white w-full max-w-lg rounded-t-3xl md:rounded-2xl p-5 max-h-[90vh] overflow-y-auto">
+    <div id="storeModal" class="fixed inset-0 bg-black/50 z-50 flex items-end sm:items-center justify-center hidden">
+        <div class="bg-white w-full max-w-lg rounded-t-3xl sm:rounded-2xl p-5 max-h-[90vh] overflow-y-auto">
             <div class="flex justify-between items-center mb-4">
                 <button onclick="backToFulfillmentModal()" class="text-gray-600 text-sm font-medium"><i class="fa-solid fa-arrow-left"></i> Quay lại</button>
                 <h3 class="font-bold text-lg">Chọn cửa hàng Oriberry</h3>
@@ -116,8 +132,8 @@
     </div>
 
     <!-- MODAL 3: CHỌN PHƯỜNG & ĐỊA CHỈ DELIVERY -->
-    <div id="deliveryModal" class="fixed inset-0 bg-black/50 z-50 flex items-end md:items-center justify-center hidden">
-        <div class="bg-white w-full max-w-lg rounded-t-3xl md:rounded-2xl p-5 max-h-[90vh] overflow-y-auto">
+    <div id="deliveryModal" class="fixed inset-0 bg-black/50 z-50 flex items-end sm:items-center justify-center hidden">
+        <div class="bg-white w-full max-w-lg rounded-t-3xl sm:rounded-2xl p-5 max-h-[90vh] overflow-y-auto">
             <div class="flex justify-between items-center mb-4">
                 <button onclick="backToFulfillmentModal()" class="text-gray-600 text-sm font-medium"><i class="fa-solid fa-arrow-left"></i> Quay lại</button>
                 <h3 class="font-bold text-lg">Địa chỉ giao hàng</h3>
@@ -146,8 +162,8 @@
     </div>
 
     <!-- MODAL 4: CHI TIẾT MÓN, CROSS-SELLING & NOTE FOR ORIBERRY -->
-    <div id="productDetailModal" class="fixed inset-0 bg-black/50 z-50 flex items-end md:items-center justify-center hidden">
-        <div class="bg-white w-full max-w-lg rounded-t-3xl md:rounded-2xl max-h-[90vh] overflow-y-auto flex flex-col">
+    <div id="productDetailModal" class="fixed inset-0 bg-black/50 z-50 flex items-end sm:items-center justify-center hidden">
+        <div class="bg-white w-full max-w-lg rounded-t-3xl sm:rounded-2xl max-h-[90vh] overflow-y-auto flex flex-col">
             <div class="relative w-full h-56 bg-gray-100">
                 <img id="modalProdImg" src="" alt="" class="w-full h-full object-cover">
                 <button onclick="closeModal('productDetailModal')" class="absolute top-3 right-3 bg-black/50 text-white w-8 h-8 rounded-full flex items-center justify-center"><i class="fa-solid fa-xmark"></i></button>
@@ -159,13 +175,13 @@
                 </div>
                 <p id="modalProdDesc" class="text-sm text-gray-600 leading-relaxed"></p>
                 
-                <!-- NOTE FOR ORIBERRY (Ghi chú riêng cho món) -->
+                <!-- NOTE FOR ORIBERRY -->
                 <div>
                     <label class="block text-xs font-bold text-gray-700 mb-1">Note for Oriberry (Ghi chú cho món này):</label>
                     <input type="text" id="modalItemNote" placeholder="Ví dụ: Ít đá, nhiều sữa, không đường..." class="w-full p-2.5 border rounded-xl text-xs focus:border-amber-700">
                 </div>
 
-                <!-- GỢI Ý DÙNG KÈM (CROSS-SELLING VUỐT NGANG) -->
+                <!-- GỢI Ý DÙNG KÈM -->
                 <div>
                     <div class="text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">Gợi ý dùng kèm (3-5 món)</div>
                     <div class="flex gap-3 overflow-x-auto no-scrollbar pb-2" id="crossSellContainer"></div>
@@ -204,7 +220,6 @@
             { code: 'DANG_TIEN_DONG', name: 'Oriberry Đặng Tiến Đông', address: '155 Đặng Tiến Đông, Đống Đa, Hà Nội' }
         ];
 
-        // Đảm bảo mỗi nhóm đồ uống >= 5 món, mỗi nhóm đồ ăn >= 3 món, và KHÔNG HIỂN THỊ GIÁ trên menu chính
         const products = [
             // Coffee (5 món)
             { id: 'c1', cat: 'coffee', name: 'Airy-cano Classic', price: 55000, img: 'https://images.unsplash.com/photo-1514432324607-a09d9b4aefdd?auto=format&fit=crop&w=500&q=80', desc: 'Hương vị Americano nguyên bản nâng tầm đậm đà.' },
@@ -222,7 +237,7 @@
 
             // Juices (5 món)
             { id: 'j1', cat: 'juices', name: 'Nước Ép Cam Tươi', price: 60000, img: 'https://images.unsplash.com/photo-1613478223719-2ab802602423?auto=format&fit=crop&w=500&q=80', desc: 'Cam tươi nguyên chất giàu vitamin C.' },
-            { id: 'j2', cat: 'juices', name: 'Nước Ép Tứa Dứa Thơm Mát', price: 55000, img: 'https://images.unsplash.com/photo-1589735928236-141451e4429e?auto=format&fit=crop&w=500&q=80', desc: 'Dứa tươi ép nguyên chất kích thích vị giác.' },
+            { id: 'j2', cat: 'juices', name: 'Nước Ép Dứa Thơm Mát', price: 55000, img: 'https://images.unsplash.com/photo-1589735928236-141451e4429e?auto=format&fit=crop&w=500&q=80', desc: 'Dứa tươi ép nguyên chất kích thích vị giác.' },
             { id: 'j3', cat: 'juices', name: 'Nước Ép Cóc Xanh Lắc Muối Ớt', price: 50000, img: 'https://images.unsplash.com/photo-1622597447547-19c25f474b30?auto=format&fit=crop&w=500&q=80', desc: 'Thức uống thanh mát chua ngọt độc đáo.' },
             { id: 'j4', cat: 'juices', name: 'Nước Ép Táo Nguyên Chất', price: 65000, img: 'https://images.unsplash.com/photo-1600271886742-f049cd451bba?auto=format&fit=crop&w=500&q=80', desc: 'Táo tươi giòn ngọt ép lấy trọn dưỡng chất.' },
             { id: 'j5', cat: 'juices', name: 'Nước Ép Cà Rốt Mật Ong', price: 58000, img: 'https://images.unsplash.com/photo-1595981267035-7b04ca84a82d?auto=format&fit=crop&w=500&q=80', desc: 'Cà rốt tươi giàu beta-caroten tốt cho thị lực.' },
@@ -265,6 +280,35 @@
             checkUrlTableParam();
         });
 
+        // Xử lý bật/tắt cột danh mục nấp gọn
+        function toggleSidebar() {
+            const sidebar = document.getElementById('categorySidebar');
+            if (sidebar.classList.contains('-translate-x-full')) {
+                showSidebar();
+            } else {
+                hideSidebar();
+            }
+        }
+
+        function showSidebar() {
+            const sidebar = document.getElementById('categorySidebar');
+            sidebar.classList.remove('-translate-x-full', 'opacity-0');
+            sidebar.classList.add('translate-x-0', 'opacity-100');
+        }
+
+        function hideSidebar() {
+            const sidebar = document.getElementById('categorySidebar');
+            sidebar.classList.remove('translate-x-0', 'opacity-100');
+            sidebar.classList.add('-translate-x-full', 'opacity-0');
+        }
+
+        function maybeHideSidebarOnContentClick() {
+            const sidebar = document.getElementById('categorySidebar');
+            if (!sidebar.classList.contains('-translate-x-full')) {
+                hideSidebar();
+            }
+        }
+
         function checkUrlTableParam() {
             const urlParams = new URLSearchParams(window.location.search);
             const table = urlParams.get('table');
@@ -274,8 +318,8 @@
                 selectedStore = store;
                 const storeObj = stores.find(s => s.code === store);
                 document.getElementById('fulfillmentLabel').innerText = "Uống tại quán";
-                document.getElementById('fulfillmentValue').innerText = `Bàn: ${table} (${storeObj ? storeObj.name : store})`;
-                document.getElementById('headerIcon').className = "fa-solid fa-utensils text-xs";
+                document.getElementById('fulfillmentValue').innerText = `Bàn: ${table}`;
+                document.getElementById('headerIcon').className = "fa-solid fa-utensils text-[10px]";
             } else {
                 openFulfillmentModal();
             }
@@ -284,14 +328,14 @@
         function renderCategories() {
             const container = document.getElementById('categoryListContainer');
             container.innerHTML = categories.map(cat => `
-                <div onclick="scrollToCategory('${cat.id}')" class="px-2 py-3 md:px-3 text-[11px] md:text-xs font-bold cursor-pointer text-gray-600 hover:text-amber-700 hover:bg-amber-50/50 border-l-4 border-transparent transition flex flex-col items-center text-center gap-1">
-                    <i class="fa-solid ${cat.icon} text-sm md:text-base"></i>
-                    <span class="line-clamp-1">${cat.name}</span>
+                <div onclick="scrollToCategory('${cat.id}')" class="px-4 py-3 text-xs font-bold cursor-pointer text-gray-700 hover:text-amber-700 hover:bg-amber-50/70 border-l-4 border-transparent transition flex items-center gap-3">
+                    <i class="fa-solid ${cat.icon} text-base w-5 text-center text-amber-700"></i>
+                    <span>${cat.name}</span>
                 </div>
             `).join('');
         }
 
-        // KHÔNG HIỂN THỊ GIÁ TIỀN Ở MENU CHÍNH
+        // KHÔNG HIỂN THỊ GIÁ TIỀN Ở MENU CHÍNH, CARD TO RÕ CÂN ĐỐI
         function renderMenu() {
             const container = document.getElementById('menuContainer');
             container.innerHTML = categories.map(cat => {
@@ -299,18 +343,18 @@
                 if (items.length === 0) return '';
                 return `
                     <div id="section-${cat.id}" class="scroll-mt-4">
-                        <h3 class="font-bold text-sm md:text-base text-gray-900 mb-3 sticky top-0 bg-white py-2 z-10 border-b border-gray-100">${cat.name}</h3>
-                        <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+                        <h3 class="font-black text-lg text-gray-900 mb-4 sticky top-0 bg-white/90 backdrop-blur-sm py-2 z-10 border-b border-gray-100">${cat.name}</h3>
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                             ${items.map(item => `
-                                <div onclick="openProductModal('${item.id}')" class="bg-white border border-gray-100 rounded-xl p-3 shadow-sm hover:shadow-md transition cursor-pointer flex items-center justify-between gap-3">
-                                    <img src="${item.img}" class="w-16 h-16 rounded-lg object-cover flex-shrink-0" alt="">
+                                <div onclick="openProductModal('${item.id}')" class="bg-white border border-gray-100 rounded-2xl p-4 shadow-sm hover:shadow-md transition cursor-pointer flex items-center gap-4">
+                                    <img src="${item.img}" class="w-20 h-20 sm:w-24 sm:h-24 rounded-xl object-cover flex-shrink-0" alt="">
                                     <div class="flex-1 min-w-0">
-                                        <h4 class="font-bold text-xs md:text-sm text-gray-900 truncate">${item.name}</h4>
-                                        <p class="text-[11px] text-gray-500 line-clamp-1 mt-0.5">${item.desc}</p>
+                                        <h4 class="font-bold text-base text-gray-900 truncate">${item.name}</h4>
+                                        <p class="text-xs text-gray-500 line-clamp-2 mt-1 leading-relaxed">${item.desc}</p>
                                     </div>
-                                    <button class="w-8 h-8 rounded-full bg-amber-50 text-amber-700 flex items-center justify-center hover:bg-amber-700 hover:text-white transition flex-shrink-0">
-                                        <i class="fa-solid fa-plus text-xs"></i>
-                                    </button>
+                                    <div class="w-9 h-9 rounded-full bg-amber-50 text-amber-700 flex items-center justify-center hover:bg-amber-700 hover:text-white transition flex-shrink-0 shadow-sm">
+                                        <i class="fa-solid fa-plus text-sm"></i>
+                                    </div>
                                 </div>
                             `).join('')}
                         </div>
@@ -322,7 +366,7 @@
         function renderStores() {
             const container = document.getElementById('storeListContainer');
             container.innerHTML = stores.map(s => `
-                <div onclick="chooseStore('${s.code}')" class="border p-3 rounded-xl cursor-pointer hover:border-amber-700 hover:bg-amber-50/20 transition">
+                <div onclick="chooseStore('${s.code}')" class="border p-3.5 rounded-xl cursor-pointer hover:border-amber-700 hover:bg-amber-50/20 transition">
                     <div class="font-bold text-sm text-gray-900">${s.name}</div>
                     <div class="text-xs text-gray-500 mt-0.5">${s.address}</div>
                 </div>
@@ -330,6 +374,7 @@
         }
 
         function scrollToCategory(catId) {
+            hideSidebar();
             const section = document.getElementById(`section-${catId}`);
             if (section) {
                 section.scrollIntoView({ behavior: 'smooth' });
@@ -359,8 +404,8 @@
             selectedStore = code;
             const storeObj = stores.find(s => s.code === code);
             closeModal('storeModal');
-            document.getElementById('headerIcon').className = currentFulfillment === 'DINE_IN' ? "fa-solid fa-utensils text-xs" : "fa-solid fa-bag-shopping text-xs";
-            document.getElementById('fulfillmentLabel').innerText = currentFulfillment === 'DINE_IN' ? "Uống tại quán" : "Đến lấy mang đi";
+            document.getElementById('headerIcon').className = currentFulfillment === 'DINE_IN' ? "fa-solid fa-utensils text-[10px]" : "fa-solid fa-bag-shopping text-[10px]";
+            document.getElementById('fulfillmentLabel').innerText = currentFulfillment === 'DINE_IN' ? "Uống tại quán" : "Đến lấy";
             document.getElementById('fulfillmentValue').innerText = storeObj.name;
         }
 
@@ -372,8 +417,8 @@
                 return;
             }
             closeModal('deliveryModal');
-            document.getElementById('headerIcon').className = "fa-solid fa-motorcycle text-xs";
-            document.getElementById('fulfillmentLabel').innerText = "Giao hàng tận nơi";
+            document.getElementById('headerIcon').className = "fa-solid fa-motorcycle text-[10px]";
+            document.getElementById('fulfillmentLabel').innerText = "Giao hàng";
             document.getElementById('fulfillmentValue').innerText = detail;
         }
 
@@ -390,7 +435,6 @@
             document.getElementById('modalQty').innerText = currentModalQty;
             updateModalAddBtn();
 
-            // Lấy 3-5 món gợi ý dùng kèm (Cross-sell)
             const crossSells = products.filter(p => p.id !== itemId).slice(0, 4);
             document.getElementById('crossSellContainer').innerHTML = crossSells.map(cs => `
                 <div class="w-32 flex-shrink-0 border rounded-xl p-2 bg-gray-50 flex flex-col justify-between">
