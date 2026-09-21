@@ -3,145 +3,413 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Oriberry - Đặt món tại quán</title>
+    <title>Oriberry - Đặt Món Trực Tuyến</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
-        body { font-family: Arial, sans-serif; background: #f4f6f8; margin: 0; padding: 20px; }
-        .container { max-width: 500px; margin: 0 auto; background: #fff; padding: 20px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
-        h2 { text-align: center; color: #333; }
-        .form-group { margin-bottom: 15px; }
-        label { display: block; margin-bottom: 5px; font-weight: bold; color: #555; }
-        input, select, textarea { width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 4px; box-sizing: border-box; }
-        button { width: 100%; background: #2c3e50; color: #fff; padding: 12px; border: none; border-radius: 4px; font-size: 16px; cursor: pointer; }
-        button:hover { background: #34495e; }
+        /* Ẩn thanh cuộn nhưng vẫn cho phép cuộn mượt */
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
     </style>
 </head>
-<body>
+<body class="bg-gray-50 text-gray-800 font-sans antialiased flex flex-col min-h-screen">
 
-<div class="container">
-    <h2>Oriberry Order</h2>
-    <form id="orderForm">
-        <div class="form-group">
-            <label>Cơ sở:</label>
-            <select id="storeCode" required>
-                <option value="AU_TRIEU">Ấu Triệu</option>
-                <option value="QUANG_AN">Quảng An</option>
-                <option value="DANG_TIEN_DONG">Đặng Tiến Đông</option>
-            </select>
+    <!-- 1. HEADER & THÀNH PHỐ / PHƯƠNG THỨC NHẬN HÀNG -->
+    <header class="bg-white shadow-sm sticky top-0 z-40 border-b border-gray-100">
+        <div class="max-w-4xl mx-auto px-4 py-3 flex items-center justify-between">
+            <div class="flex items-center space-x-3 cursor-pointer" onclick="openFulfillmentModal()">
+                <div class="bg-amber-100 text-amber-800 p-2 rounded-full flex items-center justify-center">
+                    <i class="fa-solid fa-store text-lg" id="headerIcon"></i>
+                </div>
+                <div>
+                    <div class="text-xs text-gray-500 flex items-center gap-1">
+                        <span id="fulfillmentLabel">Hình thức nhận hàng</span> 
+                        <i class="fa-solid fa-chevron-down text-[10px]"></i>
+                    </div>
+                    <div class="font-bold text-sm text-gray-900 truncate max-w-[200px]" id="fulfillmentValue">Chọn cửa hàng / địa chỉ</div>
+                </div>
+            </div>
+            <div class="flex items-center space-x-2">
+                <a href="/" class="text-sm font-medium text-gray-600 hover:text-amber-700 px-3 py-1.5 rounded-lg bg-gray-100">Trang chủ</a>
+            </div>
         </div>
+    </header>
 
-        <div class="form-group">
-            <label>Hình thức nhận:</label>
-            <select id="fulfillmentType" required onchange="toggleLocationField()">
-                <option value="DINE_IN">Tại bàn (Dine-in)</option>
-                <option value="PICKUP">Tới lấy (Pickup)</option>
-                <option value="DELIVERY">Giao hàng (Delivery)</option>
-            </select>
-        </div>
-
-        <div class="form-group" id="locationGroup">
-            <label>Mã bàn (Ví dụ: T2NH-04):</label>
-            <input type="text" id="locationDetail" placeholder="Nhập mã bàn hoặc vị trí">
-        </div>
-
-        <div class="form-group">
-            <label>Tên khách hàng:</label>
-            <input type="text" id="customerName" placeholder="Nhập tên khách">
-        </div>
-
-        <div class="form-group">
-            <label>Số điện thoại:</label>
-            <input type="tel" id="customerPhone" placeholder="Nhập số điện thoại">
-        </div>
-
-        <div class="form-group">
-            <label>Chi tiết món:</label>
-            <textarea id="itemsDetail" rows="4" placeholder="• 1x Cà phê Sữa đá&#10;• 1x Trà Sen" required></textarea>
-        </div>
-
-        <div class="form-group">
-            <label>Ghi chú:</label>
-            <input type="text" id="note" placeholder="Ví dụ: Ít đá, mang ly giấy...">
-        </div>
-
-        <div class="form-group">
-            <label>Tổng tiền (VNĐ):</label>
-            <input type="number" id="totalAmount" placeholder="90000" required>
-        </div>
-
-        <div class="form-group">
-            <label>Phương thức thanh toán:</label>
-            <select id="paymentMethod">
-                <option value="TRANSFER">Chuyển khoản</option>
-                <option value="CASH">Tiền mặt</option>
-            </select>
-        </div>
-
-        <button type="submit" id="submitBtn">Gửi đơn hàng</button>
-    </form>
-</div>
-
-<script>
-    // Web App URL của Google Apps Script
-    const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbymyOwnFx1K-PXq318HdJB06JVOeWZBb1PXkvT7mkowr8997UoOpxTLeIB56mQ2T5Gd/exec";
-
-    function toggleLocationField() {
-        const type = document.getElementById("fulfillmentType").value;
-        const label = document.querySelector("#locationGroup label");
-        const input = document.getElementById("locationDetail");
+    <!-- 2. MAIN LAYOUT: 2 CỘT CUỘN ĐỘC LẬP -->
+    <main class="flex-1 max-w-4xl w-full mx-auto flex overflow-hidden bg-white shadow-sm mb-20">
         
-        if (type === "DINE_IN") {
-            label.innerText = "Mã bàn (Ví dụ: T2NH-04):";
-            input.placeholder = "Nhập mã bàn";
-        } else if (type === "PICKUP") {
-            label.innerText = "Ghi chú nhận tại quầy:";
-            input.placeholder = "Ví dụ: Lấy mang đi ngay";
-        } else if (type === "DELIVERY") {
-            label.innerText = "Địa chỉ giao hàng:";
-            input.placeholder = "Số nhà, tên đường, khu vực...";
-        }
-    }
+        <!-- CỘT NHỎ (DANH MỤC): Chiếm ~30% -->
+        <aside class="w-1/3 md:w-1/4 bg-gray-50 border-r border-gray-200 overflow-y-auto no-scrollbar h-[calc(100vh-130px)] sticky top-[65px]" id="categorySidebar">
+            <div class="py-2" id="categoryListContainer">
+                <!-- Danh mục sẽ được render tự động qua JS -->
+            </div>
+        </aside>
 
-    document.getElementById("orderForm").addEventListener("submit", function(e) {
-        e.preventDefault();
-        
-        const btn = document.getElementById("submitBtn");
-        btn.disabled = true;
-        btn.innerText = "Đang gửi đơn...";
+        <!-- CỘT LỚN (DANH SÁCH MÓN): Chiếm ~70% -->
+        <section class="w-2/3 md:w-3/4 overflow-y-auto h-[calc(100vh-130px)] p-4 space-y-6" id="menuContainer">
+            <!-- Các nhóm món sẽ được render tự động qua JS -->
+        </section>
+    </main>
 
-        const payload = {
-            storeCode: document.getElementById("storeCode").value,
-            fulfillmentType: document.getElementById("fulfillmentType").value,
-            locationDetail: document.getElementById("locationDetail").value,
-            customerName: document.getElementById("customerName").value,
-            customerPhone: document.getElementById("customerPhone").value,
-            itemsDetail: document.getElementById("itemsDetail").value,
-            note: document.getElementById("note").value,
-            totalAmount: Number(document.getElementById("totalAmount").value),
-            paymentMethod: document.getElementById("paymentMethod").value
-        };
+    <!-- 3. THANH GIỎ HÀNG DƯỚI ĐÁY -->
+    <div id="cartBar" class="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 shadow-lg p-3 z-45 hidden">
+        <div class="max-w-4xl mx-auto flex items-center justify-between">
+            <div class="flex items-center space-x-3">
+                <div class="bg-amber-600 text-white w-10 h-10 rounded-full flex items-center justify-center font-bold text-sm shadow" id="cartCount">0</div>
+                <div>
+                    <div class="text-xs text-gray-500">Tổng giỏ hàng</div>
+                    <div class="font-bold text-base text-gray-900" id="cartTotal">0đ</div>
+                </div>
+            </div>
+            <button onclick="openCartModal()" class="bg-amber-700 hover:bg-amber-800 text-white px-6 py-2.5 rounded-xl font-bold text-sm shadow-md transition flex items-center gap-2">
+                <span>Xem giỏ hàng</span>
+                <i class="fa-solid fa-arrow-right"></i>
+            </button>
+        </div>
+    </div>
 
-        fetch(WEB_APP_URL, {
-            method: "POST",
-            mode: "no-cors",
-            headers: {
-                "Content-Type": "application/json"
-            },
-            body: JSON.stringify(payload)
-        })
-        .then(() => {
-            alert("Đã gửi đơn hàng thành công!");
-            document.getElementById("orderForm").reset();
-            btn.disabled = false;
-            btn.innerText = "Gửi đơn hàng";
-        })
-        .catch(error => {
-            console.error("Lỗi:", error);
-            alert("Có lỗi xảy ra khi gửi đơn.");
-            btn.disabled = false;
-            btn.innerText = "Gửi đơn hàng";
+    <!-- ================= POPUPS / MODALS ================= -->
+
+    <!-- MODAL 1: CHỌN PHƯƠNG THỨC NHẬN HÀNG -->
+    <div id="fulfillmentModal" class="fixed inset-0 bg-black/50 z-50 flex items-end md:items-center justify-center hidden">
+        <div class="bg-white w-full max-w-lg rounded-t-2xl md:rounded-2xl p-5 max-h-[90vh] overflow-y-auto animate-in fade-in duration-200">
+            <div class="flex justify-between items-center mb-4">
+                <h3 class="font-bold text-lg">Chọn phương thức nhận hàng</h3>
+                <button onclick="closeModal('fulfillmentModal')" class="text-gray-400 hover:text-gray-600 p-1"><i class="fa-solid fa-xmark text-xl"></i></button>
+            </div>
+            <div class="space-y-3">
+                <div onclick="selectFulfillment('DELIVERY')" class="border border-gray-200 p-4 rounded-xl cursor-pointer hover:border-amber-600 hover:bg-amber-50/30 transition flex items-start gap-3">
+                    <i class="fa-solid fa-motorcycle text-xl text-amber-700 mt-1"></i>
+                    <div>
+                        <div class="font-bold text-gray-900">Giao hàng tận nơi (Delivery)</div>
+                        <div class="text-xs text-gray-500 mt-0.5">Nhập địa chỉ, chọn phường giao hàng & tính phí ship tạm tính.</div>
+                    </div>
+                </div>
+                <div onclick="selectFulfillment('PICKUP')" class="border border-gray-200 p-4 rounded-xl cursor-pointer hover:border-amber-600 hover:bg-amber-50/30 transition flex items-start gap-3">
+                    <i class="fa-solid fa-bag-shopping text-xl text-amber-700 mt-1"></i>
+                    <div>
+                        <div class="font-bold text-gray-900">Đến lấy mang đi (Pickup)</div>
+                        <div class="text-xs text-gray-500 mt-0.5">Chọn cơ sở gần nhất để ghé lấy đồ uống nhanh chóng.</div>
+                    </div>
+                </div>
+                <div onclick="selectFulfillment('DINE_IN')" class="border border-gray-200 p-4 rounded-xl cursor-pointer hover:border-amber-600 hover:bg-amber-50/30 transition flex items-start gap-3">
+                    <i class="fa-solid fa-utensils text-xl text-amber-700 mt-1"></i>
+                    <div>
+                        <div class="font-bold text-gray-900">Uống tại quán (Dine-in tại bàn)</div>
+                        <div class="text-xs text-gray-500 mt-0.5">Quét mã QR tại bàn hoặc chọn cơ sở và mã bàn ngồi.</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL 2: CHỌN CỬA HÀNG (Dành cho Pickup / Dine-in) -->
+    <div id="storeModal" class="fixed inset-0 bg-black/50 z-50 flex items-end md:items-center justify-center hidden">
+        <div class="bg-white w-full max-w-lg rounded-t-2xl md:rounded-2xl p-5 max-h-[90vh] overflow-y-auto">
+            <div class="flex justify-between items-center mb-4">
+                <button onclick="backToFulfillmentModal()" class="text-gray-600"><i class="fa-solid fa-arrow-left"></i> Quay lại</button>
+                <h3 class="font-bold text-lg">Chọn cửa hàng Oriberry</h3>
+                <button onclick="closeModal('storeModal')" class="text-gray-400"><i class="fa-solid fa-xmark text-xl"></i></button>
+            </div>
+            <div class="mb-3">
+                <input type="text" placeholder="Tìm kiếm cửa hàng..." class="w-full px-3 py-2 border rounded-lg text-sm focus:outline-none focus:border-amber-600">
+            </div>
+            <div class="space-y-3" id="storeListContainer">
+                <!-- Render danh sách cửa hàng -->
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL 3: CHỌN ĐỊA CHỈ & PHƯỜNG (Dành cho Delivery) -->
+    <div id="deliveryModal" class="fixed inset-0 bg-black/50 z-50 flex items-end md:items-center justify-center hidden">
+        <div class="bg-white w-full max-w-lg rounded-t-2xl md:rounded-2xl p-5 max-h-[90vh] overflow-y-auto">
+            <div class="flex justify-between items-center mb-4">
+                <button onclick="backToFulfillmentModal()" class="text-gray-600"><i class="fa-solid fa-arrow-left"></i> Quay lại</button>
+                <h3 class="font-bold text-lg">Địa chỉ giao hàng</h3>
+                <button onclick="closeModal('deliveryModal')" class="text-gray-400"><i class="fa-solid fa-xmark text-xl"></i></button>
+            </div>
+            <div class="space-y-3">
+                <div>
+                    <label class="block text-xs font-bold text-gray-600 mb-1">Chọn Phường / Khu vực giao hàng:</label>
+                    <select id="wardSelect" class="w-full p-2.5 border rounded-lg text-sm bg-white focus:border-amber-600">
+                        <option value="">-- Chọn phường phụ trách --</option>
+                        <option value="PHUONG_TRANG_TIEN">Phường Tràng Tiền / Hàng Bài (Giao từ Ấu Triệu)</option>
+                        <option value="PHUONG_QUANG_AN">Phường Quảng An / Tây Hồ (Giao từ Quảng An)</option>
+                        <option value="PHUONG_DANG_TIEN_DONG">Phường Trung Liệt / Đặng Tiến Đông (Giao từ Đặng Tiến Đông)</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-gray-600 mb-1">Số nhà, tên đường cụ thể:</label>
+                    <input type="text" id="deliveryAddressDetail" placeholder="Ví dụ: Số 12 ngõ..." class="w-full p-2.5 border rounded-lg text-sm focus:border-amber-600">
+                </div>
+                <div class="bg-amber-50 p-3 rounded-lg text-xs text-amber-800">
+                    <i class="fa-solid fa-circle-info"></i> Phí ship tạm tính sẽ được hiển thị và nhân viên sẽ gọi điện xác nhận lại với anh/chị trước khi giao hàng.
+                </div>
+                <button onclick="confirmDeliveryAddress()" class="w-full bg-amber-700 text-white py-2.5 rounded-xl font-bold text-sm shadow">Xác nhận địa chỉ</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL 4: CHI TIẾT MÒN & CROSS-SELLING (GIỐNG ẢNH CUỐI) -->
+    <div id="productDetailModal" class="fixed inset-0 bg-black/50 z-50 flex items-end md:items-center justify-center hidden">
+        <div class="bg-white w-full max-w-lg rounded-t-3xl md:rounded-2xl max-h-[90vh] overflow-y-auto flex flex-col">
+            <!-- Ảnh lớn -->
+            <div class="relative w-full h-56 bg-gray-100">
+                <img id="modalProdImg" src="" alt="" class="w-full h-full object-cover">
+                <button onclick="closeModal('productDetailModal')" class="absolute top-3 right-3 bg-black/50 text-white w-8 h-8 rounded-full flex items-center justify-center"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            <!-- Nội dung chi tiết -->
+            <div class="p-5 flex-1 space-y-4">
+                <div>
+                    <h2 id="modalProdName" class="text-xl font-bold text-gray-900">Tên món</h2>
+                    <div id="modalProdPrice" class="text-amber-700 font-bold text-lg mt-1">0đ</div>
+                </div>
+                <p id="modalProdDesc" class="text-sm text-gray-600 leading-relaxed">Mô tả chi tiết món ăn/thức uống...</p>
+                
+                <!-- Gợi ý dùng kèm (Cross-selling slider) -->
+                <div>
+                    <div class="text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">Gợi ý dùng kèm (Cross-sell)</div>
+                    <div class="flex gap-3 overflow-x-auto no-scrollbar pb-2" id="crossSellContainer">
+                        <!-- Render các món gợi ý vuốt ngang -->
+                    </div>
+                </div>
+
+                <!-- Tăng giảm số lượng & Thêm vào giỏ -->
+                <div class="pt-3 border-t flex items-center justify-between gap-4">
+                    <div class="flex items-center border rounded-xl overflow-hidden">
+                        <button onclick="adjustModalQty(-1)" class="px-3 py-2 bg-gray-100 hover:bg-gray-200"><i class="fa-solid fa-minus text-xs"></i></button>
+                        <span id="modalQty" class="px-4 font-bold text-sm">1</span>
+                        <button onclick="adjustModalQty(1)" class="px-3 py-2 bg-gray-100 hover:bg-gray-200"><i class="fa-solid fa-plus text-xs"></i></button>
+                    </div>
+                    <button onclick="addToCartFromModal()" id="modalAddBtn" class="flex-1 bg-amber-700 hover:bg-amber-800 text-white py-3 rounded-xl font-bold text-sm shadow transition">
+                        Thêm vào giỏ - 0đ
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- SCRIPT LOGIC MOCKUP -->
+    <script>
+        // 1. DỮ LIỆU MOCKUP CHUẨN MÔ HÌNH
+        const categories = [
+            { id: 'coffee', name: 'Coffee', icon: 'fa-mug-hot' },
+            { id: 'tea', name: 'Tea', icon: 'fa-leaf' },
+            { id: 'juices', name: 'Juices', icon: 'fa-glass-water' },
+            { id: 'smoothies', name: 'Smoothies', icon: 'fa-blender' },
+            { id: 'cake', name: 'Cake', icon: 'fa-cake-candles' },
+            { id: 'banh-mi', name: 'Bánh Mì', icon: 'fa-bread-slice' },
+            { id: 'spagetti', name: 'Spagetti', icon: 'fa-utensils' }
+        ];
+
+        const stores = [
+            { code: 'AU_TRIEU', name: 'Oriberry Ấu Triệu', address: '36 Ấu Triệu, Hoàn Kiếm, Hà Nội' },
+            { code: 'QUANG_AN', name: 'Oriberry Quảng An', address: '12 Đặng Thai Mai, Tây Hồ, Hà Nội' },
+            { code: 'DANG_TIEN_DONG', name: 'Oriberry Đặng Tiến Đông', address: '155 Đặng Tiến Đông, Đống Đa, Hà Nội' }
+        ];
+
+        const products = [
+            { id: 'p1', cat: 'coffee', name: 'Airy-cano Classic', price: 55000, img: 'https://images.unsplash.com/photo-1514432324607-a09d9b4aefdd?auto=format&fit=crop&w=500&q=80', desc: 'Vẫn là hương vị Americano nguyên bản, nhưng được nâng tầm hương vị đậm đà hơn với lớp bọt khí mịn màng.' },
+            { id: 'p2', cat: 'coffee', name: 'Airy-cano Yuzu', price: 75000, img: 'https://images.unsplash.com/photo-1517701550927-30cf4ba1dba5?auto=format&fit=crop&w=500&q=80', desc: 'Sự kết hợp hoàn hảo giữa espresso và hương vị cam Yuzu thanh mát.' },
+            { id: 'p3', cat: 'coffee', name: 'Specialty Coffee Đá', price: 69000, img: 'https://images.unsplash.com/photo-1511920170033-f8396924c348?auto=format&fit=crop&w=500&q=80', desc: 'Pha thủ công V60 chiết xuất hương vị hạt Arabica bản địa đặc sắc.' },
+            { id: 'p4', cat: 'tea', name: 'Trà Sen Vàng Cao Cấp', price: 65000, img: 'https://images.unsplash.com/photo-1576092768241-dec231879fc3?auto=format&fit=crop&w=500&q=80', desc: 'Trà ô long thượng hạng kết hợp hương sen mộc mạc.' },
+            { id: 'p5', cat: 'juices', name: 'Nước Ép Cam Tươi', price: 60000, img: 'https://images.unsplash.com/photo-1613478223719-2ab802602423?auto=format&fit=crop&w=500&q=80', desc: 'Cam tươi nguyên chất giàu vitamin C.' },
+            { id: 'p6', cat: 'smoothies', name: 'Sinh Tố Bơ Đắk Lắk', price: 69000, img: 'https://images.unsplash.com/photo-1553530666-ba11a7da3888?auto=format&fit=crop&w=500&q=80', desc: 'Bơ sáp Đắk Lắk dẻo mịn béo ngậy.' },
+            { id: 'p7', cat: 'cake', name: 'Burnt Cheesecake', price: 55000, img: 'https://images.unsplash.com/photo-1533134242443-d4fd215305ad?auto=format&fit=crop&w=500&q=80', desc: 'Bánh phô mai nướng thơm ngậy mùi bơ sữa.' },
+            { id: 'p8', cat: 'banh-mi', name: 'Bánh Mì Kẹp Thịt Nướng', price: 45000, img: 'https://images.unsplash.com/photo-1509722747041-616f39b57569?auto=format&fit=crop&w=500&q=80', desc: 'Bánh mì giòn rụm nhân thịt nướng đậm đà.' },
+            { id: 'p9', cat: 'spagetti', name: 'Wafu Pasta Bò Bằm', price: 85000, img: 'https://images.unsplash.com/photo-1621996346565-e3d5d6281298?auto=format&fit=crop&w=500&q=80', desc: 'Mỳ Ý sốt bò bằm phong cách Á Đông.' }
+        ];
+
+        let cart = [];
+        let currentFulfillment = '';
+        let selectedStore = '';
+        let activeProductForModal = null;
+        let currentModalQty = 1;
+
+        // 2. KHỞI TẠO GIAO DIỆN
+        document.addEventListener('DOMContentLoaded', () => {
+            renderCategories();
+            renderMenu();
+            renderStores();
+            checkUrlTableParam();
         });
-    });
-</script>
 
+        // Kiểm tra xem có quét QR mã bàn không (?table=T2NH-04&store=AU_TRIEU)
+        function checkUrlTableParam() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const table = urlParams.get('table');
+            const store = urlParams.get('store') || 'AU_TRIEU';
+            if (table) {
+                currentFulfillment = 'DINE_IN';
+                selectedStore = store;
+                const storeObj = stores.find(s => s.code === store);
+                document.getElementById('fulfillmentLabel').innerText = "Uống tại quán (Tại bàn)";
+                document.getElementById('fulfillmentValue').innerText = `Bàn: ${table} (${storeObj ? storeObj.name : store})`;
+                document.getElementById('headerIcon').className = "fa-solid fa-utensils text-lg";
+            } else {
+                // Mặc định mở modal chọn phương thức nếu chưa có
+                openFulfillmentModal();
+            }
+        }
+
+        function renderCategories() {
+            const container = document.getElementById('categoryListContainer');
+            container.innerHTML = categories.map((cat, index) => `
+                <div onclick="scrollToCategory('${cat.id}')" id="cat-tab-${cat.id}" class="px-3 py-3 text-xs font-bold cursor-pointer text-gray-600 hover:text-amber-700 hover:bg-amber-50/50 border-l-4 border-transparent transition flex flex-col items-center text-center gap-1">
+                    <i class="fa-solid ${cat.icon} text-base"></i>
+                    <span>${cat.name}</span>
+                </div>
+            `).join('');
+        }
+
+        function renderMenu() {
+            const container = document.getElementById('menuContainer');
+            container.innerHTML = categories.map(cat => {
+                const items = products.filter(p => p.cat === cat.id);
+                if (items.length === 0) return '';
+                return `
+                    <div id="section-${cat.id}" class="scroll-mt-4">
+                        <h3 class="font-bold text-base text-gray-900 mb-3 sticky top-0 bg-white py-1 z-10 border-b border-gray-100">${cat.name}</h3>
+                        <div class="space-y-3">
+                            ${items.map(item => `
+                                <div onclick="openProductModal('${item.id}')" class="bg-white border border-gray-100 rounded-xl p-3 shadow-sm hover:shadow-md transition cursor-pointer flex items-center justify-between gap-3">
+                                    <img src="${item.img}" class="w-16 h-16 rounded-lg object-cover flex-shrink-0" alt="">
+                                    <div class="flex-1 min-w-0">
+                                        <h4 class="font-bold text-sm text-gray-900 truncate">${item.name}</h4>
+                                        <p class="text-xs text-gray-500 line-clamp-1 mt-0.5">${item.desc}</p>
+                                        <div class="font-bold text-amber-700 text-sm mt-1">${item.price.toLocaleString()}đ</div>
+                                    </div>
+                                    <button class="w-8 h-8 rounded-full bg-amber-50 text-amber-700 flex items-center justify-center hover:bg-amber-600 hover:text-white transition flex-shrink-0">
+                                        <i class="fa-solid fa-plus text-xs"></i>
+                                    </button>
+                                </div>
+                            `).join('')}
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function renderStores() {
+            const container = document.getElementById('storeListContainer');
+            container.innerHTML = stores.map(s => `
+                <div onclick="chooseStore('${s.code}')" class="border p-3 rounded-xl cursor-pointer hover:border-amber-600 hover:bg-amber-50/20 transition">
+                    <div class="font-bold text-sm text-gray-900">${s.name}</div>
+                    <div class="text-xs text-gray-500 mt-0.5">${s.address}</div>
+                </div>
+            `).join('');
+        }
+
+        function scrollToCategory(catId) {
+            const section = document.getElementById(`section-${catId}`);
+            if (section) {
+                section.scrollIntoView({ behavior: 'smooth' });
+            }
+        }
+
+        // 3. XỬ LÝ MODAL PHƯƠNG THỨC & CỬA HÀNG
+        function openFulfillmentModal() { document.getElementById('fulfillmentModal').classList.remove('hidden'); }
+        function closeModal(id) { document.getElementById(id).classList.add('hidden'); }
+
+        function selectFulfillment(type) {
+            currentFulfillment = type;
+            closeModal('fulfillmentModal');
+            if (type === 'DELIVERY') {
+                document.getElementById('deliveryModal').classList.remove('hidden');
+            } else {
+                document.getElementById('storeModal').classList.remove('hidden');
+            }
+        }
+
+        function backToFulfillmentModal() {
+            closeModal('storeModal');
+            closeModal('deliveryModal');
+            openFulfillmentModal();
+        }
+
+        function chooseStore(code) {
+            selectedStore = code;
+            const storeObj = stores.find(s => s.code === code);
+            closeModal('storeModal');
+            
+            document.getElementById('headerIcon').className = currentFulfillment === 'DINE_IN' ? "fa-solid fa-utensils text-lg" : "fa-solid fa-bag-shopping text-lg";
+            document.getElementById('fulfillmentLabel').innerText = currentFulfillment === 'DINE_IN' ? "Uống tại quán" : "Đến lấy mang đi";
+            document.getElementById('fulfillmentValue').innerText = storeObj.name;
+        }
+
+        function confirmDeliveryAddress() {
+            const ward = document.getElementById('wardSelect').value;
+            const detail = document.getElementById('deliveryAddressDetail').value;
+            if(!ward || !detail) {
+                alert('Vui lòng chọn phường và nhập địa chỉ chi tiết!');
+                return;
+            }
+            closeModal('deliveryModal');
+            document.getElementById('headerIcon').className = "fa-solid fa-motorcycle text-lg";
+            document.getElementById('fulfillmentLabel').innerText = "Giao hàng tận nơi";
+            document.getElementById('fulfillmentValue').innerText = detail;
+        }
+
+        // 4. POPUP CHI TIẾT MÓN & CROSS-SELLING
+        function openProductModal(itemId) {
+            activeProductForModal = products.find(p => p.id === itemId);
+            currentModalQty = 1;
+            
+            document.getElementById('modalProdImg').src = activeProductForModal.img;
+            document.getElementById('modalProdName').innerText = activeProductForModal.name;
+            document.getElementById('modalProdPrice').innerText = activeProductForModal.price.toLocaleString() + 'đ';
+            document.getElementById('modalProdDesc').innerText = activeProductForModal.desc;
+            document.getElementById('modalQty').innerText = currentModalQty;
+            updateModalAddBtn();
+
+            // Render cross-sell (Lấy ngẫu nhiên 3 món khác làm gợi ý)
+            const crossSells = products.filter(p => p.id !== itemId).slice(0, 3);
+            document.getElementById('crossSellContainer').innerHTML = crossSells.map(cs => `
+                <div class="w-32 flex-shrink-0 border rounded-lg p-2 bg-gray-50 flex flex-col justify-between">
+                    <img src="${cs.img}" class="w-full h-20 object-cover rounded-md mb-1">
+                    <div class="text-[11px] font-bold text-gray-800 truncate">${cs.name}</div>
+                    <div class="text-[11px] text-amber-700 font-bold">${cs.price.toLocaleString()}đ</div>
+                </div>
+            `).join('');
+
+            document.getElementById('productDetailModal').classList.remove('hidden');
+        }
+
+        function adjustModalQty(change) {
+            currentModalQty += change;
+            if (currentModalQty < 1) currentModalQty = 1;
+            document.getElementById('modalQty').innerText = currentModalQty;
+            updateModalAddBtn();
+        }
+
+        function updateModalAddBtn() {
+            const total = activeProductForModal.price * currentModalQty;
+            document.getElementById('modalAddBtn').innerText = `THÊM VÀO GIỎ - ${total.toLocaleString()}đ`;
+        }
+
+        function addToCartFromModal() {
+            cart.push({ ...activeProductForModal, qty: currentModalQty });
+            closeModal('productDetailModal');
+            updateCartBar();
+        }
+
+        function updateCartBar() {
+            const cartBar = document.getElementById('cartBar');
+            if (cart.length > 0) {
+                cartBar.classList.remove('hidden');
+                const totalCount = cart.reduce((sum, item) => sum + item.qty, 0);
+                const totalPrice = cart.reduce((sum, item) => sum + (item.price * item.qty), 0);
+                document.getElementById('cartCount').innerText = totalCount;
+                document.getElementById('cartTotal').innerText = totalPrice.toLocaleString() + 'đ';
+            } else {
+                cartBar.classList.add('hidden');
+            }
+        }
+
+        function openCartModal() {
+            alert('Giỏ hàng hiện có ' + cart.length + ' món. Chức năng lên đơn & gọi confirm kết nối Google Sheets sẽ được tích hợp tiếp theo!');
+        }
+    </script>
 </body>
 </html>
