@@ -274,7 +274,7 @@
       }
     }
 
-    // Hiển thị Popup và tính toán tách Phí ship
+    // Hiển thị Popup với Tiền cà phê và Phí ship tách biệt hoàn toàn
     function showModal(order) {
       currentProcessingOrder = order;
       document.getElementById('modalOrderId').innerText = 'Mã đơn: #' + order.orderId;
@@ -284,21 +284,16 @@
       document.getElementById('modalItems').innerHTML = formatItemsToHTML(order.items);
       document.getElementById('modalTime').innerText = order.date || '';
 
-      // Tách phí ship từ địa chỉ (ví dụ: ~25k, ~30k)
-      let shippingFee = 0;
-      const addr = order.address || "";
-      const shipMatch = addr.match(/~(\d+)k/i);
-      
-      if (shipMatch && shipMatch[1]) {
-        shippingFee = parseInt(shipMatch[1]) * 1000;
+      // 1. Tiền cà phê (Lấy nguyên gốc từ Google Sheet)
+      document.getElementById('modalSubTotal').innerText = order.total || "0đ";
+
+      // 2. Tiền ship dự kiến (Nhận diện riêng theo địa chỉ)
+      let shippingFee = "25.000đ"; // Mặc định Hà Nội
+      const addr = (order.address || "").toLowerCase();
+      if (addr.includes("tỉnh") || addr.includes("35k")) {
+        shippingFee = "35.000đ";
       }
-
-      let rawTotal = parseInt((order.total || "0").toString().replace(/\D/g, "")) || 0;
-      let productSubTotal = rawTotal - shippingFee;
-      if (productSubTotal < 0) productSubTotal = rawTotal;
-
-      document.getElementById('modalSubTotal').innerText = productSubTotal.toLocaleString('vi-VN') + "đ";
-      document.getElementById('modalShippingFee').innerText = shippingFee > 0 ? shippingFee.toLocaleString('vi-VN') + "đ" : "Chưa xác định";
+      document.getElementById('modalShippingFee').innerText = shippingFee;
 
       document.getElementById('orderModal').classList.remove('hidden');
     }
