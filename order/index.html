@@ -1,1 +1,147 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Oriberry - Đặt món tại quán</title>
+    <style>
+        body { font-family: Arial, sans-serif; background: #f4f6f8; margin: 0; padding: 20px; }
+        .container { max-width: 500px; margin: 0 auto; background: #fff; padding: 20px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+        h2 { text-align: center; color: #333; }
+        .form-group { margin-bottom: 15px; }
+        label { display: block; margin-bottom: 5px; font-weight: bold; color: #555; }
+        input, select, textarea { width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 4px; box-sizing: border-box; }
+        button { width: 100%; background: #2c3e50; color: #fff; padding: 12px; border: none; border-radius: 4px; font-size: 16px; cursor: pointer; }
+        button:hover { background: #34495e; }
+    </style>
+</head>
+<body>
 
+<div class="container">
+    <h2>Oriberry Order</h2>
+    <form id="orderForm">
+        <div class="form-group">
+            <label>Cơ sở:</label>
+            <select id="storeCode" required>
+                <option value="AU_TRIEU">Ấu Triệu</option>
+                <option value="QUANG_AN">Quảng An</option>
+                <option value="DANG_TIEN_DONG">Đặng Tiến Đông</option>
+            </select>
+        </div>
+
+        <div class="form-group">
+            <label>Hình thức nhận:</label>
+            <select id="fulfillmentType" required onchange="toggleLocationField()">
+                <option value="DINE_IN">Tại bàn (Dine-in)</option>
+                <option value="PICKUP">Tới lấy (Pickup)</option>
+                <option value="DELIVERY">Giao hàng (Delivery)</option>
+            </select>
+        </div>
+
+        <div class="form-group" id="locationGroup">
+            <label>Mã bàn (Ví dụ: T2NH-04):</label>
+            <input type="text" id="locationDetail" placeholder="Nhập mã bàn hoặc vị trí">
+        </div>
+
+        <div class="form-group">
+            <label>Tên khách hàng:</label>
+            <input type="text" id="customerName" placeholder="Nhập tên khách">
+        </div>
+
+        <div class="form-group">
+            <label>Số điện thoại:</label>
+            <input type="tel" id="customerPhone" placeholder="Nhập số điện thoại">
+        </div>
+
+        <div class="form-group">
+            <label>Chi tiết món:</label>
+            <textarea id="itemsDetail" rows="4" placeholder="• 1x Cà phê Sữa đá&#10;• 1x Trà Sen" required></textarea>
+        </div>
+
+        <div class="form-group">
+            <label>Ghi chú:</label>
+            <input type="text" id="note" placeholder="Ví dụ: Ít đá, mang ly giấy...">
+        </div>
+
+        <div class="form-group">
+            <label>Tổng tiền (VNĐ):</label>
+            <input type="number" id="totalAmount" placeholder="90000" required>
+        </div>
+
+        <div class="form-group">
+            <label>Phương thức thanh toán:</label>
+            <select id="paymentMethod">
+                <option value="TRANSFER">Chuyển khoản</option>
+                <option value="CASH">Tiền mặt</option>
+            </select>
+        </div>
+
+        <button type="submit" id="submitBtn">Gửi đơn hàng</button>
+    </form>
+</div>
+
+<script>
+    // Web App URL của Google Apps Script
+    const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbymyOwnFx1K-PXq318HdJB06JVOeWZBb1PXkvT7mkowr8997UoOpxTLeIB56mQ2T5Gd/exec";
+
+    function toggleLocationField() {
+        const type = document.getElementById("fulfillmentType").value;
+        const label = document.querySelector("#locationGroup label");
+        const input = document.getElementById("locationDetail");
+        
+        if (type === "DINE_IN") {
+            label.innerText = "Mã bàn (Ví dụ: T2NH-04):";
+            input.placeholder = "Nhập mã bàn";
+        } else if (type === "PICKUP") {
+            label.innerText = "Ghi chú nhận tại quầy:";
+            input.placeholder = "Ví dụ: Lấy mang đi ngay";
+        } else if (type === "DELIVERY") {
+            label.innerText = "Địa chỉ giao hàng:";
+            input.placeholder = "Số nhà, tên đường, khu vực...";
+        }
+    }
+
+    document.getElementById("orderForm").addEventListener("submit", function(e) {
+        e.preventDefault();
+        
+        const btn = document.getElementById("submitBtn");
+        btn.disabled = true;
+        btn.innerText = "Đang gửi đơn...";
+
+        const payload = {
+            storeCode: document.getElementById("storeCode").value,
+            fulfillmentType: document.getElementById("fulfillmentType").value,
+            locationDetail: document.getElementById("locationDetail").value,
+            customerName: document.getElementById("customerName").value,
+            customerPhone: document.getElementById("customerPhone").value,
+            itemsDetail: document.getElementById("itemsDetail").value,
+            note: document.getElementById("note").value,
+            totalAmount: Number(document.getElementById("totalAmount").value),
+            paymentMethod: document.getElementById("paymentMethod").value
+        };
+
+        fetch(WEB_APP_URL, {
+            method: "POST",
+            mode: "no-cors",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify(payload)
+        })
+        .then(() => {
+            alert("Đã gửi đơn hàng thành công!");
+            document.getElementById("orderForm").reset();
+            btn.disabled = false;
+            btn.innerText = "Gửi đơn hàng";
+        })
+        .catch(error => {
+            console.error("Lỗi:", error);
+            alert("Có lỗi xảy ra khi gửi đơn.");
+            btn.disabled = false;
+            btn.innerText = "Gửi đơn hàng";
+        });
+    });
+</script>
+
+</body>
+</html>
