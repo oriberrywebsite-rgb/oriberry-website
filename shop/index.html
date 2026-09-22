@@ -373,19 +373,19 @@ const roastVal = document.getElementById('filter-roast')?.value || 'ALL';
     const sortVal = document.getElementById('sort-price')?.value || 'default';
 
     let filtered = PRODUCTS.filter(p => {
-      // 1. Lấy giá trị roastLevel, chuẩn hóa bỏ khoảng trắng thừa & hạ chữ thường
-      const pRoast = (p.roastLevel || p.roastlevel || p.roast || '').toString().trim().toLowerCase();
-      const targetRoast = roastVal.trim().toLowerCase();
+            // 1. Lấy giá trị roastLevel/roast
+            const pRoast = (p.roastLevel || p.roastlevel || p.roast || '').toString().trim().toLowerCase();
+            const targetRoast = roastVal.trim().toLowerCase();
 
-      // 2. Lấy giá trị region
-      const pRegion = (p.region || p.type || '').toString().trim().toLowerCase();
-      const targetRegion = regionVal.trim().toLowerCase();
+            // 2. Lấy giá trị region
+            const pRegion = (p.region || p.type || '').toString().trim().toLowerCase();
+            const targetRegion = regionVal.trim().toLowerCase();
 
-      // So sánh chính xác thay vì dùng includes()
-      const matchRoast = (roastVal === 'ALL') || const matchRoast = (roastVal === 'ALL') || (pRoast !== '' && (pRoast.includes(targetRoast) || targetRoast.includes(pRoast)));
-      const matchRegion = (regionVal === 'ALL') || (pRegion.includes(targetRegion));
+            // So sánh
+            const matchRoast = (roastVal === 'ALL') || (pRoast !== '' && (pRoast.includes(targetRoast) || targetRoast.includes(pRoast)));
+            const matchRegion = (regionVal === 'ALL') || (pRegion.includes(targetRegion));
 
-      return matchRoast && matchRegion;
+            return matchRoast && matchRegion;
     });
       if (sortVal === 'low-to-high') {
         filtered.sort((a, b) => Number(a.price) - Number(b.price));
