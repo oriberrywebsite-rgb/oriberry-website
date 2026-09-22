@@ -55,10 +55,9 @@
       <div class="text-[11px] font-bold uppercase tracking-wider text-slate-700 mb-2 px-1">Sort by</div>
       <div class="grid grid-cols-4 gap-2">
         <!-- 1. Nút Sidebar 3 gạch -->
-        <button onclick="toggleSidebar()" class="w-full flex items-center justify-center bg-white border border-neutral-300 rounded-lg p-2 text-neutral-700 hover:bg-neutral-50 focus:outline-none cursor-pointer">
+        <button onclick="toggleSidebar()" class="w-9 h-9 mx-auto flex items-center justify-center bg-white border border-neutral-300 rounded-lg text-neutral-700 hover:bg-neutral-50 focus:outline-none cursor-pointer">
           <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/></svg>
         </button>
-
         <!-- 2. Sort Price -->
         <select id="sort-price" onchange="renderProducts()" class="w-full text-xs border border-neutral-300 rounded-lg p-2 bg-white focus:outline-none focus:ring-1 focus:ring-neutral-900 cursor-pointer font-medium truncate">
           <option value="default">Price</option>
