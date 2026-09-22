@@ -3,484 +3,130 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Oriberry - Đặt Món Trực Tuyến</title>
-    <!-- Tailwind CSS CDN -->
+    <title>Oriberry Ordering</title>
+    <!-- Google Fonts: Serif thanh lịch giống trang /shop -->
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400..700;1,400..700&family=Plus+Jakarta+Sans:wght@400;500;600&display=swap" rel="stylesheet">
     <script src="https://cdn.tailwindcss.com"></script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        brandCream: '#faf8f5',
+                        brandDark: '#1a1a1a',
+                        brandAccent: '#d97706'
+                    },
+                    fontFamily: {
+                        serif: ['"Playfair Display"', 'serif'],
+                        sans: ['"Plus Jakarta Sans"', 'sans-serif']
+                    }
+                }
+            }
+        }
+    </script>
     <style>
-        .no-scrollbar::-webkit-scrollbar { display: none; }
-        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
-        /* Smooth transitions for sidebar drawer */
-        #categorySidebar {
-            transition: transform 0.3s ease-in-out, opacity 0.3s ease-in-out;
+        body {
+            background-color: #faf8f5;
+            color: #1a1a1a;
+            font-family: 'Plus Jakarta Sans', sans-serif;
+        }
+        .font-serif-custom {
+            font-family: 'Playfair Display', serif;
+        }
+        /* Sidebar ẩn thông minh, trượt ra với độ trong suốt 50% */
+        #category-sidebar {
+            transform: translateX(-100%);
+            transition: transform 0.3s ease-in-out;
+            background-color: rgba(250, 248, 245, 0.9);
+            backdrop-filter: blur(8px);
+        }
+        #category-sidebar.open {
+            transform: translateX(0);
         }
     </style>
 </head>
-<body class="bg-gray-50 text-gray-800 font-sans antialiased flex flex-col min-h-screen">
+<body class="min-h-screen flex flex-col">
 
-    <!-- HEADER: LOGO TRÁI, BỘ PHẬN NHẬN HÀNG PHẢI -->
-    <header class="bg-white shadow-sm sticky top-0 z-40 border-b border-gray-100">
-        <div class="max-w-4xl mx-auto px-4 py-3 flex items-center justify-between">
-            <div class="flex items-center space-x-3">
-                <!-- Nút toggle cột danh mục -->
-                <button onclick="toggleSidebar()" class="w-9 h-9 rounded-xl bg-amber-50 text-amber-700 flex items-center justify-center hover:bg-amber-100 transition shadow-sm">
-                    <i class="fa-solid fa-bars text-sm"></i>
-                </button>
-                <a href="/" class="flex items-center gap-2 font-black text-lg tracking-wider text-gray-900">
-                    <i class="fa-solid fa-mug-saucer text-amber-700"></i> ORIBERRY
-                </a>
-            </div>
-            
-            <div class="flex items-center space-x-2 cursor-pointer bg-gray-50 hover:bg-gray-100 px-3 py-1.5 rounded-xl border border-gray-200 transition" onclick="openFulfillmentModal()">
-                <div class="bg-amber-100 text-amber-800 w-6 h-6 rounded-full flex items-center justify-center">
-                    <i class="fa-solid fa-store text-[10px]" id="headerIcon"></i>
-                </div>
-                <div>
-                    <div class="text-[9px] text-gray-500 flex items-center gap-1">
-                        <span id="fulfillmentLabel">Hình thức</span> 
-                        <i class="fa-solid fa-chevron-down text-[7px]"></i>
-                    </div>
-                    <div class="font-bold text-xs text-gray-900 truncate max-w-[140px]" id="fulfillmentValue">Chọn cửa hàng</div>
-                </div>
-            </div>
-        </div>
+    <!-- Header tối giản -->
+    <header class="w-full px-4 py-4 flex items-center justify-between border-b border-stone-200 bg-[#faf8f5]">
+        <!-- Logo sát lề trái -->
+        <h1 class="font-serif-custom text-2xl font-bold tracking-wider text-stone-900 m-0">ORIBERRY</h1>
     </header>
 
-    <!-- VÙNG CHẠM GẦN MÉP TRÁI ĐỂ KÍCH HOẠT HIỆN DANH MỤC NẾU ĐANG ẨN -->
-    <div onmouseenter="showSidebar()" class="fixed left-0 top-16 bottom-0 w-4 z-20 pointer-events-auto"></div>
-
-    <!-- MAIN LAYOUT -->
-    <main class="flex-1 max-w-4xl w-full mx-auto flex relative overflow-hidden bg-white shadow-sm mb-20">
+    <!-- Main Container -->
+    <div class="flex-1 flex relative overflow-hidden">
         
-        <!-- CỘT NHỎ (DANH MỤC): Nấp gọn, khi hiện ở dạng 50% opacity (xuyên thấu) & đè lên trên -->
-        <aside id="categorySidebar" class="-translate-x-full opacity-0 absolute left-0 top-0 bottom-0 w-2/5 sm:w-1/3 bg-white/50 backdrop-blur-md border-r border-gray-200 overflow-y-auto no-scrollbar z-30 shadow-2xl py-4">
-            <div class="flex items-center justify-between px-4 mb-2">
-                <span class="text-xs font-bold text-gray-500 uppercase tracking-wider">Danh mục</span>
-                <button onclick="hideSidebar()" class="text-gray-400 hover:text-gray-700"><i class="fa-solid fa-xmark text-sm"></i></button>
+        <!-- Cột danh mục ẩn (50% translucent, trượt ra khi bấm nút) -->
+        <aside id="category-sidebar" class="absolute top-0 bottom-0 left-0 w-64 z-50 p-4 border-r border-stone-200 shadow-lg flex flex-col space-y-4">
+            <div class="flex items-center justify-between mb-2">
+                <span class="font-serif-custom font-semibold text-stone-800 text-lg">Danh mục</span>
+                <button onclick="toggleSidebar()" class="text-stone-600 p-1 text-xl font-bold">&times;</button>
             </div>
-            <div id="categoryListContainer"></div>
+            <nav class="flex flex-col space-y-3 font-sans text-stone-700">
+                <a href="#coffee" onclick="toggleSidebar()" class="py-2 px-3 rounded hover:bg-stone-200/50 transition">Coffee</a>
+                <a href="#tea" onclick="toggleSidebar()" class="py-2 px-3 rounded hover:bg-stone-200/50 transition">Tea</a>
+                <a href="#juices" onclick="toggleSidebar()" class="py-2 px-3 rounded hover:bg-stone-200/50 transition">Juices</a>
+                <a href="#smoothies" onclick="toggleSidebar()" class="py-2 px-3 rounded hover:bg-stone-200/50 transition">Smoothies</a>
+                <a href="#cake" onclick="toggleSidebar()" class="py-2 px-3 rounded hover:bg-stone-200/50 transition">Cake</a>
+                <a href="#banh-mi" onclick="toggleSidebar()" class="py-2 px-3 rounded hover:bg-stone-200/50 transition">Bánh Mì</a>
+                <a href="#spaghetti" onclick="toggleSidebar()" class="py-2 px-3 rounded hover:bg-stone-200/50 transition">Spaghetti</a>
+            </nav>
         </aside>
 
-        <!-- CỘT LỚN (DANH SÁCH MÓN): Chiếm trọn 100% chiều ngang, card to rõ cân đối -->
-        <section class="w-full overflow-y-auto h-[calc(100vh-130px)] p-4 sm:p-6 space-y-8" id="menuContainer" onclick="maybeHideSidebarOnContentClick()">
-            <!-- Render danh sách món -->
-        </section>
-    </main>
-
-    <!-- THANH GIỎ HÀNG DƯỚI ĐÁY -->
-    <div id="cartBar" class="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 shadow-xl p-3 z-45 hidden">
-        <div class="max-w-4xl mx-auto flex items-center justify-between">
-            <div class="flex items-center space-x-3">
-                <div class="bg-amber-700 text-white w-10 h-10 rounded-full flex items-center justify-center font-bold text-sm shadow" id="cartCount">0</div>
-                <div>
-                    <div class="text-xs text-gray-500">Tổng giỏ hàng</div>
-                    <div class="font-bold text-base text-gray-900" id="cartTotal">0đ</div>
-                </div>
-            </div>
-            <button onclick="openCartModal()" class="bg-amber-700 hover:bg-amber-800 text-white px-6 py-2.5 rounded-xl font-bold text-sm shadow-md transition flex items-center gap-2">
-                <span>Xem giỏ hàng</span>
-                <i class="fa-solid fa-arrow-right"></i>
-            </button>
-        </div>
-    </div>
-
-    <!-- ================= MODALS ================= -->
-
-    <!-- MODAL 1: CHỌN PHƯƠNG THỨC NHẬN HÀNG -->
-    <div id="fulfillmentModal" class="fixed inset-0 bg-black/50 z-50 flex items-end sm:items-center justify-center hidden">
-        <div class="bg-white w-full max-w-lg rounded-t-3xl sm:rounded-2xl p-5 max-h-[90vh] overflow-y-auto">
-            <div class="flex justify-between items-center mb-4">
-                <h3 class="font-bold text-lg">Chọn phương thức nhận hàng</h3>
-                <button onclick="closeModal('fulfillmentModal')" class="text-gray-400 hover:text-gray-600 p-1"><i class="fa-solid fa-xmark text-xl"></i></button>
-            </div>
-            <div class="space-y-3">
-                <div onclick="selectFulfillment('DELIVERY')" class="border border-gray-200 p-4 rounded-xl cursor-pointer hover:border-amber-700 hover:bg-amber-50/30 transition flex items-start gap-3">
-                    <i class="fa-solid fa-motorcycle text-xl text-amber-700 mt-1"></i>
-                    <div>
-                        <div class="font-bold text-gray-900">Giao hàng tận nơi (Delivery)</div>
-                        <div class="text-xs text-gray-500 mt-0.5">Chọn phường giao hàng, tính phí ship tạm tính & xác nhận trước khi giao.</div>
-                    </div>
-                </div>
-                <div onclick="selectFulfillment('PICKUP')" class="border border-gray-200 p-4 rounded-xl cursor-pointer hover:border-amber-700 hover:bg-amber-50/30 transition flex items-start gap-3">
-                    <i class="fa-solid fa-bag-shopping text-xl text-amber-700 mt-1"></i>
-                    <div>
-                        <div class="font-bold text-gray-900">Đến lấy mang đi (Pickup)</div>
-                        <div class="text-xs text-gray-500 mt-0.5">Chọn cơ sở gần nhất để ghé lấy đồ uống nhanh chóng.</div>
-                    </div>
-                </div>
-                <div onclick="selectFulfillment('DINE_IN')" class="border border-gray-200 p-4 rounded-xl cursor-pointer hover:border-amber-700 hover:bg-amber-50/30 transition flex items-start gap-3">
-                    <i class="fa-solid fa-utensils text-xl text-amber-700 mt-1"></i>
-                    <div>
-                        <div class="font-bold text-gray-900">Uống tại quán (Dine-in tại bàn)</div>
-                        <div class="text-xs text-gray-500 mt-0.5">Quét mã QR tại bàn hoặc chọn cơ sở và mã bàn ngồi.</div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- MODAL 2: CHỌN CỬA HÀNG -->
-    <div id="storeModal" class="fixed inset-0 bg-black/50 z-50 flex items-end sm:items-center justify-center hidden">
-        <div class="bg-white w-full max-w-lg rounded-t-3xl sm:rounded-2xl p-5 max-h-[90vh] overflow-y-auto">
-            <div class="flex justify-between items-center mb-4">
-                <button onclick="backToFulfillmentModal()" class="text-gray-600 text-sm font-medium"><i class="fa-solid fa-arrow-left"></i> Quay lại</button>
-                <h3 class="font-bold text-lg">Chọn cửa hàng Oriberry</h3>
-                <button onclick="closeModal('storeModal')" class="text-gray-400"><i class="fa-solid fa-xmark text-xl"></i></button>
-            </div>
-            <div class="space-y-3" id="storeListContainer"></div>
-        </div>
-    </div>
-
-    <!-- MODAL 3: CHỌN PHƯỜNG & ĐỊA CHỈ DELIVERY -->
-    <div id="deliveryModal" class="fixed inset-0 bg-black/50 z-50 flex items-end sm:items-center justify-center hidden">
-        <div class="bg-white w-full max-w-lg rounded-t-3xl sm:rounded-2xl p-5 max-h-[90vh] overflow-y-auto">
-            <div class="flex justify-between items-center mb-4">
-                <button onclick="backToFulfillmentModal()" class="text-gray-600 text-sm font-medium"><i class="fa-solid fa-arrow-left"></i> Quay lại</button>
-                <h3 class="font-bold text-lg">Địa chỉ giao hàng</h3>
-                <button onclick="closeModal('deliveryModal')" class="text-gray-400"><i class="fa-solid fa-xmark text-xl"></i></button>
-            </div>
-            <div class="space-y-3">
-                <div>
-                    <label class="block text-xs font-bold text-gray-600 mb-1">Chọn Phường phụ trách:</label>
-                    <select id="wardSelect" class="w-full p-2.5 border rounded-xl text-sm bg-white focus:border-amber-700">
-                        <option value="">-- Chọn phường giao hàng --</option>
-                        <option value="TRANG_TIEN">Phường Tràng Tiền / Hàng Bài (Giao từ Ấu Triệu)</option>
-                        <option value="QUANG_AN">Phường Quảng An / Tây Hồ (Giao từ Quảng An)</option>
-                        <option value="TRUNG_LIET">Phường Trung Liệt / Đặng Tiến Đông (Giao từ Đặng Tiến Đông)</option>
-                    </select>
-                </div>
-                <div>
-                    <label class="block text-xs font-bold text-gray-600 mb-1">Số nhà, tên đường cụ thể:</label>
-                    <input type="text" id="deliveryAddressDetail" placeholder="Ví dụ: Số 12 ngõ..." class="w-full p-2.5 border rounded-xl text-sm focus:border-amber-700">
-                </div>
-                <div class="bg-amber-50 p-3 rounded-xl text-xs text-amber-800">
-                    <i class="fa-solid fa-circle-info"></i> Phí ship tạm tính sẽ hiển thị và nhân viên sẽ gọi điện confirm với anh/chị trước khi giao.
-                </div>
-                <button onclick="confirmDeliveryAddress()" class="w-full bg-amber-700 hover:bg-amber-800 text-white py-3 rounded-xl font-bold text-sm shadow transition">Xác nhận địa chỉ giao hàng</button>
-            </div>
-        </div>
-    </div>
-
-    <!-- MODAL 4: CHI TIẾT MÓN, CROSS-SELLING & NOTE FOR ORIBERRY -->
-    <div id="productDetailModal" class="fixed inset-0 bg-black/50 z-50 flex items-end sm:items-center justify-center hidden">
-        <div class="bg-white w-full max-w-lg rounded-t-3xl sm:rounded-2xl max-h-[90vh] overflow-y-auto flex flex-col">
-            <div class="relative w-full h-56 bg-gray-100">
-                <img id="modalProdImg" src="" alt="" class="w-full h-full object-cover">
-                <button onclick="closeModal('productDetailModal')" class="absolute top-3 right-3 bg-black/50 text-white w-8 h-8 rounded-full flex items-center justify-center"><i class="fa-solid fa-xmark"></i></button>
-            </div>
-            <div class="p-5 flex-1 space-y-4">
-                <div>
-                    <h2 id="modalProdName" class="text-xl font-bold text-gray-900">Tên món</h2>
-                    <div id="modalProdPrice" class="text-amber-700 font-bold text-lg mt-1">0đ</div>
-                </div>
-                <p id="modalProdDesc" class="text-sm text-gray-600 leading-relaxed"></p>
-                
-                <!-- NOTE FOR ORIBERRY -->
-                <div>
-                    <label class="block text-xs font-bold text-gray-700 mb-1">Note for Oriberry (Ghi chú cho món này):</label>
-                    <input type="text" id="modalItemNote" placeholder="Ví dụ: Ít đá, nhiều sữa, không đường..." class="w-full p-2.5 border rounded-xl text-xs focus:border-amber-700">
-                </div>
-
-                <!-- GỢI Ý DÙNG KÈM -->
-                <div>
-                    <div class="text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">Gợi ý dùng kèm (3-5 món)</div>
-                    <div class="flex gap-3 overflow-x-auto no-scrollbar pb-2" id="crossSellContainer"></div>
-                </div>
-
-                <!-- SỐ LƯỢNG & NÚT THÊM VÀO GIỎ -->
-                <div class="pt-3 border-t flex items-center justify-between gap-4">
-                    <div class="flex items-center border rounded-xl overflow-hidden">
-                        <button onclick="adjustModalQty(-1)" class="px-3 py-2 bg-gray-100 hover:bg-gray-200"><i class="fa-solid fa-minus text-xs"></i></button>
-                        <span id="modalQty" class="px-4 font-bold text-sm">1</span>
-                        <button onclick="adjustModalQty(1)" class="px-3 py-2 bg-gray-100 hover:bg-gray-200"><i class="fa-solid fa-plus text-xs"></i></button>
-                    </div>
-                    <button onclick="addToCartFromModal()" id="modalAddBtn" class="flex-1 bg-amber-700 hover:bg-amber-800 text-white py-3 rounded-xl font-bold text-sm shadow transition">
-                        Thêm vào giỏ - 0đ
-                    </button>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- SCRIPT LOGIC -->
-    <script>
-        const categories = [
-            { id: 'coffee', name: 'Coffee', icon: 'fa-mug-hot' },
-            { id: 'tea', name: 'Tea', icon: 'fa-leaf' },
-            { id: 'juices', name: 'Juices', icon: 'fa-glass-water' },
-            { id: 'smoothies', name: 'Smoothies', icon: 'fa-blender' },
-            { id: 'cake', name: 'Cake', icon: 'fa-cake-candles' },
-            { id: 'banh-mi', name: 'Bánh Mì', icon: 'fa-bread-slice' },
-            { id: 'spagetti', name: 'Spagetti', icon: 'fa-utensils' }
-        ];
-
-        const stores = [
-            { code: 'AU_TRIEU', name: 'Oriberry Ấu Triệu', address: '36 Ấu Triệu, Hoàn Kiếm, Hà Nội' },
-            { code: 'QUANG_AN', name: 'Oriberry Quảng An', address: '12 Đặng Thai Mai, Tây Hồ, Hà Nội' },
-            { code: 'DANG_TIEN_DONG', name: 'Oriberry Đặng Tiến Đông', address: '155 Đặng Tiến Đông, Đống Đa, Hà Nội' }
-        ];
-
-        const products = [
-            // Coffee (5 món)
-            { id: 'c1', cat: 'coffee', name: 'Airy-cano Classic', price: 55000, img: 'https://images.unsplash.com/photo-1514432324607-a09d9b4aefdd?auto=format&fit=crop&w=500&q=80', desc: 'Hương vị Americano nguyên bản nâng tầm đậm đà.' },
-            { id: 'c2', cat: 'coffee', name: 'Airy-cano Yuzu', price: 75000, img: 'https://images.unsplash.com/photo-1517701550927-30cf4ba1dba5?auto=format&fit=crop&w=500&q=80', desc: 'Kết hợp espresso và hương cam Yuzu thanh mát.' },
-            { id: 'c3', cat: 'coffee', name: 'Specialty Coffee Đá', price: 69000, img: 'https://images.unsplash.com/photo-1511920170033-f8396924c348?auto=format&fit=crop&w=500&q=80', desc: 'Pha thủ công V60 chiết xuất hạt Arabica đặc sắc.' },
-            { id: 'c4', cat: 'coffee', name: 'Phin Sữa Đá Truyền Thống', price: 45000, img: 'https://images.unsplash.com/photo-1509042239860-f550ce710b93?auto=format&fit=crop&w=500&q=80', desc: 'Cà phê Phin truyền thống từ Robusta Quảng Trị đậm đà.' },
-            { id: 'c5', cat: 'coffee', name: 'Espresso Macchiato', price: 50000, img: 'https://images.unsplash.com/photo-1534778101976-62847782c213?auto=format&fit=crop&w=500&q=80', desc: 'Espresso đậm đặc điểm thêm chút bọt sữa mịn.' },
-
-            // Tea (5 món)
-            { id: 't1', cat: 'tea', name: 'Trà Sen Vàng Cao Cấp', price: 65000, img: 'https://images.unsplash.com/photo-1576092768241-dec231879fc3?auto=format&fit=crop&w=500&q=80', desc: 'Trà ô long thượng hạng kết hợp hương sen mộc mạc.' },
-            { id: 't2', cat: 'tea', name: 'Trà Đào Cam Sả', price: 60000, img: 'https://images.unsplash.com/photo-1556679343-c7306c1976bc?auto=format&fit=crop&w=500&q=80', desc: 'Trà đen thanh mát kết hợp đào miếng và sả tươi.' },
-            { id: 't3', cat: 'tea', name: 'Trà Xanh Mật Ngọt', price: 55000, img: 'https://images.unsplash.com/photo-1563911892120-177659832e02?auto=format&fit=crop&w=500&q=80', desc: 'Trà xanh nguyên bản hòa quyện mật ong rừng.' },
-            { id: 't4', cat: 'tea', name: 'Trà Ô Long Vải', price: 62000, img: 'https://images.unsplash.com/photo-1546171753-97d7676eefa0?auto=format&fit=crop&w=500&q=80', desc: 'Vị ô long đậm đà cùng những trái vải ngọt lịm.' },
-            { id: 't5', cat: 'tea', name: 'Trà Thảo Mộc Hoa Cúc', price: 58000, img: 'https://images.unsplash.com/photo-1597481499750-3e6b22637e12?auto=format&fit=crop&w=500&q=80', desc: 'Thư giãn tinh thần với trà hoa cúc mật ong ấm áp.' },
-
-            // Juices (5 món)
-            { id: 'j1', cat: 'juices', name: 'Nước Ép Cam Tươi', price: 60000, img: 'https://images.unsplash.com/photo-1613478223719-2ab802602423?auto=format&fit=crop&w=500&q=80', desc: 'Cam tươi nguyên chất giàu vitamin C.' },
-            { id: 'j2', cat: 'juices', name: 'Nước Ép Dứa Thơm Mát', price: 55000, img: 'https://images.unsplash.com/photo-1589735928236-141451e4429e?auto=format&fit=crop&w=500&q=80', desc: 'Dứa tươi ép nguyên chất kích thích vị giác.' },
-            { id: 'j3', cat: 'juices', name: 'Nước Ép Cóc Xanh Lắc Muối Ớt', price: 50000, img: 'https://images.unsplash.com/photo-1622597447547-19c25f474b30?auto=format&fit=crop&w=500&q=80', desc: 'Thức uống thanh mát chua ngọt độc đáo.' },
-            { id: 'j4', cat: 'juices', name: 'Nước Ép Táo Nguyên Chất', price: 65000, img: 'https://images.unsplash.com/photo-1600271886742-f049cd451bba?auto=format&fit=crop&w=500&q=80', desc: 'Táo tươi giòn ngọt ép lấy trọn dưỡng chất.' },
-            { id: 'j5', cat: 'juices', name: 'Nước Ép Cà Rốt Mật Ong', price: 58000, img: 'https://images.unsplash.com/photo-1595981267035-7b04ca84a82d?auto=format&fit=crop&w=500&q=80', desc: 'Cà rốt tươi giàu beta-caroten tốt cho thị lực.' },
-
-            // Smoothies (5 món)
-            { id: 's1', cat: 'smoothies', name: 'Sinh Tố Bơ Đắk Lắk', price: 69000, img: 'https://images.unsplash.com/photo-1553530666-ba11a7da3888?auto=format&fit=crop&w=500&q=80', desc: 'Bơ sáp Đắk Lắk dẻo mịn béo ngậy.' },
-            { id: 's2', cat: 'smoothies', name: 'Sinh Tố Xoài Tươi Mát', price: 62000, img: 'https://images.unsplash.com/photo-1572490122747-3968b75cc699?auto=format&fit=crop&w=500&q=80', desc: 'Xoài chín cây thơm lừng ngọt đậm đà.' },
-            { id: 's3', cat: 'smoothies', name: 'Sinh Tố Mãng Cầu', price: 65000, img: 'https://images.unsplash.com/photo-1568827988772-1875e0d1ff14?auto=format&fit=crop&w=500&q=80', desc: 'Vị chua ngọt đặc trưng của mãng cầu xiêm.' },
-            { id: 's4', cat: 'smoothies', name: 'Sinh Tố Chuối Bơ Peanut', price: 70000, img: 'https://images.unsplash.com/photo-1577805947697-89e18249d767?auto=format&fit=crop&w=500&q=80', desc: 'Kết hợp dinh dưỡng từ chuối và bơ đậu phộng.' },
-            { id: 's5', cat: 'smoothies', name: 'Sinh Tố Dâu Tây Sữa Chua', price: 68000, img: 'https://images.unsplash.com/photo-1570197788417-0e82375c9371?auto=format&fit=crop&w=500&q=80', desc: 'Dâu tây tươi và sữa chua thanh dịu.' },
-
-            // Cake (5 món)
-            { id: 'k1', cat: 'cake', name: 'Burnt Cheesecake', price: 55000, img: 'https://images.unsplash.com/photo-1533134242443-d4fd215305ad?auto=format&fit=crop&w=500&q=80', desc: 'Bánh phô mai nướng thơm ngậy mùi bơ sữa.' },
-            { id: 'k2', cat: 'cake', name: 'Tiramisu Cổ Điển', price: 60000, img: 'https://images.unsplash.com/photo-1571877227200-a0d98ea607e9?auto=format&fit=crop&w=500&q=80', desc: 'Hương vị cà phê quyện lớp kem mascarpone mềm mịn.' },
-            { id: 'k3', cat: 'cake', name: 'Mousse Chanh Dây', price: 52000, img: 'https://images.unsplash.com/photo-1509440159596-0249088772ff?auto=format&fit=crop&w=500&q=80', desc: 'Vị chua thanh dịu mát từ chanh dây tươi.' },
-            { id: 'k4', cat: 'cake', name: 'Bánh Sô-cô-la Lava', price: 58000, img: 'https://images.unsplash.com/photo-1606313564200-e75d5e30476c?auto=format&fit=crop&w=500&q=80', desc: 'Sô-cô-la nguyên chất tan chảy ấm áp bên trong.' },
-            { id: 'k5', cat: 'cake', name: 'Croissant Bơ Pháp', price: 35000, img: 'https://images.unsplash.com/photo-1555507036-ab1f4038808a?auto=format&fit=crop&w=500&q=80', desc: 'Bánh sừng bò ngàn lớp thơm phức mùi bơ.' },
-
-            // Bánh Mì (3 món)
-            { id: 'b1', cat: 'banh-mi', name: 'Bánh Mì Kẹp Thịt Nướng', price: 45000, img: 'https://images.unsplash.com/photo-1509722747041-616f39b57569?auto=format&fit=crop&w=500&q=80', desc: 'Bánh mì giòn rụm nhân thịt nướng đậm đà.' },
-            { id: 'b2', cat: 'banh-mi', name: 'Bánh Mì Gà Xé Phay', price: 42000, img: 'https://images.unsplash.com/photo-1626777552726-4a6b54c97e46?auto=format&fit=crop&w=500&q=80', desc: 'Thịt gà xé trộn gia vị đậm đà cùng rau thơm tươi.' },
-            { id: 'b3', cat: 'banh-mi', name: 'Bánh Mì Ốp La Pate', price: 40000, img: 'https://images.unsplash.com/photo-1528735602780-2552fd46c7af?auto=format&fit=crop&w=500&q=80', desc: 'Trứng ốp la lòng đào kết hợp pate thơm ngậy.' },
-
-            // Spagetti (3 món)
-            { id: 'p1', cat: 'spagetti', name: 'Wafu Pasta Bò Bằm', price: 85000, img: 'https://images.unsplash.com/photo-1621996346565-e3d5d6281298?auto=format&fit=crop&w=500&q=80', desc: 'Mỳ Ý sốt bò bằm phong cách Á Đông.' },
-            { id: 'p2', cat: 'spagetti', name: 'Mỳ Ý Sốt Kem Nấm Trắng', price: 89000, img: 'https://images.unsplash.com/photo-1608897013039-887f21d8c804?auto=format&fit=crop&w=500&q=80', desc: 'Sốt kem tươi béo ngậy quyện nấm mỡ thơm lừng.' },
-            { id: 'p3', cat: 'spagetti', name: 'Mỳ Ý Hải Sản Sốt Cà Chua', price: 95000, img: 'https://images.unsplash.com/photo-1563379091339-03b21ab4a4f8?auto=format&fit=crop&w=500&q=80', desc: 'Hải sản tươi ngon kết hợp sốt cà chua đậm đà.' }
-        ];
-
-        let cart = [];
-        let currentFulfillment = '';
-        let selectedStore = '';
-        let activeProductForModal = null;
-        let currentModalQty = 1;
-
-        document.addEventListener('DOMContentLoaded', () => {
-            renderCategories();
-            renderMenu();
-            renderStores();
-            checkUrlTableParam();
-        });
-
-        // Xử lý bật/tắt cột danh mục nấp gọn
-        function toggleSidebar() {
-            const sidebar = document.getElementById('categorySidebar');
-            if (sidebar.classList.contains('-translate-x-full')) {
-                showSidebar();
-            } else {
-                hideSidebar();
-            }
-        }
-
-        function showSidebar() {
-            const sidebar = document.getElementById('categorySidebar');
-            sidebar.classList.remove('-translate-x-full', 'opacity-0');
-            sidebar.classList.add('translate-x-0', 'opacity-100');
-        }
-
-        function hideSidebar() {
-            const sidebar = document.getElementById('categorySidebar');
-            sidebar.classList.remove('translate-x-0', 'opacity-100');
-            sidebar.classList.add('-translate-x-full', 'opacity-0');
-        }
-
-        function maybeHideSidebarOnContentClick() {
-            const sidebar = document.getElementById('categorySidebar');
-            if (!sidebar.classList.contains('-translate-x-full')) {
-                hideSidebar();
-            }
-        }
-
-        function checkUrlTableParam() {
-            const urlParams = new URLSearchParams(window.location.search);
-            const table = urlParams.get('table');
-            const store = urlParams.get('store') || 'AU_TRIEU';
-            if (table) {
-                currentFulfillment = 'DINE_IN';
-                selectedStore = store;
-                const storeObj = stores.find(s => s.code === store);
-                document.getElementById('fulfillmentLabel').innerText = "Uống tại quán";
-                document.getElementById('fulfillmentValue').innerText = `Bàn: ${table}`;
-                document.getElementById('headerIcon').className = "fa-solid fa-utensils text-[10px]";
-            } else {
-                openFulfillmentModal();
-            }
-        }
-
-        function renderCategories() {
-            const container = document.getElementById('categoryListContainer');
-            container.innerHTML = categories.map(cat => `
-                <div onclick="scrollToCategory('${cat.id}')" class="px-4 py-3 text-xs font-bold cursor-pointer text-gray-700 hover:text-amber-700 hover:bg-amber-50/70 border-l-4 border-transparent transition flex items-center gap-3">
-                    <i class="fa-solid ${cat.icon} text-base w-5 text-center text-amber-700"></i>
-                    <span>${cat.name}</span>
-                </div>
-            `).join('');
-        }
-
-        // KHÔNG HIỂN THỊ GIÁ TIỀN Ở MENU CHÍNH, CARD TO RÕ CÂN ĐỐI
-        function renderMenu() {
-            const container = document.getElementById('menuContainer');
-            container.innerHTML = categories.map(cat => {
-                const items = products.filter(p => p.cat === cat.id);
-                if (items.length === 0) return '';
-                return `
-                    <div id="section-${cat.id}" class="scroll-mt-4">
-                        <h3 class="font-black text-lg text-gray-900 mb-4 sticky top-0 bg-white/90 backdrop-blur-sm py-2 z-10 border-b border-gray-100">${cat.name}</h3>
-                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                            ${items.map(item => `
-                                <div onclick="openProductModal('${item.id}')" class="bg-white border border-gray-100 rounded-2xl p-4 shadow-sm hover:shadow-md transition cursor-pointer flex items-center gap-4">
-                                    <img src="${item.img}" class="w-20 h-20 sm:w-24 sm:h-24 rounded-xl object-cover flex-shrink-0" alt="">
-                                    <div class="flex-1 min-w-0">
-                                        <h4 class="font-bold text-base text-gray-900 truncate">${item.name}</h4>
-                                        <p class="text-xs text-gray-500 line-clamp-2 mt-1 leading-relaxed">${item.desc}</p>
-                                    </div>
-                                    <div class="w-9 h-9 rounded-full bg-amber-50 text-amber-700 flex items-center justify-center hover:bg-amber-700 hover:text-white transition flex-shrink-0 shadow-sm">
-                                        <i class="fa-solid fa-plus text-sm"></i>
-                                    </div>
-                                </div>
-                            `).join('')}
-                        </div>
-                    </div>
-                `;
-            }).join('');
-        }
-
-        function renderStores() {
-            const container = document.getElementById('storeListContainer');
-            container.innerHTML = stores.map(s => `
-                <div onclick="chooseStore('${s.code}')" class="border p-3.5 rounded-xl cursor-pointer hover:border-amber-700 hover:bg-amber-50/20 transition">
-                    <div class="font-bold text-sm text-gray-900">${s.name}</div>
-                    <div class="text-xs text-gray-500 mt-0.5">${s.address}</div>
-                </div>
-            `).join('');
-        }
-
-        function scrollToCategory(catId) {
-            hideSidebar();
-            const section = document.getElementById(`section-${catId}`);
-            if (section) {
-                section.scrollIntoView({ behavior: 'smooth' });
-            }
-        }
-
-        function openFulfillmentModal() { document.getElementById('fulfillmentModal').classList.remove('hidden'); }
-        function closeModal(id) { document.getElementById(id).classList.add('hidden'); }
-
-        function selectFulfillment(type) {
-            currentFulfillment = type;
-            closeModal('fulfillmentModal');
-            if (type === 'DELIVERY') {
-                document.getElementById('deliveryModal').classList.remove('hidden');
-            } else {
-                document.getElementById('storeModal').classList.remove('hidden');
-            }
-        }
-
-        function backToFulfillmentModal() {
-            closeModal('storeModal');
-            closeModal('deliveryModal');
-            openFulfillmentModal();
-        }
-
-        function chooseStore(code) {
-            selectedStore = code;
-            const storeObj = stores.find(s => s.code === code);
-            closeModal('storeModal');
-            document.getElementById('headerIcon').className = currentFulfillment === 'DINE_IN' ? "fa-solid fa-utensils text-[10px]" : "fa-solid fa-bag-shopping text-[10px]";
-            document.getElementById('fulfillmentLabel').innerText = currentFulfillment === 'DINE_IN' ? "Uống tại quán" : "Đến lấy";
-            document.getElementById('fulfillmentValue').innerText = storeObj.name;
-        }
-
-        function confirmDeliveryAddress() {
-            const ward = document.getElementById('wardSelect').value;
-            const detail = document.getElementById('deliveryAddressDetail').value;
-            if(!ward || !detail) {
-                alert('Vui lòng chọn phường và nhập địa chỉ chi tiết!');
-                return;
-            }
-            closeModal('deliveryModal');
-            document.getElementById('headerIcon').className = "fa-solid fa-motorcycle text-[10px]";
-            document.getElementById('fulfillmentLabel').innerText = "Giao hàng";
-            document.getElementById('fulfillmentValue').innerText = detail;
-        }
-
-        // POPUP CHI TIẾT MÓN (HIỆN GIÁ, CROSS-SELL & NOTE FOR ORIBERRY)
-        function openProductModal(itemId) {
-            activeProductForModal = products.find(p => p.id === itemId);
-            currentModalQty = 1;
+        <!-- Phần hiển thị danh mục và món ăn (chiếm trọn màn hình) -->
+        <main class="flex-1 px-4 py-4 overflow-y-auto">
             
-            document.getElementById('modalProdImg').src = activeProductForModal.img;
-            document.getElementById('modalProdName').innerText = activeProductForModal.name;
-            document.getElementById('modalProdPrice').innerText = activeProductForModal.price.toLocaleString() + 'đ';
-            document.getElementById('modalProdDesc').innerText = activeProductForModal.desc;
-            document.getElementById('modalItemNote').value = '';
-            document.getElementById('modalQty').innerText = currentModalQty;
-            updateModalAddBtn();
+            <!-- Hàng chứa nút 3 gạch và Tiêu đề nhóm món -->
+            <div class="flex items-center space-x-4 mb-6">
+                <!-- Nút 3 gạch xổ menu -->
+                <button onclick="toggleSidebar()" class="p-2 text-stone-800 hover:bg-stone-200/60 rounded-lg transition">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
+                    </svg>
+                </button>
+                <!-- Tiêu đề nhóm món được đẩy dịch sang phải một chút -->
+                <h2 id="coffee" class="font-serif-custom text-2xl font-bold text-stone-900 tracking-wide">Coffee</h2>
+            </div>
 
-            const crossSells = products.filter(p => p.id !== itemId).slice(0, 4);
-            document.getElementById('crossSellContainer').innerHTML = crossSells.map(cs => `
-                <div class="w-32 flex-shrink-0 border rounded-xl p-2 bg-gray-50 flex flex-col justify-between">
-                    <img src="${cs.img}" class="w-full h-16 object-cover rounded-lg mb-1">
-                    <div class="text-[11px] font-bold text-gray-800 truncate">${cs.name}</div>
-                    <div class="text-[11px] text-amber-700 font-bold">${cs.price.toLocaleString()}đ</div>
+            <!-- Danh sách các món ăn/đồ uống (Card to rộng, không có dấu cộng thừa) -->
+            <div class="space-y-4">
+                
+                <!-- Món 1 -->
+                <div class="bg-white border border-stone-200 rounded-2xl p-4 shadow-sm flex items-center space-x-4 cursor-pointer hover:border-stone-400 transition">
+                    <img src="https://images.unsplash.com/photo-1514432324607-a09d9b4aefdd?w=300" alt="Airy-cano Classic" class="w-20 h-20 object-cover rounded-xl flex-shrink-0">
+                    <div class="flex-1">
+                        <h3 class="font-serif-custom font-bold text-lg text-stone-900">Airy-cano Classic</h3>
+                        <p class="text-sm text-stone-500 font-sans mt-1 line-clamp-2">Hương vị Americano nguyên bản nâng tầm đậm đà.</p>
+                    </div>
                 </div>
-            `).join('');
 
-            document.getElementById('productDetailModal').classList.remove('hidden');
-        }
+                <!-- Món 2 -->
+                <div class="bg-white border border-stone-200 rounded-2xl p-4 shadow-sm flex items-center space-x-4 cursor-pointer hover:border-stone-400 transition">
+                    <img src="https://images.unsplash.com/photo-1517701604599-bb29b565090c?w=300" alt="Airy-cano Yuzu" class="w-20 h-20 object-cover rounded-xl flex-shrink-0">
+                    <div class="flex-1">
+                        <h3 class="font-serif-custom font-bold text-lg text-stone-900">Airy-cano Yuzu</h3>
+                        <p class="text-sm text-stone-500 font-sans mt-1 line-clamp-2">Kết hợp espresso và hương cam Yuzu thanh mát.</p>
+                    </div>
+                </div>
 
-        function adjustModalQty(change) {
-            currentModalQty += change;
-            if (currentModalQty < 1) currentModalQty = 1;
-            document.getElementById('modalQty').innerText = currentModalQty;
-            updateModalAddBtn();
-        }
+                <!-- Món 3 -->
+                <div class="bg-white border border-stone-200 rounded-2xl p-4 shadow-sm flex items-center space-x-4 cursor-pointer hover:border-stone-400 transition">
+                    <img src="https://images.unsplash.com/photo-1495474472287-4d71bcdd2085?w=300" alt="Specialty Coffee Đá" class="w-20 h-20 object-cover rounded-xl flex-shrink-0">
+                    <div class="flex-1">
+                        <h3 class="font-serif-custom font-bold text-lg text-stone-900">Specialty Coffee Đá</h3>
+                        <p class="text-sm text-stone-500 font-sans mt-1 line-clamp-2">Pha thủ công V60 chiết xuất hương vị hạt Arabica đặc sắc.</p>
+                    </div>
+                </div>
 
-        function updateModalAddBtn() {
-            const total = activeProductForModal.price * currentModalQty;
-            document.getElementById('modalAddBtn').innerText = `THÊM VÀO GIỎ - ${total.toLocaleString()}đ`;
-        }
+            </div>
 
-        function addToCartFromModal() {
-            const itemNote = document.getElementById('modalItemNote').value;
-            cart.push({ ...activeProductForModal, qty: currentModalQty, note: itemNote });
-            closeModal('productDetailModal');
-            updateCartBar();
-        }
+        </main>
+    </div>
 
-        function updateCartBar() {
-            const cartBar = document.getElementById('cartBar');
-            if (cart.length > 0) {
-                cartBar.classList.remove('hidden');
-                const totalCount = cart.reduce((sum, item) => sum + item.qty, 0);
-                const totalPrice = cart.reduce((sum, item) => sum + (item.price * item.qty), 0);
-                document.getElementById('cartCount').innerText = totalCount;
-                document.getElementById('cartTotal').innerText = totalPrice.toLocaleString() + 'đ';
-            } else {
-                cartBar.classList.add('hidden');
-            }
-        }
-
-        function openCartModal() {
-            alert('Giỏ hàng có ' + cart.length + ' loại món. Chức năng kết nối Google Sheets 12 cột & gọi xác nhận đơn hàng sẽ được tích hợp hoàn chỉnh tiếp theo!');
+    <script>
+        function toggleSidebar() {
+            const sidebar = document.getElementById('category-sidebar');
+            sidebar.classList.toggle('open');
         }
     </script>
 </body>
