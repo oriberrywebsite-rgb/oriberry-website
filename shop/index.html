@@ -367,7 +367,7 @@ const roastVal = document.getElementById('filter-roast')?.value || 'ALL';
 
     let filtered = PRODUCTS.filter(p => {
       // 1. Lấy giá trị roastLevel, chuẩn hóa bỏ khoảng trắng thừa & hạ chữ thường
-      const pRoast = (p.roastLevel || '').toString().trim().toLowerCase();
+      const pRoast = (p.roastLevel || p.roastlevel || p.roast || '').toString().trim().toLowerCase();
       const targetRoast = roastVal.trim().toLowerCase();
 
       // 2. Lấy giá trị region
