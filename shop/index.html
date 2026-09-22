@@ -361,20 +361,19 @@ function checkUrlForProduct() {
     }
 }
     function renderProducts() {
-      const typeVal = document.getElementById('filter-type')?.value || 'ALL';
-      const regionVal = document.getElementById('filter-region')?.value || 'ALL';
-      const sortVal = document.getElementById('sort-price')?.value || 'default';
+const roastVal = document.getElementById('filter-roast')?.value || 'ALL';
+    const regionVal = document.getElementById('filter-region')?.value || 'ALL';
+    const sortVal = document.getElementById('sort-price')?.value || 'default';
 
-      let filtered = PRODUCTS.filter(p => {
-        const pType = normalizeStr(p.type);
-        const pRegion = normalizeStr(p.region);
+    let filtered = PRODUCTS.filter(p => {
+      const pRoast = normalizeStr(p.roastLevel);
+      const pRegion = normalizeStr(p.region);
 
-        const matchType = (typeVal === 'ALL') || pType.includes(normalizeStr(typeVal));
-        const matchRegion = (regionVal === 'ALL') || pRegion.includes(normalizeStr(regionVal));
+      const matchRoast = (roastVal === 'ALL') || pRoast.includes(normalizeStr(roastVal));
+      const matchRegion = (regionVal === 'ALL') || pRegion.includes(normalizeStr(regionVal));
 
-        return matchType && matchRegion;
-      });
-
+      return matchRoast && matchRegion;
+    });
       if (sortVal === 'low-to-high') {
         filtered.sort((a, b) => Number(a.price) - Number(b.price));
       } else if (sortVal === 'high-to-low') {
