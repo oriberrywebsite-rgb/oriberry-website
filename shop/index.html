@@ -50,42 +50,44 @@
   </header>
 
   <main class="max-w-7xl mx-auto px-4 md:px-6 py-6">
-<!-- KHỐI BỘ LỌC 4 ITEMS -->
-    <div class="bg-white p-3 rounded-xl border border-neutral-200 shadow-sm mb-6">
-      <div class="text-[11px] font-bold uppercase tracking-wider text-slate-700 mb-2 px-1">Sort by</div>
-      <div class="flex items-center gap-2">
-        <!-- 1. Nút Sidebar 3 gạch (Vuông nhỏ sát lề trái) -->
-        <button onclick="toggleSidebar()" class="w-9 h-9 flex-shrink-0 flex items-center justify-center bg-white border border-neutral-300 rounded-lg text-neutral-700 hover:bg-neutral-50 focus:outline-none cursor-pointer">
-          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/></svg>
-        </button>
+<!-- KHỎI BỘ LỌC DẠNG DROPDOWN -->
+      <div class="bg-white p-3 rounded-xl border border-neutral-200 shadow-sm mb-6">
+        <!-- Chữ Sort by tô đậm phía trên -->
+        <div class="text-[11px] font-bold uppercase tracking-wider text-slate-700 mb-2 px-1">Sort by</div>
 
-        <!-- Khối 3 ô lọc chia đều phần diện tích còn lại -->
-        <div class="grid grid-cols-3 gap-2 flex-1">
-          <!-- 2. Sort Price -->
-          <select id="sort-price" onchange="renderProducts()" class="w-full text-xs border border-neutral-300 rounded-lg p-2 bg-white focus:outline-none focus:ring-1 focus:ring-neutral-900 cursor-pointer font-medium truncate">
-            <option value="default">Price</option>
-            <option value="low-to-high">Price: Low to High</option>
-            <option value="high-to-low">Price: High to Low</option>
-          </select>
+        <!-- Hàng dưới chia 3 nút nằm ngang -->
+        <div class="grid grid-cols-3 gap-2">
+          <!-- 1. SORT BY PRICE -->
+          <div>
+            <select id="sort-price" onchange="renderProducts()" class="w-full text-xs border border-neutral-300 rounded-lg p-2 bg-white focus:outline-none focus:ring-1 focus:ring-neutral-900 cursor-pointer font-medium truncate">
+              <option value="default" selected>Price</option>
+              <option value="low-to-high">Price: Low to High</option>
+              <option value="high-to-low">Price: High to Low</option>
+            </select>
+          </div>
 
-          <!-- 3. Roast Level -->
-          <select id="filter-roast" onchange="renderProducts()" class="w-full text-xs border border-neutral-300 rounded-lg p-2 bg-white focus:outline-none focus:ring-1 focus:ring-neutral-900 cursor-pointer font-medium truncate">
-            <option value="ALL">Roast</option>
-            <option value="Dark">Dark</option>
-            <option value="Dark Medium">Dark Medium</option>
-            <option value="Medium">Medium</option>
-            <option value="Light">Light</option>
-          </select>
+          <!-- 2. FILTER BY VARIETY -->
+          <div>
+            <select id="filter-type" onchange="renderProducts()" class="w-full text-xs border border-neutral-300 rounded-lg p-2 bg-white focus:outline-none focus:ring-1 focus:ring-neutral-900 cursor-pointer font-medium truncate">
+              <option value="ALL" selected>Variety</option>
+              <option value="Arabica">Arabica</option>
+              <option value="Robusta">Robusta</option>
+              <option value="Liberica/Excelsa">Liberica/Excelsa</option>
+              <option value="Blended">Blended</option>
+            </select>
+          </div>
 
-          <!-- 4. Region -->
-          <select id="filter-region" onchange="renderProducts()" class="w-full text-xs border border-neutral-300 rounded-lg p-2 bg-white focus:outline-none focus:ring-1 focus:ring-neutral-900 cursor-pointer font-medium truncate">
-            <option value="ALL">Region</option>
-            <option value="Quảng Trị">Quảng Trị</option>
-            <option value="Điện Biên">Điện Biên</option>
-            <option value="Lâm Đồng">Lâm Đồng</option>
-            <option value="Đắk Lắk">Đắk Lắk</option>
-            <option value="Gia Lai">Gia Lai</option>
-          </select>
+          <!-- 3. FILTER BY REGION -->
+          <div>
+            <select id="filter-region" onchange="renderProducts()" class="w-full text-xs border border-neutral-300 rounded-lg p-2 bg-white focus:outline-none focus:ring-1 focus:ring-neutral-900 cursor-pointer font-medium truncate">
+              <option value="ALL" selected>Region</option>
+              <option value="Quảng Trị">Quảng Trị</option>
+              <option value="Điện Biên">Điện Biên</option>
+              <option value="Lâm Đồng">Lâm Đồng</option>
+              <option value="Đắc Lắc">Đắc Lắc</option>
+              <option value="Gia Lai">Gia Lai</option>
+            </select>
+          </div>
         </div>
       </div>
 
@@ -311,46 +313,39 @@
         .trim();
     }
 
-async function fetchProducts() {
-  const cachedData = localStorage.getItem(CACHE_KEY);
+    async function fetchProducts() {
+      const cachedData = localStorage.getItem(CACHE_KEY);
 
-  if (cachedData) {
-    try {
-      PRODUCTS = JSON.parse(cachedData);
-      renderProducts();
-      checkUrlForProduct();
-    } catch (e) {
-      console.error("Lỗi đọc cache:", e);
-    }
-  }
+      if (cachedData) {
+        try {
+          PRODUCTS = JSON.parse(cachedData);
+          renderProducts();
+          checkUrlForProduct();
+        } catch (e) {
+          console.error("Lỗi đọc cache:", e);
+        }
+      }
 
-  try {
-    const res = await fetch(SCRIPT_URL);
-    const data = await res.json();
-    if (Array.isArray(data) && data.length > 0) {
-      // BẮT BUỘC MAP ĐỂ CHUẨN HÓA CẢ REGION LẪN ROAST LEVEL
-      PRODUCTS = data.map(item => ({
-        ...item,
-        region: item.region || item.type || '',
-        roastLevel: item.roastLevel || item.roastlevel || item.roast || item['Roast Level'] || ''
-      }));
-
-      // Cập nhật lại Cache mới chứa đầy đủ roastLevel
-      localStorage.setItem(CACHE_KEY, JSON.stringify(PRODUCTS));
-      localStorage.setItem(CACHE_TIME_KEY, new Date().getTime());
-      renderProducts();
-      checkUrlForProduct();
-    } else if (!cachedData) {
-      document.getElementById('product-grid').innerHTML = 
-        `<div class="col-span-full text-center py-12 text-neutral-400 text-sm">Chưa có sản phẩm nào trong Sheet SanPham.</div>`;
+      try {
+        const res = await fetch(SCRIPT_URL);
+        const data = await res.json();
+        if (Array.isArray(data) && data.length > 0) {
+          PRODUCTS = data;
+          localStorage.setItem(CACHE_KEY, JSON.stringify(data));
+          localStorage.setItem(CACHE_TIME_KEY, new Date().getTime());
+          renderProducts();
+          checkUrlForProduct();
+        } else if (!cachedData) {
+          document.getElementById('product-grid').innerHTML = 
+            `<div class="col-span-full text-center py-12 text-neutral-400 text-sm">Chưa có sản phẩm nào trong Sheet SanPham.</div>`;
+        }
+      } catch (err) {
+        if (!cachedData) {
+          document.getElementById('product-grid').innerHTML = 
+            `<div class="col-span-full text-center py-12 text-red-400 text-sm">Không thể tải dữ liệu sản phẩm từ Google Sheet.</div>`;
+        }
+      }
     }
-  } catch (err) {
-    if (!cachedData) {
-      document.getElementById('product-grid').innerHTML = 
-        `<div class="col-span-full text-center py-12 text-red-400 text-sm">Không thể tải dữ liệu sản phẩm từ Google Sheet.</div>`;
-    }
-  }
-}
 
 function checkUrlForProduct() {
     const urlParams = new URLSearchParams(window.location.search);
@@ -368,25 +363,20 @@ function checkUrlForProduct() {
     }
 }
     function renderProducts() {
-const roastVal = document.getElementById('filter-roast')?.value || 'ALL';
-    const regionVal = document.getElementById('filter-region')?.value || 'ALL';
-    const sortVal = document.getElementById('sort-price')?.value || 'default';
+      const typeVal = document.getElementById('filter-type')?.value || 'ALL';
+      const regionVal = document.getElementById('filter-region')?.value || 'ALL';
+      const sortVal = document.getElementById('sort-price')?.value || 'default';
 
-    let filtered = PRODUCTS.filter(p => {
-            // 1. Lấy giá trị roastLevel/roast
-            const pRoast = (p.roastLevel || p.roastlevel || p.roast || '').toString().trim().toLowerCase();
-            const targetRoast = roastVal.trim().toLowerCase();
+      let filtered = PRODUCTS.filter(p => {
+        const pType = normalizeStr(p.type);
+        const pRegion = normalizeStr(p.region);
 
-            // 2. Lấy giá trị region
-            const pRegion = (p.region || p.type || '').toString().trim().toLowerCase();
-            const targetRegion = regionVal.trim().toLowerCase();
+        const matchType = (typeVal === 'ALL') || pType.includes(normalizeStr(typeVal));
+        const matchRegion = (regionVal === 'ALL') || pRegion.includes(normalizeStr(regionVal));
 
-            // So sánh
-            const matchRoast = (roastVal === 'ALL') || (pRoast !== '' && (pRoast.includes(targetRoast) || targetRoast.includes(pRoast)));
-            const matchRegion = (regionVal === 'ALL') || (pRegion.includes(targetRegion));
+        return matchType && matchRegion;
+      });
 
-            return matchRoast && matchRegion;
-    });
       if (sortVal === 'low-to-high') {
         filtered.sort((a, b) => Number(a.price) - Number(b.price));
       } else if (sortVal === 'high-to-low') {
@@ -759,52 +749,9 @@ async function submitOrder(e) {
   }
 }
 
-    // Hàm đóng/mở Sidebar
-function toggleSidebar() {
-  const menu = document.getElementById('sidebar-menu');
-  const overlay = document.getElementById('sidebar-overlay');
-  if (menu && overlay) {
-    menu.classList.toggle('-translate-x-full');
-    overlay.classList.toggle('hidden');
-  }
-}
-
-// Hàm cuộn mượt xuống đúng nhóm sản phẩm
-function scrollToGroup(groupName) {
-  toggleSidebar(); // Đóng sidebar
-  const element = document.getElementById('group-' + groupName);
-  if (element) {
-    element.scrollIntoView({ behavior: 'smooth', block: 'start' });
-  }
-}
     // Khởi tạo trang
     fetchProducts();
     updateCartUI();
   </script>
-    <!-- OVERLAY MÀN HÌNH MỜ KHI MỞ SIDEBAR -->
-<div id="sidebar-overlay" onclick="toggleSidebar()" class="fixed inset-0 bg-black/40 z-50 hidden transition-opacity"></div>
-
-<!-- KHỐI SIDEBAR MENU TRƯỘT TỪ LỀ TRÁI -->
-<div id="sidebar-menu" class="fixed top-0 left-0 bottom-0 w-64 bg-white z-50 shadow-2xl transform -translate-x-full transition-transform duration-300 ease-in-out p-5 flex flex-col">
-  <div class="flex items-center justify-between border-b pb-4 mb-4">
-    <span class="font-bold text-xs uppercase tracking-wider text-slate-500">Varieties</span>
-    <button onclick="toggleSidebar()" class="text-slate-400 hover:text-slate-700 font-bold text-lg p-1 cursor-pointer">✕</button>
-  </div>
-
-  <nav class="flex flex-col space-y-2 text-sm font-semibold text-slate-700">
-    <button onclick="scrollToGroup('Arabica')" class="flex items-center space-x-3 p-3 rounded-xl hover:bg-amber-50 hover:text-amber-800 text-left transition-colors cursor-pointer">
-      <span>☕ Arabica</span>
-    </button>
-    <button onclick="scrollToGroup('Robusta')" class="flex items-center space-x-3 p-3 rounded-xl hover:bg-amber-50 hover:text-amber-800 text-left transition-colors cursor-pointer">
-      <span>☕ Robusta</span>
-    </button>
-    <button onclick="scrollToGroup('Liberica/Excelsa')" class="flex items-center space-x-3 p-3 rounded-xl hover:bg-amber-50 hover:text-amber-800 text-left transition-colors cursor-pointer">
-      <span>☕ Liberica / Excelsa</span>
-    </button>
-    <button onclick="scrollToGroup('Blended')" class="flex items-center space-x-3 p-3 rounded-xl hover:bg-amber-50 hover:text-amber-800 text-left transition-colors cursor-pointer">
-      <span>☕ Blended</span>
-    </button>
-  </nav>
-</div>
 </body>
 </html>
