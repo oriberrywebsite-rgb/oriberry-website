@@ -713,7 +713,7 @@ async function submitOrder(e) {
     subtotal: subtotalVal,
     discount: discountVal,
     shippingFee: shippingVal,
-    totalAmount: totalVal 
+    totalAmount: subtotalVal - discountVal
   };
 
   try {
