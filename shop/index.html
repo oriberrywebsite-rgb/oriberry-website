@@ -18,28 +18,37 @@
 <!-- HEADER -->
   <header class="sticky top-0 z-50 bg-white/95 backdrop-blur-md border-b border-neutral-200">
     <div class="max-w-7xl mx-auto px-4 md:px-6 h-16 md:h-20 flex items-center justify-between">
-<!-- 1. LOGO ORIBERRY -->
-      <a href="/" class="flex items-center h-full py-0 cursor-pointer">
-        <img 
-          src="https://drive.google.com/thumbnail?id=1UWH1PUiwIDbG9RQsOsBZWDObkaveurvW&sz=w1000" 
-          alt="Oriberry Coffee" 
-          class="h-14 md:h-18 max-h-[85%] w-auto object-contain transition-transform duration-200" 
-          onError="this.style.display='none'; document.getElementById('logo-text-fallback').classList.remove('hidden');"
-        >
-        <span id="logo-text-fallback" class="hidden text-xl md:text-2xl font-bold tracking-wider text-neutral-900 uppercase">ORIBERRY</span>
-      </a>
-      <!-- TIÊU ĐỀ SHOP ONLINE -->
-      <span class="text-xs md:text-sm font-medium tracking-widest text-neutral-500 uppercase">
+      
+      <!-- KHỐI BÊN TRÁI: LOGO + SHOP ONLINE -->
+      <div class="flex items-center space-x-3 md:space-x-4 h-full">
+        <!-- 1. LOGO ORIBERRY -->
+        <a href="/" class="flex items-center h-full py-0 cursor-pointer">
+          <img 
+            src="https://drive.google.com/thumbnail?id=1UWH1PUiwIDbG9RQsOsBZWDObkaveurvW&sz=w1000" 
+            alt="Oriberry Coffee" 
+            class="h-14 md:h-18 max-h-[85%] w-auto object-contain transition-transform duration-200" 
+            onError="this.style.display='none'; document.getElementById('logo-text-fallback').classList.remove('hidden');"
+          >
+          <span id="logo-text-fallback" class="hidden text-xl md:text-2xl font-bold tracking-wider text-neutral-900 uppercase">ORIBERRY</span>
+        </a>
+
+        <!-- Vạch phân cách nhẹ (nếu thích có thể giữ hoặc xóa) -->
+        <span class="text-neutral-300 text-sm select-none">|</span>
+
+        <!-- 2. CHỮ SHOP ONLINE (CĂN TRÁI, NÉT MẢNH) -->
+        <span class="text-xs md:text-sm font-medium tracking-widest text-neutral-500 uppercase">
           SHOP ONLINE
         </span>
       </div>
-      <!-- 2. TRANG CHỦ & GIỎ HÀNG -->
+      
+      <!-- KHỐI BÊN PHẢI: GIỎ HÀNG -->
       <div class="flex items-center space-x-6">
         <button id="cart-btn" onclick="openCart()" class="text-sm font-medium bg-neutral-900 text-white px-4 py-2 flex items-center space-x-2 hover:bg-stone-800 transition-all cursor-pointer rounded-lg">
           <span>Cart</span>
           <span id="cart-count" class="bg-amber-500 text-black text-xs font-bold rounded-full w-5 h-5 flex items-center justify-center">0</span>
         </button>
       </div>
+
     </div>
   </header>
 
