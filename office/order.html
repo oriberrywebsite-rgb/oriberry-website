@@ -285,8 +285,7 @@
       document.getElementById('modalTime').innerText = order.date || '';
 
       // 1. Tiền cà phê (Lấy nguyên gốc từ Google Sheet)
-      document.getElementById('modalSubTotal').innerText = order.total || "0đ";
-
+      document.getElementById('modalSubTotal').innerText = order.subtotal || order.total || "0đ";
       // 2. Tiền ship dự kiến (Nhận diện riêng theo địa chỉ)
       let shippingFee = "25.000đ"; // Mặc định Hà Nội
       const addr = (order.address || "").toLowerCase();
