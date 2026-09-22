@@ -284,16 +284,20 @@
       document.getElementById('modalItems').innerHTML = formatItemsToHTML(order.items);
       document.getElementById('modalTime').innerText = order.date || '';
 
-      // 1. Tiền cà phê (Lấy nguyên gốc từ Google Sheet)
-      document.getElementById('modalSubTotal').innerText = order.subtotal || order.total || "0đ";
-      // 2. Tiền ship dự kiến (Nhận diện riêng theo địa chỉ)
-      let shippingFee = "25.000đ"; // Mặc định Hà Nội
+    // 1. Tiền cà phê (Ưu tiên lấy subtotal, nếu không có thì lấy total)
+      let rawSub = order.subtotal || order.total || "0";
+      if (typeof rawSub === 'number') {
+        rawSub = rawSub.toLocaleString('vi-VN') + 'đ';
+      }
+      document.getElementById('modalSubTotal').innerText = rawSub;
+
+      // 2. Tiền ship dự kiến
+      let shippingFee = order.shippingFee || "25.000đ";
       const addr = (order.address || "").toLowerCase();
       if (addr.includes("tỉnh") || addr.includes("35k")) {
         shippingFee = "35.000đ";
       }
       document.getElementById('modalShippingFee').innerText = shippingFee;
-
       document.getElementById('orderModal').classList.remove('hidden');
     }
 
