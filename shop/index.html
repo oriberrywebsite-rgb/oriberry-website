@@ -311,39 +311,46 @@
         .trim();
     }
 
-    async function fetchProducts() {
-      const cachedData = localStorage.getItem(CACHE_KEY);
+async function fetchProducts() {
+  const cachedData = localStorage.getItem(CACHE_KEY);
 
-      if (cachedData) {
-        try {
-          PRODUCTS = JSON.parse(cachedData);
-          renderProducts();
-          checkUrlForProduct();
-        } catch (e) {
-          console.error("Lỗi đọc cache:", e);
-        }
-      }
-
-      try {
-        const res = await fetch(SCRIPT_URL);
-        const data = await res.json();
-        if (Array.isArray(data) && data.length > 0) {
-          PRODUCTS = data;
-          localStorage.setItem(CACHE_KEY, JSON.stringify(data));
-          localStorage.setItem(CACHE_TIME_KEY, new Date().getTime());
-          renderProducts();
-          checkUrlForProduct();
-        } else if (!cachedData) {
-          document.getElementById('product-grid').innerHTML = 
-            `<div class="col-span-full text-center py-12 text-neutral-400 text-sm">Chưa có sản phẩm nào trong Sheet SanPham.</div>`;
-        }
-      } catch (err) {
-        if (!cachedData) {
-          document.getElementById('product-grid').innerHTML = 
-            `<div class="col-span-full text-center py-12 text-red-400 text-sm">Không thể tải dữ liệu sản phẩm từ Google Sheet.</div>`;
-        }
-      }
+  if (cachedData) {
+    try {
+      PRODUCTS = JSON.parse(cachedData);
+      renderProducts();
+      checkUrlForProduct();
+    } catch (e) {
+      console.error("Lỗi đọc cache:", e);
     }
+  }
+
+  try {
+    const res = await fetch(SCRIPT_URL);
+    const data = await res.json();
+    if (Array.isArray(data) && data.length > 0) {
+      // BẮT BUỘC MAP ĐỂ CHUẨN HÓA CẢ REGION LẪN ROAST LEVEL
+      PRODUCTS = data.map(item => ({
+        ...item,
+        region: item.region || item.type || '',
+        roastLevel: item.roastLevel || item.roastlevel || item.roast || item['Roast Level'] || ''
+      }));
+
+      // Cập nhật lại Cache mới chứa đầy đủ roastLevel
+      localStorage.setItem(CACHE_KEY, JSON.stringify(PRODUCTS));
+      localStorage.setItem(CACHE_TIME_KEY, new Date().getTime());
+      renderProducts();
+      checkUrlForProduct();
+    } else if (!cachedData) {
+      document.getElementById('product-grid').innerHTML = 
+        `<div class="col-span-full text-center py-12 text-neutral-400 text-sm">Chưa có sản phẩm nào trong Sheet SanPham.</div>`;
+    }
+  } catch (err) {
+    if (!cachedData) {
+      document.getElementById('product-grid').innerHTML = 
+        `<div class="col-span-full text-center py-12 text-red-400 text-sm">Không thể tải dữ liệu sản phẩm từ Google Sheet.</div>`;
+    }
+  }
+}
 
 function checkUrlForProduct() {
     const urlParams = new URLSearchParams(window.location.search);
