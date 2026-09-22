@@ -693,28 +693,29 @@ async function submitOrder(e) {
   const fullAddress = `${detailAddress} (${provinceText})`;
   const itemsDetail = cart.map(i => `${i.name} (${i.grind || 'Hạt'}) x${i.qty}`).join(' | ');
 
-  const subtotalVal = document.getElementById('cart-subtotal') ? document.getElementById('cart-subtotal').textContent : '';
-  const discountVal = document.getElementById('cart-discount') ? document.getElementById('cart-discount').textContent : '0đ';
-  const shippingVal = document.getElementById('cart-shipping') ? document.getElementById('cart-shipping').textContent : '0đ';
-  const totalVal = document.getElementById('cart-total-price') ? document.getElementById('cart-total-price').textContent : '';
+    const calculatedSubtotal = cart.reduce((sum, item) => sum + (Number(item.price) * item.quantity), 0);
+    const subtotalVal = calculatedSubtotal.toLocaleString('vi-VN') + 'đ';
+    const discountVal = document.getElementById('cart-discount-price') ? document.getElementById('cart-discount-price').textContent : '0đ';
+    const shippingVal = document.getElementById('cart-shipping-price') ? document.getElementById('cart-shipping-price').textContent : '0đ';
+    const totalVal = document.getElementById('cart-total-price') ? document.getElementById('cart-total-price').textContent : '';
 
-  const submitBtn = document.getElementById('submit-btn');
-  if (submitBtn) {
-    submitBtn.disabled = true;
-    submitBtn.innerText = "SUBMITTING ORDER...";
-  }
+    const submitBtn = document.getElementById('submit-btn');
+    if (submitBtn) {
+      submitBtn.disabled = true;
+      submitBtn.innerText = "SUBMITTING ORDER...";
+    }
 
-  const payload = { 
-    customerName: name, 
-    phone: phone, 
-    address: fullAddress, 
-    note: note, 
-    itemsDetail: itemsDetail, 
-    subtotal: subtotalVal,
-    discount: discountVal,
-    shippingFee: shippingVal,
-    totalAmount: subtotalVal - discountVal
-  };
+    const payload = {
+      customerName: name,
+      phone: phone,
+      address: fullAddress,
+      note: note,
+      itemsDetail: itemsDetail,
+      subtotal: subtotalVal,
+      discount: discountVal,
+      shippingFee: shippingVal,
+      totalAmount: subtotalVal
+    };
 
   try {
     await fetch(SCRIPT_URL, {
