@@ -366,11 +366,17 @@ const roastVal = document.getElementById('filter-roast')?.value || 'ALL';
     const sortVal = document.getElementById('sort-price')?.value || 'default';
 
     let filtered = PRODUCTS.filter(p => {
-      const pRoast = normalizeStr(p.roastLevel);
-      const pRegion = normalizeStr(p.region);
+      // 1. Lấy giá trị roastLevel, chuẩn hóa bỏ khoảng trắng thừa & hạ chữ thường
+      const pRoast = (p.roastLevel || '').toString().trim().toLowerCase();
+      const targetRoast = roastVal.trim().toLowerCase();
 
-      const matchRoast = (roastVal === 'ALL') || pRoast.includes(normalizeStr(roastVal));
-      const matchRegion = (regionVal === 'ALL') || pRegion.includes(normalizeStr(regionVal));
+      // 2. Lấy giá trị region
+      const pRegion = (p.region || p.type || '').toString().trim().toLowerCase();
+      const targetRegion = regionVal.trim().toLowerCase();
+
+      // So sánh chính xác thay vì dùng includes()
+      const matchRoast = (roastVal === 'ALL') || (pRoast === targetRoast);
+      const matchRegion = (regionVal === 'ALL') || (pRegion.includes(targetRegion));
 
       return matchRoast && matchRegion;
     });
