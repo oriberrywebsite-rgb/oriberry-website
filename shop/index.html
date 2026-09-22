@@ -693,7 +693,10 @@ async function submitOrder(e) {
   const fullAddress = `${detailAddress} (${provinceText})`;
   const itemsDetail = cart.map(i => `${i.name} (${i.grind || 'Hạt'}) x${i.qty}`).join(' | ');
   
-  const subtotalVal = document.getElementById('cart-subtotal-price') ? document.getElementById('cart-subtotal-price').textContent.trim() : '';
+// 1. Lấy số nguyên thuần túy (ví dụ: "195.000đ" -> 195000)
+    const rawSubtotalText = document.getElementById('cart-subtotal-price') ? document.getElementById('cart-subtotal-price').textContent : '0';
+    const cleanSubtotalNum = parseInt(rawSubtotalText.replace(/[^0-9]/g, ''), 10) || 0;
+
     const discountVal = document.getElementById('cart-discount-price') ? document.getElementById('cart-discount-price').textContent.trim() : '0đ';
     const shippingVal = document.getElementById('cart-shipping-price') ? document.getElementById('cart-shipping-price').textContent.trim() : '0đ';
 
@@ -709,10 +712,10 @@ async function submitOrder(e) {
       address: fullAddress,
       note: note,
       itemsDetail: itemsDetail,
-      subtotal: subtotalVal,
+      subtotal: cleanSubtotalNum,       // Gửi số 195000
       discount: discountVal,
       shippingFee: shippingVal,
-      totalAmount: subtotalVal
+      totalAmount: cleanSubtotalNum    // CMS sẽ tự định dạng ra 195.000đ, không bao giờ bị NaNđ
     };
   
   try {
