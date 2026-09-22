@@ -382,7 +382,7 @@ const roastVal = document.getElementById('filter-roast')?.value || 'ALL';
       const targetRegion = regionVal.trim().toLowerCase();
 
       // So sánh chính xác thay vì dùng includes()
-      const matchRoast = (roastVal === 'ALL') || (pRoast === targetRoast);
+      const matchRoast = (roastVal === 'ALL') || const matchRoast = (roastVal === 'ALL') || (pRoast !== '' && (pRoast.includes(targetRoast) || targetRoast.includes(pRoast)));
       const matchRegion = (regionVal === 'ALL') || (pRegion.includes(targetRegion));
 
       return matchRoast && matchRegion;
