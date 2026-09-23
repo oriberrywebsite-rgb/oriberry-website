@@ -124,11 +124,6 @@
   <div class="aspect-[4/3] bg-stone-200 mb-3 relative">
     <img id="img-farmers" 
          src="https://res.cloudinary.com/ergvgrnl/image/upload/v1790154215/weworkwithfarmer3_qt.jpg" 
-         data-alt-srcs='[
-           "https://res.cloudinary.com/ergvgrnl/image/upload/v1790154213/weworkwithfarmer1_db.jpg",
-           "https://res.cloudinary.com/ergvgrnl/image/upload/v1790154213/weworkwithfarmer2_ld.jpg",
-           "https://res.cloudinary.com/ergvgrnl/image/upload/v1790154213/weworkwithfarmer4_dl.jpg"
-         ]'
          alt="We work with farmers" 
          class="w-full h-full object-cover transition-opacity duration-1000">
     <span id="label-farmers" class="absolute bottom-2 left-2 bg-black/70 text-white text-[10px] font-medium px-2 py-0.5">
@@ -146,11 +141,10 @@
   <div class="aspect-[4/3] bg-stone-200 mb-3 relative">
     <img id="img-roast" 
          src="https://res.cloudinary.com/ergvgrnl/image/upload/v1790174781/Small_batch_roasting.jpg" 
-         data-alt-src="https://res.cloudinary.com/ergvgrnl/image/upload/v1790175137/5kg-roaster.jpg"
          alt="We roast coffee" 
          class="w-full h-full object-cover transition-opacity duration-1000">
     <span id="label-roast" class="absolute bottom-2 left-2 bg-black/70 text-white text-[10px] font-medium px-2 py-0.5">
-      Micro & Testing Roast
+      Micro Batching
     </span>
   </div>
   <h3 class="text-lg font-serif">We roast coffee</h3>
@@ -390,16 +384,16 @@
   <!-- SCRIPT 1: FLASH CAROUSEL CHO KHỐI 4 -->
   <script>
     const farmersData = [
-      { url: "https://res.cloudinary.com/ergvgrnl/image/upload/v1790154215/weworkwithfarmer3_qt.jpg", label: "Quảng Trị" },
-      { url: "https://res.cloudinary.com/ergvgrnl/image/upload/v1790154213/weworkwithfarmer1_db.jpg", label: "Điện Biên" },
-      { url: "https://res.cloudinary.com/ergvgrnl/image/upload/v1790154213/weworkwithfarmer2_ld.jpg", label: "Lâm Đồng" },
-      { url: "https://res.cloudinary.com/ergvgrnl/image/upload/v1790154213/weworkwithfarmer4_dl.jpg", label: "Đắk Lắk" }
+    { src: "https://res.cloudinary.com/ergvgrnl/image/upload/v1790154215/weworkwithfarmer3_qt.jpg", label: "Quảng Trị" },
+    { src: "https://res.cloudinary.com/ergvgrnl/image/upload/v1790154215/weworkwithfarmers1_mc.jpg", label: "Mộc Châu" },
+    { src: "https://res.cloudinary.com/ergvgrnl/image/upload/v1790154215/weworkwithfarmers2_dl.jpg", label: "Đà Lạt" },
+    { src: "https://res.cloudinary.com/ergvgrnl/image/upload/v1790154215/weworkwithfarmer4_db.jpg", label: "Điện Biên" }
     ];
 
     const roastData = [
-      { url: "https://images.unsplash.com/photo-1514432324607-a09d9b4aefdd?q=80&w=800&auto=format&fit=crop", label: "Micro & Testing Roast" },
-      { url: "https://images.unsplash.com/photo-1511920170033-f8396924c348?q=80&w=800&auto=format&fit=crop", label: "Commercial Roast" }
-    ];
+    { src: "https://res.cloudinary.com/ergvgrnl/image/upload/v1790174781/Small_batch_roasting.jpg", label: "Micro Batching" },
+    { src: "https://res.cloudinary.com/ergvgrnl/image/upload/v1790175137/5kg-roaster.jpg", label: "5kg Roaster Practice" }
+  ];
 
     const shopsData = [
       { url: "https://images.unsplash.com/photo-1501339847302-ac426a4a7cbb?q=80&w=800&auto=format&fit=crop", label: "28 Quảng An" },
