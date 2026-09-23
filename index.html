@@ -153,13 +153,13 @@
   </p>
 </div>
 
-          <!-- Trụ cột 3: Chuỗi quán -->
+<!-- Trụ cột 3: Chuỗi quán -->
           <div class="w-[calc(100vw-2rem)] md:w-auto flex-none snap-start">
             <div class="aspect-[4/3] bg-stone-200 mb-3 relative">
-              <img id="img-shops" src="https://images.unsplash.com/photo-1554118811-1e0d58224f24?q=80&w=800&auto=format&fit=crop" 
+              <img id="img-shops" src="https://res.cloudinary.com/ergvgrnl/image/upload/v1790180137/IMG_20260923_230905.jpg" 
                    alt="We serve coffee and drinks" class="w-full h-full object-cover transition-opacity duration-1000">
               <span id="label-shops" class="absolute bottom-2 left-2 bg-black/70 text-white text-[10px] font-medium px-2 py-0.5">
-                28 Quảng An
+                Quảng An
               </span>
             </div>
             <h3 class="text-lg font-serif">We serve coffee and drinks</h3>
@@ -381,48 +381,47 @@
     </div>
   </footer>
   
-  <!-- SCRIPT 1: FLASH CAROUSEL CHO KHỐI 4 -->
-  <script>
-    const farmersData = [
-    { src: "https://res.cloudinary.com/ergvgrnl/image/upload/v1790154215/weworkwithfarmer3_qt.jpg", label: "Quảng Trị" },
-    { src: "https://res.cloudinary.com/ergvgrnl/image/upload/v1790154215/weworkwithfarmers1_mc.jpg", label: "Mộc Châu" },
-    { src: "https://res.cloudinary.com/ergvgrnl/image/upload/v1790154215/weworkwithfarmers2_dl.jpg", label: "Đà Lạt" },
-    { src: "https://res.cloudinary.com/ergvgrnl/image/upload/v1790154215/weworkwithfarmer4_db.jpg", label: "Điện Biên" }
-    ];
-
-    const roastData = [
-    { src: "https://res.cloudinary.com/ergvgrnl/image/upload/v1790174781/Small_batch_roasting.jpg", label: "Micro Batching" },
-    { src: "https://res.cloudinary.com/ergvgrnl/image/upload/v1790175137/5kg-roaster.jpg", label: "5kg Roaster Practice" }
+// <!-- SCRIPT 1: FLASH CAROUSEL CHO KHỐI 4 -->
+  const farmersData = [
+    { url: "https://res.cloudinary.com/ergvgrnl/image/upload/v1790154215/weworkwithfarmer3_qt.jpg", label: "Quảng Trị" },
+    { url: "https://res.cloudinary.com/ergvgrnl/image/upload/v1790154215/weworkwithfarmers1_mc.jpg", label: "Mộc Châu" },
+    { url: "https://res.cloudinary.com/ergvgrnl/image/upload/v1790154215/weworkwithfarmers2_dl.jpg", label: "Đà Lạt" },
+    { url: "https://res.cloudinary.com/ergvgrnl/image/upload/v1790154215/weworkwithfarmer4_db.jpg", label: "Điện Biên" }
   ];
 
-    const shopsData = [
-      { url: "https://images.unsplash.com/photo-1501339847302-ac426a4a7cbb?q=80&w=800&auto=format&fit=crop", label: "28 Quảng An" },
-      { url: "https://images.unsplash.com/photo-1554118811-1e0d58224f24?q=80&w=800&auto=format&fit=crop", label: "24A Tô Ngọc Vân" },
-      { url: "https://images.unsplash.com/photo-1442512595331-e89e73853f31?q=80&w=800&auto=format&fit=crop", label: "1 Phạm Sư Mạnh" },
-      { url: "https://images.unsplash.com/photo-1495474472287-4d71bcdd2085?q=80&w=800&auto=format&fit=crop", label: "6A Phạm Sư Mạnh" },
-      { url: "https://images.unsplash.com/photo-1521017432531-fbd92d768814?q=80&w=800&auto=format&fit=crop", label: "11B Tông Đản" },
-      { url: "https://images.unsplash.com/photo-1559925393-8be0ec4767c8?q=80&w=800&auto=format&fit=crop", label: "23-25 Đặng Tiến Đông" }
-    ];
+  const roastData = [
+    { url: "https://res.cloudinary.com/ergvgrnl/image/upload/v1790174781/Small_batch_roasting.jpg", label: "Micro Batching" },
+    { url: "https://res.cloudinary.com/ergvgrnl/image/upload/v1790175137/5kg-roaster.jpg", label: "5kg Roaster Practice" }
+  ];
 
-    function startFlashCarousel(imgId, labelId, dataArray, intervalMs) {
-      let index = 0;
-      const imgEl = document.getElementById(imgId);
-      const labelEl = document.getElementById(labelId);
+  const shopsData = [
+    { url: "https://res.cloudinary.com/ergvgrnl/image/upload/v1790180137/IMG_20260923_230905.jpg", label: "Quảng An" },
+    { url: "https://res.cloudinary.com/ergvgrnl/image/upload/v1790180135/IMG_20260923_231044.jpg", label: "Tô Ngọc Vân" },
+    { url: "https://res.cloudinary.com/ergvgrnl/image/upload/v1790180135/IMG_20260923_230912.jpg", label: "1 Phạm Sư Mạnh" },
+    { url: "https://res.cloudinary.com/ergvgrnl/image/upload/v1790180136/IMG_20260923_230910.jpg", label: "6A Phạm Sư Mạnh" },
+    { url: "https://res.cloudinary.com/ergvgrnl/image/upload/v1790180137/IMG_20260923_230908.jpg", label: "11B Tông Đản" },
+    { url: "https://res.cloudinary.com/ergvgrnl/image/upload/v1790180139/IMG_20260923_230901.jpg", label: "23-25 Đặng Tiến Đông" }
+  ];
 
-      setInterval(() => {
-        index = (index + 1) % dataArray.length;
-        imgEl.style.opacity = '0';
-        setTimeout(() => {
-          imgEl.src = dataArray[index].url;
-          labelEl.textContent = dataArray[index].label;
-          imgEl.style.opacity = '1';
-        }, 300);
-      }, intervalMs);
-    }
+  function startFlashCarousel(imgId, labelId, dataArray, intervalMs) {
+    let index = 0;
+    const imgEl = document.getElementById(imgId);
+    const labelEl = document.getElementById(labelId);
 
-    startFlashCarousel('img-farmers', 'label-farmers', farmersData, 3500);
-    startFlashCarousel('img-roast', 'label-roast', roastData, 4500);
-    startFlashCarousel('img-shops', 'label-shops', shopsData, 3000);
+    setInterval(() => {
+      index = (index + 1) % dataArray.length;
+      imgEl.style.opacity = '0';
+      setTimeout(() => {
+        imgEl.src = dataArray[index].url;
+        labelEl.textContent = dataArray[index].label;
+        imgEl.style.opacity = '1';
+      }, 300);
+    }, intervalMs);
+  }
+
+  startFlashCarousel('img-farmers', 'label-farmers', farmersData, 3500);
+  startFlashCarousel('img-roast', 'label-roast', roastData, 4500);
+  startFlashCarousel('img-shops', 'label-shops', shopsData, 3000);
 
     // SCRIPT 2: TẢI TRƯỚC DỮ LIỆU TỪ GOOGLE SCRIPT CHO TRANG SHOP
     window.addEventListener('load', () => {
