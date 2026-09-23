@@ -408,14 +408,20 @@
     const imgEl = document.getElementById(imgId);
     const labelEl = document.getElementById(labelId);
 
+    if (!imgEl || !labelEl || !dataArray || dataArray.length === 0) return;
+
+    // Đảm bảo thuộc tính transition được gán trực tiếp để hiệu ứng mờ diễn ra mượt
+    imgEl.style.transition = 'opacity 0.5s ease-in-out';
+
     setInterval(() => {
       index = (index + 1) % dataArray.length;
       imgEl.style.opacity = '0';
+      
       setTimeout(() => {
         imgEl.src = dataArray[index].url;
-        labelEl.textContent = dataArray[index].label;
+        if (labelEl) labelEl.textContent = dataArray[index].label;
         imgEl.style.opacity = '1';
-      }, 300);
+      }, 500);
     }, intervalMs);
   }
 
