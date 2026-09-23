@@ -122,12 +122,12 @@
 
 <!-- Trụ cột 1: Nông dân -->
 <div class="w-[calc(100vw-2rem)] md:w-auto flex-none snap-start">
-  <div class="aspect-[4/3] bg-stone-200 mb-3 relative">
+  <div class="aspect-[4/3] bg-stone-200 mb-3 relative overflow-hidden">
     <img id="img-farmers" 
          src="https://res.cloudinary.com/ergvgrnl/image/upload/v1790154215/weworkwithfarmer3_qt.jpg" 
          alt="We work with farmers" 
-         class="w-full h-full object-cover transition-opacity duration-1000">
-    <span id="label-farmers" class="absolute bottom-2 left-2 bg-black/70 text-white text-[10px] font-medium px-2 py-0.5">
+         class="w-full h-full object-cover transition-opacity duration-700">
+    <span id="label-farmers" class="absolute bottom-2 left-2 bg-black/70 text-white text-[10px] font-medium px-2 py-0.5 z-10">
       Quảng Trị
     </span>
   </div>
@@ -139,12 +139,12 @@
 
 <!-- Trụ cột 2: Xưởng rang -->
 <div class="w-[calc(100vw-2rem)] md:w-auto flex-none snap-start">
-  <div class="aspect-[4/3] bg-stone-200 mb-3 relative">
+  <div class="aspect-[4/3] bg-stone-200 mb-3 relative overflow-hidden">
     <img id="img-roast" 
          src="https://res.cloudinary.com/ergvgrnl/image/upload/v1790174781/Small_batch_roasting.jpg" 
          alt="We roast coffee" 
-         class="w-full h-full object-cover transition-opacity duration-1000">
-    <span id="label-roast" class="absolute bottom-2 left-2 bg-black/70 text-white text-[10px] font-medium px-2 py-0.5">
+         class="w-full h-full object-cover transition-opacity duration-700">
+    <span id="label-roast" class="absolute bottom-2 left-2 bg-black/70 text-white text-[10px] font-medium px-2 py-0.5 z-10">
       Micro Batching
     </span>
   </div>
@@ -156,12 +156,12 @@
 
 <!-- Trụ cột 3: Chuỗi quán -->
 <div class="w-[calc(100vw-2rem)] md:w-auto flex-none snap-start">
-  <div class="aspect-[4/3] bg-stone-200 mb-3 relative">
+  <div class="aspect-[4/3] bg-stone-200 mb-3 relative overflow-hidden">
     <img id="img-shops" 
          src="https://res.cloudinary.com/ergvgrnl/image/upload/v1790180137/IMG_20260923_230905.jpg" 
          alt="We serve coffee and drinks" 
-         class="w-full h-full object-cover transition-opacity duration-1000">
-    <span id="label-shops" class="absolute bottom-2 left-2 bg-black/70 text-white text-[10px] font-medium px-2 py-0.5">
+         class="w-full h-full object-cover transition-opacity duration-700">
+    <span id="label-shops" class="absolute bottom-2 left-2 bg-black/70 text-white text-[10px] font-medium px-2 py-0.5 z-10">
       Quảng An
     </span>
   </div>
@@ -414,18 +414,19 @@
 
       index = (index + 1) % dataArray.length;
 
-      // Xóa hết inline style cũ nếu có để tránh xung đột
-      imgEl.style.opacity = '';
-
-      // Tắt hiển thị mờ dần bằng Tailwind class
+      // Làm mờ ảnh cũ trước
       imgEl.classList.add('opacity-0');
 
       setTimeout(() => {
-        imgEl.src = dataArray[index].url;
-        if (labelEl) labelEl.textContent = dataArray[index].label;
-        // Bật lại ảnh mượt mà
-        imgEl.classList.remove('opacity-0');
-      }, 500);
+        // Tạo Temp Image để preload ảnh mới trước khi thay src thật, tránh bị trắng/giật
+        const tempImg = new Image();
+        tempImg.src = dataArray[index].url;
+        tempImg.onload = () => {
+          imgEl.src = dataArray[index].url;
+          if (labelEl) labelEl.textContent = dataArray[index].label;
+          imgEl.classList.remove('opacity-0');
+        };
+      }, 400);
     }, intervalMs);
   }
 
