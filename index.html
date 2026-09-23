@@ -119,6 +119,7 @@
         </div>
 
         <div class="flex md:grid md:grid-cols-3 gap-5 overflow-x-auto no-scrollbar snap-x snap-mandatory">
+
 <!-- Trụ cột 1: Nông dân -->
 <div class="w-[calc(100vw-2rem)] md:w-auto flex-none snap-start">
   <div class="aspect-[4/3] bg-stone-200 mb-3 relative">
@@ -154,22 +155,21 @@
 </div>
 
 <!-- Trụ cột 3: Chuỗi quán -->
-          <div class="w-[calc(100vw-2rem)] md:w-auto flex-none snap-start">
-            <div class="aspect-[4/3] bg-stone-200 mb-3 relative">
-              <img id="img-shops" src="https://res.cloudinary.com/ergvgrnl/image/upload/v1790180137/IMG_20260923_230905.jpg" 
-                   alt="We serve coffee and drinks" class="w-full h-full object-cover transition-opacity duration-1000">
-              <span id="label-shops" class="absolute bottom-2 left-2 bg-black/70 text-white text-[10px] font-medium px-2 py-0.5">
-                Quảng An
-              </span>
-            </div>
-            <h3 class="text-lg font-serif">We serve coffee and drinks</h3>
-            <p class="mt-1 text-xs text-brand-muted leading-relaxed">
-              Connecting urban consumers directly with farming communities through 6 authentic coffee shops across Hanoi.
-            </p>
-          </div>
-        </div>
-      </div>
-    </section>
+<div class="w-[calc(100vw-2rem)] md:w-auto flex-none snap-start">
+  <div class="aspect-[4/3] bg-stone-200 mb-3 relative">
+    <img id="img-shops" 
+         src="https://res.cloudinary.com/ergvgrnl/image/upload/v1790180137/IMG_20260923_230905.jpg" 
+         alt="We serve coffee and drinks" 
+         class="w-full h-full object-cover transition-opacity duration-1000">
+    <span id="label-shops" class="absolute bottom-2 left-2 bg-black/70 text-white text-[10px] font-medium px-2 py-0.5">
+      Quảng An
+    </span>
+  </div>
+  <h3 class="text-lg font-serif">We serve coffee and drinks</h3>
+  <p class="mt-1 text-xs text-brand-muted leading-relaxed">
+    Connecting urban consumers directly with farming communities through 6 authentic coffee shops across Hanoi.
+  </p>
+</div>
 
     <!-- KHỐI 5: SẢN PHẨM CÀ PHÊ HẠT NỔI BẬT (GET OUR COFFEE - SECTION #FEATURED) -->
     <section id="featured" class="py-6 md:py-10 bg-brand-card border-y border-brand-border/60">
@@ -405,22 +405,23 @@
 
   function startFlashCarousel(imgId, labelId, dataArray, intervalMs) {
     let index = 0;
-    const imgEl = document.getElementById(imgId);
-    const labelEl = document.getElementById(labelId);
-
-    if (!imgEl || !labelEl || !dataArray || dataArray.length === 0) return;
-
-    // Đảm bảo thuộc tính transition được gán trực tiếp để hiệu ứng mờ diễn ra mượt
-    imgEl.style.transition = 'opacity 0.5s ease-in-out';
 
     setInterval(() => {
+      // Tìm lại element mỗi chu kỳ để đảm bảo DOM đã ready
+      const imgEl = document.getElementById(imgId);
+      const labelEl = document.getElementById(labelId);
+
+      if (!imgEl || !dataArray || dataArray.length === 0) return;
+
       index = (index + 1) % dataArray.length;
-      imgEl.style.opacity = '0';
-      
+
+      // Sử dụng class Tailwind opacity-0 để mờ dần đồng bộ với transition-opacity duration-1000
+      imgEl.classList.add('opacity-0');
+
       setTimeout(() => {
         imgEl.src = dataArray[index].url;
         if (labelEl) labelEl.textContent = dataArray[index].label;
-        imgEl.style.opacity = '1';
+        imgEl.classList.remove('opacity-0');
       }, 500);
     }, intervalMs);
   }
