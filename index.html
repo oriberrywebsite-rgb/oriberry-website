@@ -393,11 +393,17 @@
       { url: "https://res.cloudinary.com/ergvgrnl/image/upload/v1790180139/IMG_20260923_230901.jpg", label: "23-25 Đặng Tiến Đông" }
     ];
 
-    // 2. HÀM CHUYỂN ẢNH VỚI HIỆU ỨNG FADE MƯỢT
+    // 2. HÀM CHUYỂN ẢNH MƯỢT
     function startSimpleCarousel(imgId, labelId, dataArray, intervalMs) {
       const imgEl = document.getElementById(imgId);
       const labelEl = document.getElementById(labelId);
-      if (!imgEl || !dataArray || dataArray.length === 0) return;
+      if (!imgEl || !dataArray || dataArray.length <= 1) return;
+
+      // Preload ảnh
+      dataArray.forEach(item => {
+        const img = new Image();
+        img.src = item.url;
+      });
 
       let currentIndex = 0;
 
@@ -409,12 +415,12 @@
           imgEl.src = dataArray[currentIndex].url;
           if (labelEl) labelEl.textContent = dataArray[currentIndex].label;
           imgEl.style.opacity = '1';
-        }, 300);
+        }, 500);
 
       }, intervalMs);
     }
 
-    // 3. KHỞI CHẠY CAROUSEL VÀ TẢI TRƯỚC GOOGLE SCRIPT
+    // 3. KHỞI CHẠY
     document.addEventListener('DOMContentLoaded', () => {
       startSimpleCarousel('img-farmers', 'label-farmers', farmersData, 3500);
       startSimpleCarousel('img-roast', 'label-roast', roastData, 4500);
