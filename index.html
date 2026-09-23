@@ -1,16 +1,18 @@
 <!DOCTYPE html>
 <html lang="vi">
 <head>
+  <!-- KHỐI 1: CẤU HÌNH KỸ THUẬT & TỐI ƯU HÓA (HEAD & STYLES) -->
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Oriberry — Farm, Roastery, Shops</title>
   
-  <!-- PREFETCH TRANG SHOP VÀ DATA ĐỂ TẢI TRƯỚC BẮT ĐẦU TỪ TRANG CHỦ -->
+  <!-- PREFETCH TRANG SHOP VÀ DỮ LIỆU ĐỂ TẢI TRƯỚC TỪ TRANG CHỦ -->
   <link rel="prefetch" href="/shop/">
   <link rel="dns-prefetch" href="https://script.google.com">
   
   <!-- Tailwind CSS CDN -->
   <script src="https://cdn.tailwindcss.com"></script>
+  
   <!-- Google Fonts -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -55,11 +57,12 @@
 </head>
 <body class="bg-brand-bg text-brand-text font-sans antialiased selection:bg-stone-200 overflow-x-hidden">
 
-  <!-- HEADER -->
+  <!-- KHỐI 2: THANH ĐIỀU HƯỚNG (HEADER & NAVIGATION) -->
   <header class="sticky top-0 z-50 bg-brand-bg/95 backdrop-blur-md border-b border-brand-border/80">
     <div class="max-w-7xl mx-auto px-4 md:px-6 h-16 md:h-20 flex items-center justify-between">
-<a href="#" class="font-logo text-3xl md:text-5xl font-bold tracking-wider text-brand-text uppercase">ORIBERRY</a>
+      <a href="#" class="font-logo text-3xl md:text-5xl font-bold tracking-wider text-brand-text uppercase">ORIBERRY</a>
       
+      <!-- Menu điều hướng trang chủ -->
       <nav class="hidden md:flex space-x-8 text-sm font-medium tracking-wide text-brand-muted">
         <a href="#featured" class="hover:text-brand-text transition-colors">Get Our Coffee</a>
         <a href="#shops" class="hover:text-brand-text transition-colors">Order Food & Drinks</a>
@@ -67,6 +70,7 @@
         <a href="#contact" class="hover:text-brand-text transition-colors">Chat with us</a>
       </nav>
 
+      <!-- Các nút chuyển trang chính (Call-to-Action) -->
       <div class="flex items-center space-x-2">
         <a href="https://oriberry-website.pages.dev/order/" target="_blank" class="text-xs md:text-sm font-medium bg-brand-text text-brand-bg px-4 py-2 hover:bg-stone-800 transition-all">
           Order Drinks &rarr;
@@ -79,7 +83,7 @@
   </header>
 
   <main>
-    <!-- HERO SECTION -->
+    <!-- KHỐI 3: BANNER BÌA & TUYÊN BỐ SỨ MỆNH (HERO SECTION) -->
     <section class="pt-4 pb-6 md:pt-6 md:pb-10 px-4 md:px-6">
       <div class="max-w-7xl mx-auto">
         <div class="relative w-full h-[240px] md:h-[320px] bg-stone-300">
@@ -97,12 +101,12 @@
         </div>
 
         <p class="mt-4 text-xs md:text-sm text-brand-text font-normal leading-relaxed max-w-4xl">
-          Oriberry is Vietnamese Social Enterprise. We and our farmers fight poverty together by producing great Vietnamese coffee.
+          Oriberry is a Vietnamese Social Enterprise. We and our farmers fight poverty together by producing great Vietnamese coffee.
         </p>
       </div>
     </section>
 
-    <!-- ROOTED IN IMPACT -->
+    <!-- KHỐI 4: GIÁ TRỊ CỐT LÕI & CAROUSEL CHUYỂN ĐỔI (ROOTED IN IMPACT - SECTION #CORE) -->
     <section id="core" class="py-6 md:py-10 border-t border-brand-border/60">
       <div class="max-w-7xl mx-auto px-4 md:px-6">
         <div class="mb-4 flex justify-between items-end">
@@ -115,6 +119,7 @@
         </div>
 
         <div class="flex md:grid md:grid-cols-3 gap-5 overflow-x-auto no-scrollbar snap-x snap-mandatory">
+          <!-- Trụ cột 1: Nông dân -->
           <div class="w-[calc(100vw-2rem)] md:w-auto flex-none snap-start">
             <div class="aspect-[4/3] bg-stone-200 mb-3 relative">
               <img id="img-farmers" src="https://lh3.googleusercontent.com/d/1ovCK034G7Ni-jasp8iwrcUnB-3uh-HqI" 
@@ -129,6 +134,7 @@
             </p>
           </div>
 
+          <!-- Trụ cột 2: Xưởng rang -->
           <div class="w-[calc(100vw-2rem)] md:w-auto flex-none snap-start">
             <div class="aspect-[4/3] bg-stone-200 mb-3 relative">
               <img id="img-roast" src="https://images.unsplash.com/photo-1514432324607-a09d9b4aefdd?q=80&w=800&auto=format&fit=crop" 
@@ -143,6 +149,7 @@
             </p>
           </div>
 
+          <!-- Trụ cột 3: Chuỗi quán -->
           <div class="w-[calc(100vw-2rem)] md:w-auto flex-none snap-start">
             <div class="aspect-[4/3] bg-stone-200 mb-3 relative">
               <img id="img-shops" src="https://images.unsplash.com/photo-1554118811-1e0d58224f24?q=80&w=800&auto=format&fit=crop" 
@@ -160,7 +167,7 @@
       </div>
     </section>
 
-    <!-- GET OUR COFFEE (HTML TĨNH - HIỂN THỊ CỰC NHANH KHÔNG CẦN CHỜ FETCH) -->
+    <!-- KHỐI 5: SẢN PHẨM CÀ PHÊ HẠT NỔI BẬT (GET OUR COFFEE - SECTION #FEATURED) -->
     <section id="featured" class="py-6 md:py-10 bg-brand-card border-y border-brand-border/60">
       <div class="max-w-7xl mx-auto px-4 md:px-6">
         <div class="mb-4 flex justify-between items-center">
@@ -171,13 +178,13 @@
         </div>
 
         <div class="flex md:grid md:grid-cols-3 gap-5 overflow-x-auto no-scrollbar snap-x snap-mandatory">
-          <!-- Sản phẩm 1 -->
+          <!-- Sản phẩm 1: Đà Lạt Catimor -->
           <div class="w-[calc(100vw-2rem)] md:w-auto flex-none snap-start bg-brand-bg border border-brand-border p-4 flex flex-col justify-between">
             <div>
               <div class="aspect-[4/5] bg-stone-200 mb-3 overflow-hidden">
-<a href="/shop/?id=DMDL">
-  <img src="https://raw.githubusercontent.com/oriberrywebsite-rgb/oriberry-website/affdb02b7e9a6a468f6c7689e51b586590581c3d/Images/Shop/LD.catimor1.jpg" alt="Da Lat Catimor" class="w-full h-full object-cover hover:scale-105 transition-transform duration-300">
-</a>
+                <a href="/shop/?id=DMDL">
+                  <img src="https://raw.githubusercontent.com/oriberrywebsite-rgb/oriberry-website/affdb02b7e9a6a468f6c7689e51b586590581c3d/Images/Shop/LD.catimor1.jpg" alt="Da Lat Catimor" class="w-full h-full object-cover hover:scale-105 transition-transform duration-300">
+                </a>
               </div>
               <h3 class="text-lg font-serif line-clamp-1">Da Lat Catimor</h3>
               <p class="mt-1 text-xs text-brand-muted line-clamp-2">This Catimor washed from Da Lat delivers a cup that walks the line between brightness and restraint.</p>
@@ -196,13 +203,13 @@
             </div>
           </div>
 
-          <!-- Sản phẩm 2 -->
+          <!-- Sản phẩm 2: Mường Phăng -->
           <div class="w-[calc(100vw-2rem)] md:w-auto flex-none snap-start bg-brand-bg border border-brand-border p-4 flex flex-col justify-between">
             <div>
               <div class="aspect-[4/5] bg-stone-200 mb-3 overflow-hidden">
-     <a href="/shop/?id=MF">
-  <img src="https://raw.githubusercontent.com/oriberrywebsite-rgb/oriberry-website/affdb02b7e9a6a468f6c7689e51b586590581c3d/Images/Shop/DB.catimor2.jpg" alt="Muong Phang Shade-Grown" class="w-full h-full object-cover hover:scale-105 transition-transform duration-300">
-</a>
+                <a href="/shop/?id=MF">
+                  <img src="https://raw.githubusercontent.com/oriberrywebsite-rgb/oriberry-website/affdb02b7e9a6a468f6c7689e51b586590581c3d/Images/Shop/DB.catimor2.jpg" alt="Muong Phang Shade-Grown" class="w-full h-full object-cover hover:scale-105 transition-transform duration-300">
+                </a>
               </div>
               <h3 class="text-lg font-serif line-clamp-1">Muong Phang Shade-Grown</h3>
               <p class="mt-1 text-xs text-brand-muted line-clamp-2">This washed Catimor from the shaded highlands of Mường Phăng offers a cup that's both refined and quietly distinctive.</p>
@@ -221,13 +228,13 @@
             </div>
           </div>
 
-          <!-- Sản phẩm 3 -->
+          <!-- Sản phẩm 3: Khe Sanh Chari -->
           <div class="w-[calc(100vw-2rem)] md:w-auto flex-none snap-start bg-brand-bg border border-brand-border p-4 flex flex-col justify-between">
             <div>
               <div class="aspect-[4/5] bg-stone-200 mb-3 overflow-hidden">
-<a href="/shop/?id=MIT">
-  <img src="https://raw.githubusercontent.com/oriberrywebsite-rgb/oriberry-website/affdb02b7e9a6a468f6c7689e51b586590581c3d/Images/Shop/QT.cafemit1.jpg" alt="Khe Sanh Chari" class="w-full h-full object-cover hover:scale-105 transition-transform duration-300">
-</a>
+                <a href="/shop/?id=MIT">
+                  <img src="https://raw.githubusercontent.com/oriberrywebsite-rgb/oriberry-website/affdb02b7e9a6a468f6c7689e51b586590581c3d/Images/Shop/QT.cafemit1.jpg" alt="Khe Sanh Chari" class="w-full h-full object-cover hover:scale-105 transition-transform duration-300">
+                </a>
               </div>
               <h3 class="text-lg font-serif line-clamp-1">Khe Sanh Chari</h3>
               <p class="mt-1 text-xs text-brand-muted line-clamp-2">It is a coffee with a strong sense of place and identity — sweet, rustic and distinctive rather than polished into a generic specialty-coffee profile.</p>
@@ -249,7 +256,7 @@
       </div>
     </section>
 
-    <!-- Order Food & Drinks -->
+    <!-- KHỐI 6: ĐẶT ĐỒ ĂN & ĐỒ UỐNG TẠI QUÁN (ORDER FOOD & DRINKS - SECTION #SHOPS) -->
     <section id="shops" class="py-6 md:py-10">
       <div class="max-w-7xl mx-auto px-4 md:px-6">
         <div class="mb-4 flex justify-between items-center">
@@ -260,6 +267,7 @@
         </div>
 
         <div class="flex md:grid md:grid-cols-3 gap-5 overflow-x-auto no-scrollbar snap-x snap-mandatory">
+          <!-- Nhóm 1: Handbrew -->
           <div class="w-[calc(100vw-2rem)] md:w-auto flex-none snap-start border border-brand-border bg-brand-bg p-4 flex flex-col justify-between">
             <div>
               <div class="aspect-[16/10] bg-stone-200 mb-3">
@@ -269,15 +277,16 @@
               <p class="mt-1 text-xs text-brand-muted">Pha thủ công V60 / Aeropress chiết xuất hương vị hạt Arabica bản địa.</p>
             </div>
             <div class="mt-4 grid grid-cols-2 gap-2">
-              <a href="https://oriberry-website.pages.dev/order/" target="_blank" class="text-center text-[11px] font-medium border border-brand-text py-1.5 hover:bg-brand-text hover:text-brand-bg">
+              <a href="https://oriberry-website.pages.dev/order/" target="_blank" class="text-center text-[11px] font-medium border border-brand-text py-1.5 hover:bg-brand-text hover:text-brand-bg transition-colors">
                 Order Pickup
               </a>
-              <a href="https://oriberry-website.pages.dev/order/" target="_blank" class="text-center text-[11px] font-medium bg-brand-text text-brand-bg py-1.5 hover:bg-stone-800">
+              <a href="https://oriberry-website.pages.dev/order/" target="_blank" class="text-center text-[11px] font-medium bg-brand-text text-brand-bg py-1.5 hover:bg-stone-800 transition-colors">
                 Order Delivery
               </a>
             </div>
           </div>
 
+          <!-- Nhóm 2: Cà phê Phin -->
           <div class="w-[calc(100vw-2rem)] md:w-auto flex-none snap-start border border-brand-border bg-brand-bg p-4 flex flex-col justify-between">
             <div>
               <div class="aspect-[16/10] bg-stone-200 mb-3">
@@ -287,15 +296,16 @@
               <p class="mt-1 text-xs text-brand-muted">Cà phê Phin truyền thống từ Robusta Quảng Trị đậm đà hậu vị ngọt.</p>
             </div>
             <div class="mt-4 grid grid-cols-2 gap-2">
-              <a href="https://oriberry-website.pages.dev/order/" target="_blank" class="text-center text-[11px] font-medium border border-brand-text py-1.5 hover:bg-brand-text hover:text-brand-bg">
+              <a href="https://oriberry-website.pages.dev/order/" target="_blank" class="text-center text-[11px] font-medium border border-brand-text py-1.5 hover:bg-brand-text hover:text-brand-bg transition-colors">
                 Order Pickup
               </a>
-              <a href="https://oriberry-website.pages.dev/order/" target="_blank" class="text-center text-[11px] font-medium bg-brand-text text-brand-bg py-1.5 hover:bg-stone-800">
+              <a href="https://oriberry-website.pages.dev/order/" target="_blank" class="text-center text-[11px] font-medium bg-brand-text text-brand-bg py-1.5 hover:bg-stone-800 transition-colors">
                 Order Delivery
               </a>
             </div>
           </div>
 
+          <!-- Nhóm 3: Trà & Bánh -->
           <div class="w-[calc(100vw-2rem)] md:w-auto flex-none snap-start border border-brand-border bg-brand-bg p-4 flex flex-col justify-between">
             <div>
               <div class="aspect-[16/10] bg-stone-200 mb-3">
@@ -305,10 +315,10 @@
               <p class="mt-1 text-xs text-brand-muted">Trà cổ thụ vùng cao kết hợp bánh ngọt mộc mạc.</p>
             </div>
             <div class="mt-4 grid grid-cols-2 gap-2">
-              <a href="https://oriberry-website.pages.dev/order/" target="_blank" class="text-center text-[11px] font-medium border border-brand-text py-1.5 hover:bg-brand-text hover:text-brand-bg">
+              <a href="https://oriberry-website.pages.dev/order/" target="_blank" class="text-center text-[11px] font-medium border border-brand-text py-1.5 hover:bg-brand-text hover:text-brand-bg transition-colors">
                 Order Pickup
               </a>
-              <a href="https://oriberry-website.pages.dev/order/" target="_blank" class="text-center text-[11px] font-medium bg-brand-text text-brand-bg py-1.5 hover:bg-stone-800">
+              <a href="https://oriberry-website.pages.dev/order/" target="_blank" class="text-center text-[11px] font-medium bg-brand-text text-brand-bg py-1.5 hover:bg-stone-800 transition-colors">
                 Order Delivery
               </a>
             </div>
@@ -317,7 +327,7 @@
       </div>
     </section>
 
-    <!-- WE & OUR FARMERS -->
+    <!-- KHỐI 7: CÂU CHUYỆN BỀN VỮNG (WE & OUR FARMERS - SECTION #STORIES) -->
     <section id="stories" class="py-6 md:py-10 bg-brand-card border-t border-brand-border/60">
       <div class="max-w-7xl mx-auto px-4 md:px-6">
         <div class="mb-4 flex justify-between items-center">
@@ -358,6 +368,7 @@
     </section>
   </main>
 
+  <!-- KHỐI 8: CHÂN TRANG & MÃ TẢI TỰ ĐỘNG (FOOTER & BACKGROUND SCRIPTS) -->
   <footer id="contact" class="bg-brand-bg border-t border-brand-border py-8 md:py-12">
     <div class="max-w-7xl mx-auto px-4 md:px-6 grid md:grid-cols-4 gap-6">
       <div class="md:col-span-2">
@@ -378,13 +389,13 @@
     </div>
   </footer>
 
-  <!-- SCRIPT FLASH CAROUSEL -->
+  <!-- SCRIPT 1: FLASH CAROUSEL CHO KHỐI 4 -->
   <script>
     const farmersData = [
       { url: "https://lh3.googleusercontent.com/d/1ovCK034G7Ni-jasp8iwrcUnB-3uh-HqI", label: "Quảng Trị" },
       { url: "https://lh3.googleusercontent.com/d/1TegMGgnA8LYnRn-p1XCy0seyc4ZrTDpW", label: "Điện Biên" },
       { url: "https://lh3.googleusercontent.com/d/1GVSQA7fut3hp4WGvivI_RXN5VszxJRAz", label: "Lâm Đồng" },
-      { url: "https://lh3.googleusercontent.com/d/1xI0kbZ5SIjkBDdb6Cw9d9bcViCyQALNH", label: "Đắk Lắk" }
+      { url: "https://lh3.googleusercontent.com/d/1xI0kbZ5SIjkBDdb6Cw9d9bcViCyQALNH", label: "Đắc Lắc" }
     ];
 
     const roastData = [
@@ -421,7 +432,7 @@
     startFlashCarousel('img-roast', 'label-roast', roastData, 4500);
     startFlashCarousel('img-shops', 'label-shops', shopsData, 3000);
 
-    // SCRIPT BACKGROUND PRELOAD DỮ LIỆU TỪ GOOGLE SCRIPT CHO SHOP
+    // SCRIPT 2: TẢI TRƯỚC DỮ LIỆU TỪ GOOGLE SCRIPT CHO TRANG SHOP
     window.addEventListener('load', () => {
       setTimeout(() => {
         fetch("https://script.google.com/macros/s/AKfycbzoWopdIwcIH1mI6i0LNZP3YLK_U7zjIc6iMwLEdyCNuZ4L4jAwop8QWc6g0v06Qs_f/exec", { cache: 'force-cache' })
