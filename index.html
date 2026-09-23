@@ -407,7 +407,6 @@
     let index = 0;
 
     setInterval(() => {
-      // Tìm lại element mỗi chu kỳ để đảm bảo DOM đã ready
       const imgEl = document.getElementById(imgId);
       const labelEl = document.getElementById(labelId);
 
@@ -415,12 +414,16 @@
 
       index = (index + 1) % dataArray.length;
 
-      // Sử dụng class Tailwind opacity-0 để mờ dần đồng bộ với transition-opacity duration-1000
+      // Xóa hết inline style cũ nếu có để tránh xung đột
+      imgEl.style.opacity = '';
+
+      // Tắt hiển thị mờ dần bằng Tailwind class
       imgEl.classList.add('opacity-0');
 
       setTimeout(() => {
         imgEl.src = dataArray[index].url;
         if (labelEl) labelEl.textContent = dataArray[index].label;
+        // Bật lại ảnh mượt mà
         imgEl.classList.remove('opacity-0');
       }, 500);
     }, intervalMs);
