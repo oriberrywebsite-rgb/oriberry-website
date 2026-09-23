@@ -106,22 +106,18 @@
       </div>
     </section>
 
-    <!-- KHỐI 4: GIÁ TRỊ CỐT LÕI & CAROUSEL CHUYỂN ĐỔI (ROOTED IN IMPACT - SECTION #CORE) -->
+<!-- KHỐI 4: GIÁ TRỊ CỐT LÕI & CAROUSEL (SECTION #CORE) -->
     <section id="core" class="py-6 md:py-10 border-t border-brand-border/60">
       <div class="max-w-7xl mx-auto px-4 md:px-6">
         <div class="mb-4 flex justify-between items-end">
           <h2 class="text-xl md:text-3xl font-serif">Rooted in Impact, Crafted for Specialty</h2>
-          <div class="flex space-x-1.5 md:hidden mb-1">
-            <span class="w-2 h-2 bg-brand-text"></span>
-            <span class="w-2 h-2 bg-brand-border"></span>
-            <span class="w-2 h-2 bg-brand-border"></span>
-          </div>
         </div>
 
         <div class="flex md:grid md:grid-cols-3 gap-5 overflow-x-auto no-scrollbar snap-x snap-mandatory">
           <!-- Trụ cột 1: Nông dân -->
           <div class="w-[calc(100vw-2rem)] md:w-auto flex-none snap-start">
             <div id="container-farmers" class="aspect-[4/3] bg-stone-200 mb-3 relative overflow-hidden">
+              <img id="img-farmers" src="https://res.cloudinary.com/ergvgrnl/image/upload/v1790154215/weworkwithfarmer3_qt.jpg" class="w-full h-full object-cover transition-opacity duration-700 ease-in-out" alt="Farmers">
               <span id="label-farmers" class="absolute bottom-2 left-2 bg-black/70 text-white text-[10px] font-medium px-2 py-0.5 z-10">
                 Quảng Trị
               </span>
@@ -135,6 +131,7 @@
           <!-- Trụ cột 2: Xưởng rang -->
           <div class="w-[calc(100vw-2rem)] md:w-auto flex-none snap-start">
             <div id="container-roast" class="aspect-[4/3] bg-stone-200 mb-3 relative overflow-hidden">
+              <img id="img-roast" src="https://res.cloudinary.com/ergvgrnl/image/upload/v1790174781/Small_batch_roasting.jpg" class="w-full h-full object-cover transition-opacity duration-700 ease-in-out" alt="Roast">
               <span id="label-roast" class="absolute bottom-2 left-2 bg-black/70 text-white text-[10px] font-medium px-2 py-0.5 z-10">
                 Micro Batching
               </span>
@@ -148,8 +145,9 @@
           <!-- Trụ cột 3: Chuỗi quán -->
           <div class="w-[calc(100vw-2rem)] md:w-auto flex-none snap-start">
             <div id="container-shops" class="aspect-[4/3] bg-stone-200 mb-3 relative overflow-hidden">
+              <img id="img-shops" src="https://res.cloudinary.com/ergvgrnl/image/upload/v1790180137/IMG_20260923_230905.jpg" class="w-full h-full object-cover transition-opacity duration-700 ease-in-out" alt="Shops">
               <span id="label-shops" class="absolute bottom-2 left-2 bg-black/70 text-white text-[10px] font-medium px-2 py-0.5 z-10">
-                Quảng An
+                28 Quảng An
               </span>
             </div>
             <h3 class="text-lg font-serif">We serve coffee and drinks</h3>
@@ -159,7 +157,7 @@
           </div>
         </div>
       </div>
-    </section> <!-- ĐÃ SỬA: Đóng section #core đúng vị trí -->
+    </section>
 
     <!-- KHỐI 5: SẢN PHẨM CÀ PHÊ HẠT NỔI BẬT (GET OUR COFFEE - SECTION #FEATURED) -->
     <section id="featured" class="py-6 md:py-10 bg-brand-card border-y border-brand-border/60">
@@ -373,17 +371,17 @@
 
   <script>
 <script>
-    // 1. KHAI BÁO DỮ LIỆU CÁC CỘT (Đã mở comment link ảnh)
+    // 1. KHAI BÁO DỮ LIỆU CÁC CỘT
     const farmersData = [
       { url: "https://res.cloudinary.com/ergvgrnl/image/upload/v1790154215/weworkwithfarmer3_qt.jpg", label: "Quảng Trị" },
       { url: "https://res.cloudinary.com/ergvgrnl/image/upload/v1790154213/weworkwithfarmer1_db.jpg", label: "Điện Biên" },
       { url: "https://res.cloudinary.com/ergvgrnl/image/upload/v1790154213/weworkwithfarmer2_ld.jpg", label: "Lâm Đồng" },
-      { url: "https://res.cloudinary.com/ergvgrnl/image/upload/v1790154213/weworkwithfarmer4_dl.jpg", label: "Đắk Lắk" },
+      { url: "https://res.cloudinary.com/ergvgrnl/image/upload/v1790154213/weworkwithfarmer4_dl.jpg", label: "Đắk Lắk" }
     ];
 
     const roastData = [
       { url: "https://res.cloudinary.com/ergvgrnl/image/upload/v1790174781/Small_batch_roasting.jpg", label: "Micro Batching" },
-      { url: "https://res.cloudinary.com/ergvgrnl/image/upload/v1790175137/5kg-roaster.jpg", label: "5kg Roaster Practice" },
+      { url: "https://res.cloudinary.com/ergvgrnl/image/upload/v1790175137/5kg-roaster.jpg", label: "5kg Roaster Practice" }
     ];
 
     const shopsData = [
@@ -392,48 +390,36 @@
       { url: "https://res.cloudinary.com/ergvgrnl/image/upload/v1790180135/IMG_20260923_230912.jpg", label: "1 Phạm Sư Mạnh" },
       { url: "https://res.cloudinary.com/ergvgrnl/image/upload/v1790180136/IMG_20260923_230910.jpg", label: "6A Phạm Sư Mạnh" },
       { url: "https://res.cloudinary.com/ergvgrnl/image/upload/v1790180137/IMG_20260923_230908.jpg", label: "11B Tông Đản" },
-      { url: "https://res.cloudinary.com/ergvgrnl/image/upload/v1790180139/IMG_20260923_230901.jpg", label: "23-25 Đặng Tiến Đông" },
+      { url: "https://res.cloudinary.com/ergvgrnl/image/upload/v1790180139/IMG_20260923_230901.jpg", label: "23-25 Đặng Tiến Đông" }
     ];
 
-    // 2. HÀM TỰ DỰNG CÁC LỚP ẢNH ĐÈ LÊN NHAU VÀ HIỆU ỨNG FADE MƯỢT
-    function initSmoothCarousel(containerId, labelId, dataArray, intervalMs) {
-      const container = document.getElementById(containerId);
+    // 2. HÀM CHUYỂN ẢNH VỚI HIỆU ỨNG FADE MƯỢT
+    function startSimpleCarousel(imgId, labelId, dataArray, intervalMs) {
+      const imgEl = document.getElementById(imgId);
       const labelEl = document.getElementById(labelId);
-      if (!container || !dataArray || dataArray.length === 0) return;
-
-      dataArray.forEach((item, i) => {
-        const img = document.createElement('img');
-        img.src = item.url;
-        img.alt = item.label || '';
-        img.className = `absolute inset-0 w-full h-full object-cover transition-opacity duration-1000 ease-in-out ${i === 0 ? 'opacity-100' : 'opacity-0'}`;
-        container.insertBefore(img, labelEl);
-      });
-
-      if (dataArray.length <= 1) return;
+      if (!imgEl || !dataArray || dataArray.length === 0) return;
 
       let currentIndex = 0;
-      const images = container.querySelectorAll('img');
 
       setInterval(() => {
-        images[currentIndex].classList.remove('opacity-100');
-        images[currentIndex].classList.add('opacity-0');
+        imgEl.style.opacity = '0';
+        
+        setTimeout(() => {
+          currentIndex = (currentIndex + 1) % dataArray.length;
+          imgEl.src = dataArray[currentIndex].url;
+          if (labelEl) labelEl.textContent = dataArray[currentIndex].label;
+          imgEl.style.opacity = '1';
+        }, 300);
 
-        currentIndex = (currentIndex + 1) % images.length;
-
-        images[currentIndex].classList.remove('opacity-0');
-        images[currentIndex].classList.add('opacity-100');
-
-        if (labelEl) labelEl.textContent = dataArray[currentIndex].label;
       }, intervalMs);
     }
 
-    // 3. KHỞI CHẠY KHI TRANG TẢI XONG
+    // 3. KHỞI CHẠY CAROUSEL VÀ TẢI TRƯỚC GOOGLE SCRIPT
     document.addEventListener('DOMContentLoaded', () => {
-      initSmoothCarousel('container-farmers', 'label-farmers', farmersData, 3500);
-      initSmoothCarousel('container-roast', 'label-roast', roastData, 4500);
-      initSmoothCarousel('container-shops', 'label-shops', shopsData, 3000);
+      startSimpleCarousel('img-farmers', 'label-farmers', farmersData, 3500);
+      startSimpleCarousel('img-roast', 'label-roast', roastData, 4500);
+      startSimpleCarousel('img-shops', 'label-shops', shopsData, 3000);
 
-      // TẢI TRƯỚC DỮ LIỆU TỪ GOOGLE SCRIPT CHO TRANG SHOP
       window.addEventListener('load', () => {
         setTimeout(() => {
           fetch("https://script.google.com/macros/s/AKfycbzoWopdIwcIH1mI6i0LNZP3YLK_U7zjIc6iMwLEdyCNuZ4L4jAwop8QWc6g0v06Qs_f/exec", { cache: 'force-cache' })
