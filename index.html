@@ -453,5 +453,41 @@
       }, 1000);
     });
   </script>
+<script>
+  document.addEventListener('DOMContentLoaded', () => {
+    const track = document.getElementById('core-carousel');
+    const dots = document.querySelectorAll('#core-carousel-dots button');
+
+    if (track && dots.length > 0) {
+      // 1. Cập nhật chấm đen theo vị trí vuốt ảnh
+      track.addEventListener('scroll', () => {
+        const scrollPosition = track.scrollLeft;
+        const itemWidth = track.firstElementChild.offsetWidth;
+        const activeIndex = Math.round(scrollPosition / itemWidth);
+
+        dots.forEach((dot, index) => {
+          if (index === activeIndex) {
+            dot.classList.remove('bg-stone-300');
+            dot.classList.add('bg-black');
+          } else {
+            dot.classList.remove('bg-black');
+            dot.classList.add('bg-stone-300');
+          }
+        });
+      });
+
+      // 2. Chuyển slide mượt mà khi bấm trực tiếp vào từng chấm
+      dots.forEach((dot, index) => {
+        dot.addEventListener('click', () => {
+          const itemWidth = track.firstElementChild.offsetWidth;
+          track.scrollTo({
+            left: itemWidth * index,
+            behavior: 'smooth'
+          });
+        });
+      });
+    }
+  });
+</script>
 </body>
 </html>
