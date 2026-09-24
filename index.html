@@ -463,20 +463,32 @@
       }, 1000);
     });
   </script>
-<!-- SCRIPT ĐIỀU KHIỂN DOT VUỐT ẢNH DƯỚI 4 KHỐI 
+<!-- SCRIPT ĐIỀU KHIỂN CAROUSEL CẢ 4 KHỐI (4, 5, 6, 7) -->
 <script>
   document.addEventListener('DOMContentLoaded', () => {
-    // Hàm dùng chung xử lý cuộn ảnh & đồng bộ màu 3 chấm
     function setupCarousel(carouselId, dotsId) {
       const track = document.getElementById(carouselId);
       const dots = document.querySelectorAll(`#${dotsId} button`);
 
       if (track && dots.length > 0) {
+        // Hàm tính khoảng cách di chuyển thực tế (Bao gồm độ rộng card + gap)
+        const getStepWidth = () => {
+          const firstCard = track.firstElementChild;
+          if (!firstCard) return 0;
+          // Lấy gap thực tế từ CSS (mặc định gap-5 = 20px)
+          const style = window.getComputedStyle(track);
+          const gap = parseFloat(style.gap) || 20; 
+          return firstCard.offsetWidth + gap;
+        };
+
         // 1. Tự động chuyển chấm màu đen khi vuốt sang card mới
         track.addEventListener('scroll', () => {
+          const stepWidth = getStepWidth();
+          if (stepWidth === 0) return;
+
+          // Cộng thêm 1/2 độ rộng card để làm tròn điểm kích hoạt chính xác hơn khi vuốt
           const scrollPosition = track.scrollLeft;
-          const itemWidth = track.firstElementChild.offsetWidth;
-          const activeIndex = Math.round(scrollPosition / itemWidth);
+          const activeIndex = Math.round(scrollPosition / stepWidth);
 
           dots.forEach((dot, index) => {
             if (index === activeIndex) {
@@ -489,12 +501,12 @@
           });
         });
 
-        // 2. Chuyển slide mượt mà khi bấm trực tiếp vào từng chấm
+        // 2. Bấm vào chấm để cuộn slide mượt mà
         dots.forEach((dot, index) => {
           dot.addEventListener('click', () => {
-            const itemWidth = track.firstElementChild.offsetWidth;
+            const stepWidth = getStepWidth();
             track.scrollTo({
-              left: itemWidth * index,
+              left: stepWidth * index,
               behavior: 'smooth'
             });
           });
@@ -502,11 +514,11 @@
       }
     }
 
-    // Kích hoạt đồng thời cho cả 4 khối trên Trang Chủ:
-    setupCarousel('core-carousel', 'core-carousel-dots');         // KHỐI 4: Core Values
-    setupCarousel('featured-carousel', 'featured-carousel-dots'); // KHỐI 5: Featured Coffee
-    setupCarousel('shops-carousel', 'shops-carousel-dots');       // KHỐI 6: Order Food & Drinks
-    setupCarousel('stories-carousel', 'stories-carousel-dots');   // KHỐI 7: We & Our Farmers
+    // Kích hoạt cho cả 4 khối trên Trang Chủ
+    setupCarousel('core-carousel', 'core-carousel-dots');         // KHỐI 4
+    setupCarousel('featured-carousel', 'featured-carousel-dots'); // KHỐI 5
+    setupCarousel('shops-carousel', 'shops-carousel-dots');       // KHỐI 6
+    setupCarousel('stories-carousel', 'stories-carousel-dots');   // KHỐI 7
   });
 </script>
 </body>
