@@ -177,7 +177,7 @@
           </a>
         </div>
 
-        <div class="flex md:grid md:grid-cols-3 gap-5 overflow-x-auto no-scrollbar snap-x snap-mandatory">
+        <div id="featured-carousel" class="flex md:grid md:grid-cols-3 gap-5 overflow-x-auto no-scrollbar snap-x snap-mandatory">
           <!-- Sản phẩm 1: Đà Lạt Catimor -->
           <div class="w-[calc(100vw-2rem)] md:w-auto flex-none snap-start bg-brand-bg border border-brand-border p-4 flex flex-col justify-between">
             <div>
@@ -253,6 +253,11 @@
             </div>
           </div>
         </div>
+        <div class="flex justify-center items-center space-x-2 mt-4" id="featured-carousel-dots">
+          <button class="w-2.5 h-2.5 rounded-full bg-black transition-colors" aria-label="Slide 1"></button>
+          <button class="w-2.5 h-2.5 rounded-full bg-stone-300 transition-colors" aria-label="Slide 2"></button>
+          <button class="w-2.5 h-2.5 rounded-full bg-stone-300 transition-colors" aria-label="Slide 3"></button>
+        </div>
       </div>
     </section> <!-- ĐÃ SỬA: Đóng section #featured đúng vị trí -->
 
@@ -266,7 +271,7 @@
           </a>
         </div>
 
-        <div class="flex md:grid md:grid-cols-3 gap-5 overflow-x-auto no-scrollbar snap-x snap-mandatory">
+        <div id="shops-carousel" class="flex md:grid md:grid-cols-3 gap-5 overflow-x-auto no-scrollbar snap-x snap-mandatory">
           <!-- Nhóm 1: Order for Pick-up -->
           <div class="w-[calc(100vw-2rem)] md:w-auto flex-none snap-start border border-brand-border bg-brand-bg p-4 flex flex-col justify-between">
             <div>
@@ -306,22 +311,22 @@
             </div>
           </div>
         </div>
+        <div class="flex justify-center items-center space-x-2 mt-4" id="shops-carousel-dots">
+          <button class="w-2.5 h-2.5 rounded-full bg-black transition-colors" aria-label="Slide 1"></button>
+          <button class="w-2.5 h-2.5 rounded-full bg-stone-300 transition-colors" aria-label="Slide 2"></button>
+          <button class="w-2.5 h-2.5 rounded-full bg-stone-300 transition-colors" aria-label="Slide 3"></button>
+        </div>
       </div>
     </section>
-
+ 
     <!-- KHỐI 7: CÂU CHUYỆN BỀN VỮNG (WE & OUR FARMERS - SECTION #STORIES) -->
     <section id="stories" class="py-6 md:py-10 bg-brand-card border-t border-brand-border/60">
       <div class="max-w-7xl mx-auto px-4 md:px-6">
         <div class="mb-4 flex justify-between items-center">
           <h2 class="text-xl md:text-3xl font-serif uppercase">WE & OUR FARMERS</h2>
-          <div class="flex space-x-1.5 md:hidden">
-            <span class="w-2 h-2 bg-brand-text"></span>
-            <span class="w-2 h-2 bg-brand-border"></span>
-            <span class="w-2 h-2 bg-brand-border"></span>
-          </div>
         </div>
 
-        <div class="flex md:grid md:grid-cols-3 gap-5 overflow-x-auto no-scrollbar snap-x snap-mandatory">
+        <div id="stories-carousel" class="flex md:grid md:grid-cols-3 gap-5 overflow-x-auto no-scrollbar snap-x snap-mandatory">
           <article class="w-[calc(100vw-2rem)] md:w-auto flex-none snap-start">
             <div class="aspect-[3/2] bg-stone-200 mb-3">
               <img src="https://res.cloudinary.com/ergvgrnl/image/upload/v1790174782/Yellow_coffee_cherries.jpg" alt="The Business" class="w-full h-full object-cover">
@@ -345,6 +350,11 @@
             <h3 class="text-lg font-serif">Processing</h3>
             <p class="mt-1 text-xs text-brand-muted leading-relaxed">Exploring processing methods together: real-world experiments and practices that unlock the distinct flavors of local beans.</p>
           </article>
+        </div>
+        <div class="flex justify-center items-center space-x-2 mt-4" id="stories-carousel-dots">
+          <button class="w-2.5 h-2.5 rounded-full bg-black transition-colors" aria-label="Slide 1"></button>
+          <button class="w-2.5 h-2.5 rounded-full bg-stone-300 transition-colors" aria-label="Slide 2"></button>
+          <button class="w-2.5 h-2.5 rounded-full bg-stone-300 transition-colors" aria-label="Slide 3"></button>
         </div>
       </div>
     </section>
@@ -453,40 +463,50 @@
       }, 1000);
     });
   </script>
+<!-- SCRIPT ĐIỀU KHIỂN DOT VUỐT ẢNH DƯỚI 4 KHỐI 
 <script>
   document.addEventListener('DOMContentLoaded', () => {
-    const track = document.getElementById('core-carousel');
-    const dots = document.querySelectorAll('#core-carousel-dots button');
+    // Hàm dùng chung xử lý cuộn ảnh & đồng bộ màu 3 chấm
+    function setupCarousel(carouselId, dotsId) {
+      const track = document.getElementById(carouselId);
+      const dots = document.querySelectorAll(`#${dotsId} button`);
 
-    if (track && dots.length > 0) {
-      // 1. Cập nhật chấm đen theo vị trí vuốt ảnh
-      track.addEventListener('scroll', () => {
-        const scrollPosition = track.scrollLeft;
-        const itemWidth = track.firstElementChild.offsetWidth;
-        const activeIndex = Math.round(scrollPosition / itemWidth);
-
-        dots.forEach((dot, index) => {
-          if (index === activeIndex) {
-            dot.classList.remove('bg-stone-300');
-            dot.classList.add('bg-black');
-          } else {
-            dot.classList.remove('bg-black');
-            dot.classList.add('bg-stone-300');
-          }
-        });
-      });
-
-      // 2. Chuyển slide mượt mà khi bấm trực tiếp vào từng chấm
-      dots.forEach((dot, index) => {
-        dot.addEventListener('click', () => {
+      if (track && dots.length > 0) {
+        // 1. Tự động chuyển chấm màu đen khi vuốt sang card mới
+        track.addEventListener('scroll', () => {
+          const scrollPosition = track.scrollLeft;
           const itemWidth = track.firstElementChild.offsetWidth;
-          track.scrollTo({
-            left: itemWidth * index,
-            behavior: 'smooth'
+          const activeIndex = Math.round(scrollPosition / itemWidth);
+
+          dots.forEach((dot, index) => {
+            if (index === activeIndex) {
+              dot.classList.remove('bg-stone-300');
+              dot.classList.add('bg-black');
+            } else {
+              dot.classList.remove('bg-black');
+              dot.classList.add('bg-stone-300');
+            }
           });
         });
-      });
+
+        // 2. Chuyển slide mượt mà khi bấm trực tiếp vào từng chấm
+        dots.forEach((dot, index) => {
+          dot.addEventListener('click', () => {
+            const itemWidth = track.firstElementChild.offsetWidth;
+            track.scrollTo({
+              left: itemWidth * index,
+              behavior: 'smooth'
+            });
+          });
+        });
+      }
     }
+
+    // Kích hoạt đồng thời cho cả 4 khối trên Trang Chủ:
+    setupCarousel('core-carousel', 'core-carousel-dots');         // KHỐI 4: Core Values
+    setupCarousel('featured-carousel', 'featured-carousel-dots'); // KHỐI 5: Featured Coffee
+    setupCarousel('shops-carousel', 'shops-carousel-dots');       // KHỐI 6: Order Food & Drinks
+    setupCarousel('stories-carousel', 'stories-carousel-dots');   // KHỐI 7: We & Our Farmers
   });
 </script>
 </body>
