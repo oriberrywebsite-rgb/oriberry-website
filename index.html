@@ -348,27 +348,34 @@
   <!-- KHỐI 8: CHÂN TRANG & MÃ TẢI TỰ ĐỘNG (FOOTER & BACKGROUND SCRIPTS) -->
   <footer id="contact" class="bg-brand-bg border-t border-brand-border py-8 md:py-12">
     <div class="max-w-7xl mx-auto px-4 md:px-6 grid md:grid-cols-4 gap-6">
-      <div class="md:col-span-2">
-        <a href="/" class="inline-block mb-2">
+      
+      <div class="md:col-span-2 flex flex-row items-start gap-4">
+        <a href="/" class="flex-shrink-0">
           <img 
             src="https://res.cloudinary.com/ergvgrnl/image/upload/v1790152256/My%20Brand/logo_krnbg9.png" 
             alt="Oriberry Logo" 
-            class="h-14 md:h-16 w-auto object-contain"
+            class="h-12 md:h-16 w-auto object-contain"
           />
         </a>
-        <p class="text-xs text-brand-muted mt-1 tracking-wide">Coffee roastery · Shops · Development</p>
-        <p class="text-xs text-brand-muted mt-3 max-w-sm leading-relaxed">Social enterprise developing specialty coffee & tea, empowering indigenous smallholders across Vietnam.</p>
+        <div>
+          <p class="text-xs text-brand-muted font-medium tracking-wide">Development &middot; Coffee roastery &middot; Shops</p>
+          <p class="text-xs text-brand-muted mt-1.5 max-w-sm leading-relaxed">Social enterprise developing specialty coffee, empowering indigenous smallholders across Vietnam.</p>
+        </div>
       </div>
+
       <div class="text-xs text-brand-muted space-y-1.5">
         <p class="font-semibold text-brand-text uppercase tracking-widest mb-2">Ecosystem</p>
         <p><a href="/shop/" class="hover:text-brand-text">/shop/</a></p>
-        <p><a href="https://oriberry-website.pages.dev/order/" target="_blank" class="hover:text-brand-text">oriberry-website.pages.dev/order/</a></p>
+        <p><a href="/order/" target="_blank" class="hover:text-brand-text">/order/</a></p>
       </div>
+
+      <!-- Khối System -->
       <div class="text-xs text-brand-muted space-y-1.5">
         <p class="font-semibold text-brand-text uppercase tracking-widest mb-2">System</p>
-        <p>© Oriberry Coffee</p>
+        <p>&copy; Oriberry Coffee</p>
         <p>Google Workspace CMS Powered</p>
       </div>
+
     </div>
   </footer>
 
