@@ -1,0 +1,617 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Oriberry Coffee Store - Cà Phê Gói & Specialty</title>
+    
+    <!-- Tailwind CSS & FontAwesome CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <style>
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+        #categorySidebar {
+            transition: transform 0.3s ease-in-out, opacity 0.3s ease-in-out;
+        }
+        .grind-btn.active {
+            background-color: #92400e !important;
+            color: #ffffff !important;
+            border-color: #92400e !important;
+        }
+    </style>
+</head>
+<body class="bg-gray-50 text-gray-800 font-sans antialiased flex flex-col min-h-screen">
+
+    <!-- HEADER -->
+    <header class="bg-white shadow-sm sticky top-0 z-40 border-b border-gray-100">
+        <div class="max-w-4xl mx-auto px-4 py-3 flex items-center justify-between">
+            <div class="flex items-center space-x-3">
+                <!-- Nút bật Sidebar Mục lục Mức độ Rang -->
+                <button onclick="toggleSidebar()" class="w-9 h-9 rounded-xl bg-amber-50 text-amber-700 flex items-center justify-center hover:bg-amber-100 transition shadow-sm cursor-pointer" title="Mục lục mức độ rang">
+                    <i class="fa-solid fa-bars text-sm"></i>
+                </button>
+                <a href="/" class="flex items-center gap-2 font-black text-lg tracking-wider text-gray-900 uppercase">
+                    <i class="fa-solid fa-mug-saucer text-amber-700"></i> ORIBERRY SHOP
+                </a>
+            </div>
+            
+            <button onclick="openCartModal()" class="flex items-center space-x-2 bg-neutral-900 hover:bg-neutral-800 text-white px-3.5 py-2 rounded-xl text-xs font-bold transition shadow-sm cursor-pointer">
+                <i class="fa-solid fa-cart-shopping text-amber-400"></i>
+                <span>Giỏ hàng</span>
+                <span id="headerCartCount" class="bg-amber-600 text-white text-[10px] font-bold rounded-full w-5 h-5 flex items-center justify-center ml-1">0</span>
+            </button>
+        </div>
+    </header>
+
+    <div onmouseenter="showSidebar()" class="fixed left-0 top-16 bottom-0 w-4 z-20 pointer-events-auto"></div>
+
+    <!-- MAIN CONTAINER -->
+    <main class="flex-1 max-w-4xl w-full mx-auto flex relative overflow-hidden bg-white shadow-sm mb-20">
+        
+        <!-- SIDEBAR MỤC LỤC MỨC ĐỘ RANG (ROAST LEVEL) BẬT TỪ NÚT 3 GẠCH -->
+        <aside id="categorySidebar" class="-translate-x-full opacity-0 absolute left-0 top-0 bottom-0 w-2/5 sm:w-1/3 bg-white/90 backdrop-blur-md border-r border-gray-200 overflow-y-auto no-scrollbar z-30 shadow-2xl py-4">
+            <div class="flex items-center justify-between px-4 mb-3 border-b border-gray-100 pb-2">
+                <span class="text-xs font-bold text-gray-500 uppercase tracking-wider">Mục lục Mức Rang</span>
+                <button onclick="hideSidebar()" class="text-gray-400 hover:text-gray-700 cursor-pointer"><i class="fa-solid fa-xmark text-sm"></i></button>
+            </div>
+            <div id="categoryListContainer">
+                <!-- Render tự động các mục: Tất cả, Light, Medium, Dark -->
+            </div>
+        </aside>
+
+        <!-- KHUNG SẢN PHẨM CHÍNH -->
+        <section class="w-full overflow-y-auto h-[calc(100vh-130px)] p-4 sm:p-6 space-y-4" id="mainShopSection" onclick="maybeHideSidebarOnContentClick()">
+            
+            <!-- THANH BỘ LỌC NGOÀI -->
+            <div class="bg-gray-50 p-3 rounded-2xl border border-gray-200 shadow-sm space-y-2">
+                <div class="text-[11px] font-bold uppercase tracking-wider text-gray-600 flex items-center justify-between px-1">
+                    <span class="flex items-center gap-1.5"><i class="fa-solid fa-filter text-amber-700"></i> Bộ lọc & Sắp xếp Cà phê</span>
+                    <span id="activeRoastIndicator" class="text-amber-700 font-bold lowercase">Đang xem: Tất cả mức rang</span>
+                </div>
+                <div class="grid grid-cols-3 gap-2">
+                    <!-- Sắp xếp giá -->
+                    <select id="sort-price" onchange="renderProducts()" class="w-full text-xs border border-gray-300 rounded-xl p-2 bg-white focus:outline-none focus:border-amber-700 font-semibold text-gray-700 truncate cursor-pointer">
+                        <option value="default" selected>Giá tiền</option>
+                        <option value="low-to-high">Giá: Thấp đến Cao</option>
+                        <option value="high-to-low">Giá: Cao đến Thấp</option>
+                    </select>
+
+                    <!-- Dòng cà phê (Variety) -->
+                    <select id="filter-type" onchange="renderProducts()" class="w-full text-xs border border-gray-300 rounded-xl p-2 bg-white focus:outline-none focus:border-amber-700 font-semibold text-gray-700 truncate cursor-pointer">
+                        <option value="ALL" selected>Dòng Cà phê</option>
+                        <option value="Arabica">Arabica</option>
+                        <option value="Robusta">Robusta</option>
+                        <option value="Liberica">Liberica/Excelsa</option>
+                        <option value="Blend">Blend / Phối trộn</option>
+                    </select>
+
+                    <!-- Vùng trồng -->
+                    <select id="filter-region" onchange="renderProducts()" class="w-full text-xs border border-gray-300 rounded-xl p-2 bg-white focus:outline-none focus:border-amber-700 font-semibold text-gray-700 truncate cursor-pointer">
+                        <option value="ALL" selected>Vùng trồng</option>
+                        <option value="Quảng Trị">Quảng Trị</option>
+                        <option value="Điện Biên">Điện Biên</option>
+                        <option value="Lâm Đồng">Lâm Đồng</option>
+                        <option value="Đắc Lắc">Đắc Lắc</option>
+                        <option value="Gia Lai">Gia Lai</option>
+                    </select>
+                </div>
+            </div>
+
+            <!-- DANH SÁCH LƯỚI SẢN PHẨM -->
+            <div id="productGrid" class="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-1">
+                <div class="col-span-full text-center py-12 text-gray-400 text-xs">Đang tải danh sách sản phẩm...</div>
+            </div>
+        </section>
+    </main>
+
+    <!-- FOOTER CART BAR -->
+    <div id="cartBar" class="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 shadow-xl p-3 z-35 hidden">
+        <div class="max-w-4xl mx-auto flex items-center justify-between">
+            <div class="flex items-center space-x-3">
+                <div class="bg-amber-700 text-white w-10 h-10 rounded-full flex items-center justify-center font-bold text-sm shadow" id="cartCount">0</div>
+                <div>
+                    <div class="text-xs text-gray-500">Tạm tính giỏ hàng</div>
+                    <div class="font-bold text-base text-gray-900" id="cartTotal">0đ</div>
+                </div>
+            </div>
+            <button onclick="openCartModal()" class="bg-amber-700 hover:bg-amber-800 text-white px-6 py-2.5 rounded-xl font-bold text-sm shadow-md transition flex items-center gap-2 cursor-pointer">
+                <span>Xem giỏ hàng</span>
+                <i class="fa-solid fa-arrow-right"></i>
+            </button>
+        </div>
+    </div>
+
+    <!-- MODALS -->
+    <div id="detailModal" class="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
+        <div class="relative w-full max-w-2xl bg-white rounded-2xl shadow-2xl overflow-hidden max-h-[90vh] flex flex-col">
+            <button onclick="closeModal('detailModal')" class="absolute top-3 right-3 bg-black/50 hover:bg-black text-white w-8 h-8 rounded-full flex items-center justify-center z-10 transition"><i class="fa-solid fa-xmark"></i></button>
+            <div class="overflow-y-auto p-5 space-y-5">
+                <div class="grid grid-cols-1 sm:grid-cols-12 gap-5 items-start border-b border-gray-100 pb-5">
+                    <div class="sm:col-span-5 space-y-2">
+                        <div class="w-full aspect-square rounded-xl overflow-hidden bg-gray-100 border border-gray-200 shadow-sm">
+                            <img id="detailMainImg" src="" class="w-full h-full object-cover">
+                        </div>
+                        <div id="detailThumbnails" class="grid grid-cols-3 gap-2"></div>
+                    </div>
+                    <div class="sm:col-span-7 space-y-2">
+                        <span id="detailTag" class="text-[10px] font-bold bg-amber-100 text-amber-800 px-2.5 py-1 rounded-md uppercase tracking-wide"></span>
+                        <h2 id="detailName" class="text-xl font-bold text-gray-900 mt-1"></h2>
+                        <p id="detailPrice" class="text-lg font-bold text-amber-700"></p>
+                        <p id="detailWeight" class="text-xs text-gray-500"></p>
+                        <div class="pt-4 flex items-center justify-between gap-3">
+                            <button onclick="closeModal('detailModal')" class="w-1/3 py-2.5 px-3 bg-gray-100 hover:bg-gray-200 text-gray-700 text-xs font-semibold rounded-xl transition text-center cursor-pointer">Đóng</button>
+                            <button id="detailBuyBtn" class="w-2/3 py-2.5 px-3 bg-amber-700 hover:bg-amber-800 text-white text-xs font-bold rounded-xl transition shadow-sm text-center cursor-pointer">Chọn cỡ xay & Mua ngay &rarr;</button>
+                        </div>
+                    </div>
+                </div>
+                <div class="space-y-2 text-xs">
+                    <h4 class="font-bold text-gray-900 uppercase tracking-wide text-xs text-amber-800 flex items-center gap-1.5"><i class="fa-solid fa-circle-info"></i> Câu chuyện & Hương vị đặc trưng:</h4>
+                    <div id="detailLongDesc" class="text-gray-700 bg-gray-50 p-4 rounded-xl border border-gray-200 whitespace-pre-line leading-relaxed max-h-52 overflow-y-auto"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="optionModal" class="fixed inset-0 bg-black/60 z-50 flex items-end sm:items-center justify-center p-0 sm:p-4 hidden">
+        <div class="relative w-full max-w-md bg-white rounded-t-3xl sm:rounded-2xl shadow-2xl overflow-hidden p-5 space-y-4 max-h-[90vh] overflow-y-auto">
+            <button onclick="closeModal('optionModal')" class="absolute top-4 right-4 text-gray-400 hover:text-gray-800 text-xl font-bold"><i class="fa-solid fa-xmark"></i></button>
+            <div class="flex gap-4 items-start border-b border-gray-100 pb-4">
+                <img id="popImg" src="" class="w-20 h-20 object-cover rounded-xl bg-gray-100">
+                <div>
+                    <h3 id="popName" class="font-bold text-sm text-gray-900"></h3>
+                    <p id="popPrice" class="text-base font-bold text-amber-700 mt-1"></p>
+                    <span id="popWeight" class="inline-block bg-gray-100 text-gray-700 px-2 py-0.5 rounded text-[10px] font-medium mt-1"></span>
+                </div>
+            </div>
+            <div>
+                <label class="block text-xs font-bold text-gray-800 mb-2">Chọn Cỡ Xay Cà Phê:</label>
+                <div class="flex flex-wrap gap-2" id="popGrindOptions"></div>
+            </div>
+            <div class="flex items-center justify-between pt-2 border-t border-gray-100">
+                <span class="text-xs font-bold text-gray-800">Số lượng gói:</span>
+                <div class="flex items-center border border-gray-300 rounded-xl overflow-hidden">
+                    <button onclick="changePopQty(-1)" class="px-3 py-1.5 text-sm font-bold text-gray-600 hover:bg-gray-100 cursor-pointer">-</button>
+                    <span id="popQty" class="px-4 text-xs font-bold">1</span>
+                    <button onclick="changePopQty(1)" class="px-3 py-1.5 text-sm font-bold text-gray-600 hover:bg-gray-100 cursor-pointer">+</button>
+                </div>
+            </div>
+            <button onclick="confirmAddToCart()" class="w-full bg-amber-700 text-white font-bold text-xs py-3.5 rounded-xl hover:bg-amber-800 transition shadow-md cursor-pointer">Thêm vào Giỏ hàng</button>
+        </div>
+    </div>
+
+    <div id="cartModal" class="fixed inset-0 z-50 hidden">
+        <div class="fixed inset-0 bg-black/60 backdrop-blur-sm transition-opacity" onclick="closeModal('cartModal')"></div>
+        <div class="fixed inset-y-0 right-0 max-w-full flex pl-10">
+            <div class="w-screen max-w-md bg-white shadow-2xl flex flex-col justify-between p-5 overflow-y-auto">
+                <div>
+                    <div class="flex items-center justify-between pb-3 border-b border-gray-200">
+                        <h3 class="text-base font-bold text-gray-900 flex items-center gap-2"><i class="fa-solid fa-bag-shopping text-amber-700"></i> Giỏ hàng của bạn</h3>
+                        <button onclick="closeModal('cartModal')" class="text-gray-400 hover:text-gray-800 text-xl font-bold cursor-pointer"><i class="fa-solid fa-xmark"></i></button>
+                    </div>
+                    <div id="cartItemsContainer" class="py-3 space-y-3 max-h-[30vh] overflow-y-auto no-scrollbar"></div>
+                </div>
+                <div class="border-t border-gray-200 pt-3 space-y-3">
+                    <div>
+                        <label class="block text-xs font-bold text-gray-800 mb-1">Khu vực giao hàng:</label>
+                        <select id="shippingZone" onchange="updateCartTotals()" class="w-full text-xs border border-gray-300 rounded-xl p-2.5 bg-white focus:outline-none focus:border-amber-700 cursor-pointer font-medium">
+                            <option value="within2km">Nội thành HN (&lt;2km) - Freeship</option>
+                            <option value="hanoi_inner" selected>Nội thành Hà Nội - 25.000đ (Free từ 1.000.000đ)</option>
+                            <option value="hanoi_outer">Ngoại thành Hà Nội - 35.000đ</option>
+                            <option value="provinces">Tỉnh / Thành phố khác - 45.000đ</option>
+                        </select>
+                    </div>
+                    <div id="shippingPromoBanner" class="text-xs p-2.5 rounded-xl bg-amber-50 text-amber-900 border border-amber-200 leading-relaxed"></div>
+                    <div class="border-t border-gray-200 pt-2 text-xs space-y-1.5">
+                        <div class="flex justify-between text-gray-600"><span>Tiền hàng:</span><span id="cartSubtotal" class="font-semibold text-gray-900">0đ</span></div>
+                        <div class="flex justify-between text-emerald-700"><span>Giảm giá (5% đơn &ge;2tr):</span><span id="cartDiscount" class="font-semibold">0đ</span></div>
+                        <div class="flex justify-between text-gray-600"><span>Phí vận chuyển:</span><span id="cartShipping" class="font-semibold text-gray-900">FREE</span></div>
+                        <div class="flex justify-between text-sm font-bold text-gray-900 border-t border-gray-200 pt-2 mt-1"><span>TỔNG THANH TOÁN:</span><span id="cartTotalPrice" class="text-amber-700">0đ</span></div>
+                    </div>
+                    <form id="checkoutForm" onsubmit="submitOrder(event)" class="space-y-2.5 pt-1">
+                        <input type="text" id="custName" placeholder="Họ và tên *" required minlength="2" class="w-full text-xs border border-gray-300 rounded-xl p-2.5 focus:outline-none focus:border-amber-700">
+                        <input type="tel" id="custPhone" placeholder="Số điện thoại * (VD: 0901234567)" required pattern="^(0[3|5|7|8|9])+([0-9]{8})$" class="w-full text-xs border border-gray-300 rounded-xl p-2.5 focus:outline-none focus:border-amber-700">
+                        <textarea id="custAddress" placeholder="Địa chỉ giao hàng chi tiết..." rows="2" required minlength="8" class="w-full text-xs border border-gray-300 rounded-xl p-2.5 focus:outline-none focus:border-amber-700"></textarea>
+                        <textarea id="custNote" placeholder="Ghi chú cho Oriberry (nếu có)" rows="1" class="w-full text-xs border border-gray-300 rounded-xl p-2.5 focus:outline-none focus:border-amber-700"></textarea>
+                        <button type="submit" id="submitBtn" class="w-full bg-neutral-900 hover:bg-amber-800 text-white font-bold py-3 rounded-xl text-xs transition uppercase tracking-wider shadow-md cursor-pointer">XÁC NHẬN ĐẶT HÀNG</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="orderSuccessModal" class="fixed inset-0 z-50 hidden flex items-center justify-center p-4">
+        <div class="fixed inset-0 bg-black/60 backdrop-blur-sm" onclick="closeModal('orderSuccessModal')"></div>
+        <div class="relative w-full max-w-sm bg-white rounded-2xl shadow-2xl p-6 text-center z-10 space-y-4">
+            <div class="w-14 h-14 bg-emerald-100 text-emerald-700 rounded-full flex items-center justify-center mx-auto text-2xl font-bold">✓</div>
+            <h3 class="text-lg font-bold text-gray-900">Đặt hàng thành công!</h3>
+            <p class="text-xs text-gray-600 leading-relaxed">Cảm ơn Quý khách đã tin tưởng Oriberry Coffee. Chúng tôi sẽ liên hệ xác nhận trong thời gian sớm nhất.</p>
+            <button onclick="closeModal('orderSuccessModal')" class="w-full bg-neutral-900 text-white font-bold text-xs py-3 rounded-xl hover:bg-amber-800 transition cursor-pointer">Tiếp tục mua hàng</button>
+        </div>
+    </div>
+
+    <!-- SCRIPTS LOGIC -->
+    <script>
+        const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzoWopdIwcIH1mI6i0LNZP3YLK_U7zjIc6iMwLEdyCNuZ4L4jAwop8QWc6g0v06Qs_f/exec";
+        const CACHE_KEY = "oriberry_products_cache_v5";
+
+        const GRIND_OPTIONS = [
+            "Hạt nguyên (Whole beans)", "Pha Phin / Frenchpress", "Pha V60 / Drip", 
+            "Pha Coldbrew", "Pha Máy Espresso", "Pha Staresso", "Pha Aeropress", "Pha Ấm Moka"
+        ];
+
+        // MỤC LỤC MỨC ĐỘ RANG (ROAST LEVEL TABS TRONG SIDEBAR)
+        const ROAST_CATEGORIES = [
+            { id: 'ALL', name: 'Tất cả Mức Rang', icon: 'fa-list' },
+            { id: 'Light', name: 'Light (Rang Nhạt)', icon: 'fa-seedling' },
+            { id: 'Medium', name: 'Medium (Rang Vừa)', icon: 'fa-coffee' },
+            { id: 'Dark', name: 'Dark (Rang Đậm)', icon: 'fa-fire' }
+        ];
+
+        let PRODUCTS = [];
+        let activeRoastFilter = 'ALL'; // Mặc định hiển thị tất cả
+        let activeProductForPop = null;
+        let selectedPopGrind = GRIND_OPTIONS[0];
+        let selectedPopQty = 1;
+        let cart = JSON.parse(localStorage.getItem('oriberry_cart') || '[]');
+
+        document.addEventListener('DOMContentLoaded', () => {
+            renderCategorySidebar();
+            fetchProducts();
+            updateCartUI();
+        });
+
+        function toggleSidebar() {
+            const sidebar = document.getElementById('categorySidebar');
+            if (sidebar.classList.contains('-translate-x-full')) showSidebar();
+            else hideSidebar();
+        }
+
+        function showSidebar() {
+            const sidebar = document.getElementById('categorySidebar');
+            sidebar.classList.remove('-translate-x-full', 'opacity-0');
+            sidebar.classList.add('translate-x-0', 'opacity-100');
+        }
+
+        function hideSidebar() {
+            const sidebar = document.getElementById('categorySidebar');
+            sidebar.classList.remove('translate-x-0', 'opacity-100');
+            sidebar.classList.add('-translate-x-full', 'opacity-0');
+        }
+
+        function maybeHideSidebarOnContentClick() {
+            const sidebar = document.getElementById('categorySidebar');
+            if (!sidebar.classList.contains('-translate-x-full')) hideSidebar();
+        }
+
+        // Render Sidebar Menu từ ROAST_CATEGORIES
+        function renderCategorySidebar() {
+            const container = document.getElementById('categoryListContainer');
+            container.innerHTML = ROAST_CATEGORIES.map(cat => `
+                <div onclick="filterByRoastSidebar('${cat.id}', '${cat.name}')" class="px-4 py-3 text-xs font-bold cursor-pointer text-gray-700 hover:text-amber-700 hover:bg-amber-50/70 border-l-4 border-transparent transition flex items-center gap-3">
+                    <i class="fa-solid ${cat.icon} text-sm w-5 text-center text-amber-700"></i>
+                    <span>${cat.name}</span>
+                </div>
+            `).join('');
+        }
+
+        function filterByRoastSidebar(roastId, roastName) {
+            hideSidebar();
+            activeRoastFilter = roastId; // Lưu giá trị: 'ALL', 'Light', 'Medium', 'Dark'
+            console.log("Đang lọc theo mức rang:", activeRoastFilter);
+
+            const indicator = document.getElementById('activeRoastIndicator');
+            if (indicator) {
+                indicator.innerText = `Đang xem: ${roastName}`;
+            }
+            renderProducts();
+        }
+
+        async function fetchProducts() {
+            const cachedData = localStorage.getItem(CACHE_KEY);
+            if (cachedData) {
+                try {
+                    PRODUCTS = JSON.parse(cachedData);
+                    renderProducts();
+                    checkUrlForProduct();
+                } catch (e) { console.error("Lỗi đọc cache:", e); }
+            }
+
+            try {
+                const res = await fetch(SCRIPT_URL);
+                const result = await res.json();
+                let itemsList = Array.isArray(result) ? result : (result.data || []);
+                if (itemsList.length > 0) {
+                    PRODUCTS = itemsList;
+                    localStorage.setItem(CACHE_KEY, JSON.stringify(itemsList));
+                    renderProducts();
+                    checkUrlForProduct();
+                }
+            } catch (err) {
+                if (!cachedData) {
+                    document.getElementById('productGrid').innerHTML = `<div class="col-span-full text-center py-12 text-red-500 text-xs font-bold">Không thể tải dữ liệu sản phẩm từ Google Sheet!</div>`;
+                }
+            }
+        }
+
+        function normalizeStr(str) {
+            if (!str) return '';
+            return str.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/đ/g, "d").replace(/Đ/g, "d").trim();
+        }
+
+        function checkUrlForProduct() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const productId = urlParams.get('id');
+            const action = urlParams.get('action');
+            if (productId && PRODUCTS.length > 0) {
+                if (action === 'buy') openOptionModal(productId);
+                else openDetailModal(productId);
+            }
+        }
+
+        function renderProducts() {
+            const typeVal = document.getElementById('filter-type')?.value || 'ALL';
+            const regionVal = document.getElementById('filter-region')?.value || 'ALL';
+            const sortVal = document.getElementById('sort-price')?.value || 'default';
+
+            console.log("Danh sách tổng sản phẩm hiện có:", PRODUCTS);
+
+            let filtered = PRODUCTS.filter(p => {
+                const pType = normalizeStr(p.type);
+                const pRegion = normalizeStr(p.region);
+                
+                // Lấy chuẩn trường roastLevel sau khi đã được map qua fetchProducts
+                const pRoast = (p.roastLevel || '').trim();
+
+                const matchType = (typeVal === 'ALL') || pType.includes(normalizeStr(typeVal));
+                const matchRegion = (regionVal === 'ALL') || pRegion.includes(normalizeStr(regionVal));
+                
+                // So sánh linh hoạt không phân biệt hoa thường
+                const matchRoast = (activeRoastFilter === 'ALL') || (pRoast.toLowerCase() === activeRoastFilter.toLowerCase());
+
+                // In ra để debug nếu cần xem tại sao lệch
+                if (activeRoastFilter !== 'ALL') {
+                    console.log(`Sản phẩm: ${p.name} | Mức rang trên Sheet: '${p.roastLevel}' | So sánh với: '${activeRoastFilter}' => Khớp: ${matchRoast}`);
+                }
+
+                return matchType && matchRegion && matchRoast;
+            });
+
+            console.log("Kết quả sau khi lọc:", filtered);
+
+            if (sortVal === 'low-to-high') {
+                filtered.sort((a, b) => Number(a.price || a.gia || 0) - Number(b.price || b.gia || 0));
+            } else if (sortVal === 'high-to-low') {
+                filtered.sort((a, b) => Number(b.price || b.gia || 0) - Number(a.price || a.gia || 0));
+            }
+
+            const grid = document.getElementById('productGrid');
+            if (filtered.length === 0) {
+                grid.innerHTML = `<div class="col-span-full text-center py-12 text-gray-400 text-xs">Không tìm thấy sản phẩm phù hợp với bộ lọc (Mức rang đang chọn: ${activeRoastFilter}).</div>`;
+                return;
+            }
+
+            grid.innerHTML = filtered.map(p => `
+                <div class="bg-white border border-gray-100 rounded-2xl p-3.5 shadow-sm hover:shadow-md transition flex items-center justify-between gap-3 relative">
+                    <div class="relative w-20 h-20 sm:w-24 sm:h-24 flex-shrink-0 rounded-xl overflow-hidden bg-gray-50 border border-gray-100 cursor-pointer" onclick="openDetailModal('${p.id}')">
+                        <img src="${p.img1 || 'https://images.unsplash.com/photo-1559056199-641a0ac8b55e?w=500'}" alt="${p.name || ''}" class="w-full h-full object-cover">
+                    </div>
+                    <div class="flex-1 min-w-0 pr-1">
+                        <div class="flex items-center gap-1.5 mb-1">
+                            <span class="text-[9px] font-bold bg-amber-50 text-amber-800 px-1.5 py-0.5 rounded border border-amber-100 uppercase tracking-wide truncate">
+                                ${p.type || 'Cà phê'} • ${p.region || 'Oriberry'} ${p.roastLevel ? '• ' + p.roastLevel : ''}
+                            </span>
+                        </div>
+                        <h3 class="text-sm font-bold text-gray-900 truncate cursor-pointer hover:text-amber-700 transition" onclick="openDetailModal('${p.id}')">${p.name || ''}</h3>
+                        <p class="text-[11px] text-gray-500 line-clamp-2 mt-0.5 leading-relaxed">${p.shortDesc || ''}</p>
+                        <div class="mt-2 flex items-center gap-2">
+                            <span class="text-xs font-bold text-amber-700">${Number(p.price || p.gia || 0).toLocaleString('vi-VN')}đ</span>
+                            <span class="text-[9px] font-semibold bg-gray-100 text-gray-500 px-1.5 py-0.2 rounded border border-gray-200">${p.weight || '250g'}</span>
+                        </div>
+                    </div>
+                    <div class="flex flex-col gap-1.5 flex-shrink-0 self-end">
+                        <button onclick="openDetailModal('${p.id}')" title="Xem chi tiết" class="w-7 h-7 rounded-lg bg-gray-100 text-gray-600 hover:bg-gray-200 hover:text-gray-900 flex items-center justify-center transition text-[10px] shadow-sm cursor-pointer"><i class="fa-solid fa-caret-down"></i></button>
+                        <button onclick="openOptionModal('${p.id}')" title="Chọn mua" class="w-7 h-7 rounded-lg bg-amber-700 text-white hover:bg-amber-800 flex items-center justify-center transition text-[10px] shadow-sm cursor-pointer"><i class="fa-solid fa-caret-right"></i></button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function openDetailModal(productId) {
+            const p = PRODUCTS.find(item => String(item.id).trim() === String(productId).trim());
+            if (!p) return;
+            const imgList = [p.img1, p.img2, p.img3].filter(img => img && img.trim() !== "");
+            const mainImg = imgList.length > 0 ? imgList[0] : "https://images.unsplash.com/photo-1559056199-641a0ac8b55e?w=500";
+
+            document.getElementById('detailMainImg').src = mainImg;
+            document.getElementById('detailTag').innerText = `${p.type || 'Cà phê'} • ${p.region || 'Oriberry'} ${p.roastLevel ? '• ' + p.roastLevel : ''}`;
+            document.getElementById('detailName').innerText = p.name;
+            document.getElementById('detailPrice').innerText = Number(p.price).toLocaleString('vi-VN') + 'đ';
+            document.getElementById('detailWeight').innerText = `Trọng lượng: ${p.weight || '250g'}`;
+            document.getElementById('detailLongDesc').innerText = p.longDesc || p.shortDesc || 'Sản phẩm cà phê đặc sản Oriberry.';
+
+            const thumbContainer = document.getElementById('detailThumbnails');
+            if (imgList.length > 1) {
+                thumbContainer.innerHTML = imgList.map(imgUrl => `<img src="${imgUrl}" onclick="document.getElementById('detailMainImg').src='${imgUrl}'" class="w-full aspect-square object-cover rounded-lg border border-gray-200 cursor-pointer hover:border-amber-700 transition">`).join('');
+            } else { thumbContainer.innerHTML = ""; }
+
+            document.getElementById('detailBuyBtn').onclick = () => { closeModal('detailModal'); openOptionModal(p.id); };
+            document.getElementById('detailModal').classList.remove('hidden');
+        }
+
+        function openOptionModal(productId) {
+            activeProductForPop = PRODUCTS.find(p => String(p.id).trim() === String(productId).trim());
+            if (!activeProductForPop) return;
+            selectedPopGrind = GRIND_OPTIONS[0];
+            selectedPopQty = 1;
+
+            document.getElementById('popImg').src = activeProductForPop.img1;
+            document.getElementById('popName').innerText = activeProductForPop.name;
+            document.getElementById('popPrice').innerText = Number(activeProductForPop.price).toLocaleString('vi-VN') + 'đ';
+            document.getElementById('popWeight').innerText = activeProductForPop.weight || '250g';
+            document.getElementById('popQty').innerText = selectedPopQty;
+
+            document.getElementById('popGrindOptions').innerHTML = GRIND_OPTIONS.map(g => `
+                <button type="button" onclick="selectPopGrind('${g}')" class="grind-btn text-[11px] px-2.5 py-1.5 rounded-xl border border-gray-200 bg-gray-50 text-gray-700 hover:border-gray-900 transition font-medium ${g === selectedPopGrind ? 'active' : ''}">${g}</button>
+            `).join('');
+
+            document.getElementById('optionModal').classList.remove('hidden');
+        }
+
+        function selectPopGrind(grind) {
+            selectedPopGrind = grind;
+            document.querySelectorAll('.grind-btn').forEach(b => {
+                if (b.innerText.trim() === grind) b.classList.add('active');
+                else b.classList.remove('active');
+            });
+        }
+
+        function changePopQty(delta) {
+            selectedPopQty = Math.max(1, selectedPopQty + delta);
+            document.getElementById('popQty').innerText = selectedPopQty;
+        }
+
+        function confirmAddToCart() {
+            if (!activeProductForPop) return;
+            const cartKey = `${activeProductForPop.id}-${selectedPopGrind}`;
+            const existingIndex = cart.findIndex(item => item.key === cartKey);
+
+            if (existingIndex > -1) cart[existingIndex].qty += selectedPopQty;
+            else {
+                cart.push({ key: cartKey, id: activeProductForPop.id, name: activeProductForPop.name, grind: selectedPopGrind, price: Number(activeProductForPop.price), qty: selectedPopQty });
+            }
+
+            saveCart();
+            closeModal('optionModal');
+            openCartModal();
+        }
+
+        function updateQty(key, delta) {
+            const index = cart.findIndex(item => item.key === key);
+            if (index > -1) {
+                cart[index].qty += delta;
+                if (cart[index].qty <= 0) cart.splice(index, 1);
+            }
+            saveCart();
+        }
+
+        function saveCart() {
+            localStorage.setItem('oriberry_cart', JSON.stringify(cart));
+            updateCartUI();
+        }
+
+        function updateCartUI() {
+            const totalCount = cart.reduce((sum, item) => sum + item.qty, 0);
+            document.getElementById('cartCount').innerText = totalCount;
+            document.getElementById('headerCartCount').innerText = totalCount;
+
+            const container = document.getElementById('cartItemsContainer');
+            if (cart.length === 0) {
+                container.innerHTML = `<p class="text-xs text-gray-400 text-center py-6">Giỏ hàng của bạn đang trống.</p>`;
+            } else {
+                container.innerHTML = cart.map(item => `
+                    <div class="flex items-center justify-between border-b border-gray-100 pb-2.5">
+                        <div class="pr-2">
+                            <h4 class="text-xs font-bold text-gray-900 line-clamp-1">${item.name}</h4>
+                            <p class="text-[10px] text-gray-500">Cỡ xay: ${item.grind}</p>
+                            <p class="text-xs font-bold text-amber-700 mt-0.5">${(item.price * item.qty).toLocaleString('vi-VN')}đ</p>
+                        </div>
+                        <div class="flex items-center border border-gray-300 rounded-xl overflow-hidden flex-shrink-0">
+                            <button onclick="updateQty('${item.key}', -1)" class="px-2.5 py-1 text-xs text-gray-600 hover:bg-gray-100 font-bold cursor-pointer">-</button>
+                            <span class="px-2 text-xs font-bold">${item.qty}</span>
+                            <button onclick="updateQty('${item.key}', 1)" class="px-2.5 py-1 text-xs text-gray-600 hover:bg-gray-100 font-bold cursor-pointer">+</button>
+                        </div>
+                    </div>
+                `).join('');
+            }
+            updateCartTotals();
+        }
+
+        function updateCartTotals() {
+            const MOC_FREESHIP_HN = 1000000; 
+            const MOC_DISCOUNT = 2000000;    
+            const DISCOUNT_RATE = 0.05;
+
+            const subtotal = cart.reduce((sum, item) => sum + (item.price * item.qty), 0);
+            let discount = subtotal >= MOC_DISCOUNT ? Math.round(subtotal * DISCOUNT_RATE) : 0;
+            const totalAfterDiscount = subtotal - discount;
+
+            const zoneSelect = document.getElementById('shippingZone');
+            const selectedZone = zoneSelect ? zoneSelect.value : '';
+
+            let shippingFee = 0;
+            if (selectedZone === 'within2km') shippingFee = 0;
+            else if (selectedZone === 'hanoi_inner') shippingFee = totalAfterDiscount >= MOC_FREESHIP_HN ? 0 : 25000;
+            else if (selectedZone === 'hanoi_outer') shippingFee = 35000;
+            else if (selectedZone === 'provinces') shippingFee = 45000;
+
+            const finalTotal = totalAfterDiscount + shippingFee;
+
+            let promoText = subtotal >= MOC_DISCOUNT ? "🎉 <b>Chúc mừng!</b> Đơn hàng đạt trên 2tr được <b>Giảm 5%</b>!" : `🎁 Mua thêm <b>${(MOC_DISCOUNT - subtotal).toLocaleString('vi-VN')}đ</b> để nhận ngay ưu đãi <b>Giảm 5%</b>!`;
+            const promoBanner = document.getElementById('shippingPromoBanner');
+            if (promoBanner) promoBanner.innerHTML = promoText;
+
+            document.getElementById('cartTotal').textContent = finalTotal.toLocaleString('vi-VN') + 'đ';
+            document.getElementById('cartSubtotal').textContent = subtotal.toLocaleString('vi-VN') + 'đ';
+            document.getElementById('cartDiscount').textContent = '-' + discount.toLocaleString('vi-VN') + 'đ';
+            document.getElementById('cartShipping').textContent = shippingFee === 0 ? 'FREE' : shippingFee.toLocaleString('vi-VN') + 'đ';
+            document.getElementById('cartTotalPrice').textContent = finalTotal.toLocaleString('vi-VN') + 'đ';
+
+            const cartBar = document.getElementById('cartBar');
+            if (cart.length > 0) cartBar.classList.remove('hidden');
+            else cartBar.classList.add('hidden');
+        }
+
+        function openCartModal() { updateCartTotals(); document.getElementById('cartModal').classList.remove('hidden'); }
+        function closeModal(id) { document.getElementById(id).classList.add('hidden'); }
+
+        async function submitOrder(e) {
+            e.preventDefault();
+            if (cart.length === 0) return alert("Giỏ hàng của bạn đang trống!");
+
+            const name = document.getElementById('custName').value.trim();
+            const phone = document.getElementById('custPhone').value.trim();
+            const address = document.getElementById('custAddress').value.trim();
+            const note = document.getElementById('custNote') ? document.getElementById('custNote').value.trim() : '';
+
+            const phoneRegex = /^(0[3|5|7|8|9])+([0-9]{8})$/;
+            if (!phoneRegex.test(phone)) { alert("Số điện thoại không hợp lệ. Vui lòng nhập đúng 10 chữ số."); return; }
+
+            const subtotal = cart.reduce((sum, item) => sum + (item.price * item.qty), 0);
+            let discount = (subtotal >= 2000000) ? Math.round(subtotal * 0.05) : 0;
+            const itemsAmount = subtotal - discount;
+
+            const zoneSelect = document.getElementById('shippingZone')?.value || '';
+            let shippingFee = 0;
+            if (zoneSelect === 'within2km') shippingFee = 0;
+            else if (zoneSelect === 'hanoi_inner') shippingFee = itemsAmount >= 1000000 ? 0 : 25000;
+            else if (zoneSelect === 'hanoi_outer') shippingFee = 35000;
+            else if (zoneSelect === 'provinces') shippingFee = 45000;
+
+            const totalAmount = itemsAmount + shippingFee;
+            const itemsDetail = cart.map(i => `${i.name} (${i.grind}) x${i.qty} [${(i.price * i.qty).toLocaleString('vi-VN')}đ]`).join(' | ');
+
+            const submitBtn = document.getElementById('submitBtn');
+            if (submitBtn) { submitBtn.disabled = true; submitBtn.innerText = "ĐANG GỬI ĐƠN HÀNG..."; }
+
+            const payload = {
+                customerName: name, customerPhone: phone, customerAddress: address,
+                orderDetails: itemsDetail, itemsAmount: itemsAmount, shippingFee: shippingFee,
+                totalAmount: totalAmount, paymentMethod: "COD", notes: note
+            };
+
+            try {
+                await fetch(SCRIPT_URL, { method: 'POST', mode: 'no-cors', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
+                closeModal('cartModal');
+                document.getElementById('orderSuccessModal').classList.remove('hidden');
+                cart = []; saveCart(); document.getElementById('checkoutForm').reset();
+            } catch (err) {
+                alert("Có lỗi xảy ra khi gửi đơn hàng. Vui lòng thử lại!");
+            } finally {
+                if (submitBtn) { submitBtn.disabled = false; submitBtn.innerText = "XÁC NHẬN ĐẶT HÀNG"; }
+            }
+        }
+    </script>
+</body>
+</html>
