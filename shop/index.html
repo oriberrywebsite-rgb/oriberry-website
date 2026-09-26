@@ -115,13 +115,13 @@
     <div id="cartBar" class="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 shadow-xl p-3 z-35 hidden">
         <div class="max-w-4xl mx-auto flex items-center justify-between">
             <div class="flex items-center space-x-3">
-                <div class="bg-amber-700 text-white w-10 h-10 rounded-full flex items-center justify-center font-bold text-sm shadow" id="cartCount">0</div>
+                <div class="bg-amber-950 text-white w-10 h-10 rounded-full flex items-center justify-center font-bold text-sm shadow" id="cartCount">0</div>
                 <div>
                     <div class="text-xs text-gray-500">Cart Subtotal</div>
                     <div class="font-bold text-base text-gray-900" id="cartTotal">0đ</div>
                 </div>
             </div>
-            <button onclick="openCartModal()" class="bg-amber-700 hover:bg-amber-800 text-white px-6 py-2.5 rounded-xl font-bold text-sm shadow-md transition flex items-center gap-2 cursor-pointer">
+            <button onclick="openCartModal()" class="bg-amber-950 hover:bg-amber-950 text-white px-6 py-2.5 rounded-xl font-bold text-sm shadow-md transition flex items-center gap-2 cursor-pointer">
                 <span>View cart</span>
                 <i class="fa-solid fa-arrow-right"></i>
             </button>
@@ -147,7 +147,7 @@
                         <p id="detailWeight" class="text-xs text-gray-500"></p>
                         <div class="pt-4 flex items-center justify-between gap-3">
                             <button onclick="closeModal('detailModal')" class="w-1/3 py-2.5 px-3 bg-gray-100 hover:bg-gray-200 text-gray-700 text-xs font-semibold rounded-xl transition text-center cursor-pointer">Close</button>
-                            <button id="detailBuyBtn" class="w-2/3 py-2.5 px-3 bg-amber-700 hover:bg-amber-800 text-white text-xs font-bold rounded-xl transition shadow-sm text-center cursor-pointer">Select grind size &rarr;</button>
+                            <button id="detailBuyBtn" class="w-2/3 py-2.5 px-3 bg-amber-950 hover:bg-amber-950 text-white text-xs font-bold rounded-xl transition shadow-sm text-center cursor-pointer">Select grind size &rarr;</button>
                         </div>
                     </div>
                 </div>
@@ -183,7 +183,7 @@
                     <button onclick="changePopQty(1)" class="px-3 py-1.5 text-sm font-bold text-gray-600 hover:bg-gray-100 cursor-pointer">+</button>
                 </div>
             </div>
-            <button onclick="confirmAddToCart()" class="w-full bg-amber-700 text-white font-bold text-xs py-3.5 rounded-xl hover:bg-amber-800 transition shadow-md cursor-pointer">Add to cart</button>
+            <button onclick="confirmAddToCart()" class="w-full bg-amber-950 text-white font-bold text-xs py-3.5 rounded-xl hover:bg-amber-950 transition shadow-md cursor-pointer">Add to cart</button>
         </div>
     </div>
 
@@ -221,7 +221,7 @@
                         <input type="tel" id="custPhone" placeholder="Phone number * (VD: 0901234567)" required pattern="^(0[3|5|7|8|9])+([0-9]{8})$" class="w-full text-xs border border-gray-300 rounded-xl p-2.5 focus:outline-none focus:border-amber-700">
                         <textarea id="custAddress" placeholder="Shipping address..." rows="2" required minlength="8" class="w-full text-xs border border-gray-300 rounded-xl p-2.5 focus:outline-none focus:border-amber-700"></textarea>
                         <textarea id="custNote" placeholder="Note for Oriberry..." rows="1" class="w-full text-xs border border-gray-300 rounded-xl p-2.5 focus:outline-none focus:border-amber-700"></textarea>
-                        <button type="submit" id="submitBtn" class="w-full bg-neutral-900 hover:bg-amber-800 text-white font-bold py-3 rounded-xl text-xs transition uppercase tracking-wider shadow-md cursor-pointer">PLACE ORDER</button>
+                        <button type="submit" id="submitBtn" class="w-full bg-neutral-900 hover:bg-amber-950 text-white font-bold py-3 rounded-xl text-xs transition uppercase tracking-wider shadow-md cursor-pointer">PLACE ORDER</button>
                     </form>
                 </div>
             </div>
@@ -235,7 +235,7 @@
             <div class="w-14 h-14 bg-emerald-100 text-emerald-700 rounded-full flex items-center justify-center mx-auto text-2xl font-bold">✓</div>
             <h3 class="text-lg font-bold text-gray-900">Đặt hàng thành công!</h3>
             <p class="text-xs text-gray-600 leading-relaxed">Cảm ơn Quý khách đã tin tưởng Oriberry Coffee. Chúng tôi sẽ liên hệ xác nhận trong thời gian sớm nhất.</p>
-            <button onclick="closeModal('orderSuccessModal')" class="w-full bg-neutral-900 text-white font-bold text-xs py-3 rounded-xl hover:bg-amber-800 transition cursor-pointer">Tiếp tục mua hàng</button>
+            <button onclick="closeModal('orderSuccessModal')" class="w-full bg-neutral-900 text-white font-bold text-xs py-3 rounded-xl hover:bg-amber-950 transition cursor-pointer">Tiếp tục mua hàng</button>
         </div>
     </div>
 
