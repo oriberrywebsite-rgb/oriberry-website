@@ -333,40 +333,51 @@ async function confirmOrder() {
       document.getElementById('orderModal').classList.add('hidden');
     }
 
-    function renderTable(orders) {
-      const tbody = document.getElementById('orderTableBody');
-      if (!orders || orders.length === 0) {
+let allOrdersData = []; // Biến lưu tạm danh sách đơn hàng toàn cục
+
+function renderTable(orders) {
+    allOrdersData = orders || []; // Lưu lại để dùng khi bấm nút
+    const tbody = document.getElementById('orderTableBody');
+    if (!orders || orders.length === 0) {
         tbody.innerHTML = '<tr><td colspan="7" class="p-8 text-center text-slate-400">Chưa có đơn hàng nào</td></tr>';
         return;
-      }
-
-      tbody.innerHTML = orders.map(o => `
-        <tr class="hover:bg-slate-50 transition">
-          <td class="p-4 font-bold text-slate-900">#${o.orderId}</td>
-          <td class="p-4 text-xs text-slate-500">${o.date || ''}</td>
-          <td class="p-4">
-            <div class="font-semibold text-slate-800">${o.name}</div>
-            <div class="text-xs text-slate-500">${o.phone}</div>
-          </td>
-          <td class="p-4 text-xs font-medium text-slate-700">
-            ${formatItemsToHTML(o.items)}
-          </td>
-          <td class="p-4 font-bold text-amber-900">${o.total}</td>
-          <td class="p-4">
-            <span class="px-2.5 py-1 rounded-full text-xs font-bold ${o.status === 'CONFIRMED' ? 'bg-emerald-100 text-emerald-700' : 'bg-amber-100 text-amber-800'}">
-              ${o.status === 'CONFIRMED' ? 'Đã Xác Nhận' : 'Chờ Xử Lý'}
-            </span>
-          </td>
-          <td class="p-4 text-center">
-            ${o.status !== 'CONFIRMED' ? `
-              <button onclick="showModal(${JSON.stringify(o).replace(/"/g, '&quot;')}); playBell();" class="px-3 py-1 bg-amber-900 text-white rounded-lg text-xs font-bold hover:bg-amber-800">
-                Xử lý
-              </button>
-            ` : '<span class="text-xs text-slate-400">✓ Hoàn tất</span>'}
-          </td>
-        </tr>
-      `).join('');
     }
+
+    tbody.innerHTML = orders.map((o, index) => `
+        <tr class="hover:bg-slate-50 transition">
+            <td class="p-4 font-bold text-slate-900">#${o.orderId}</td>
+            <td class="p-4 text-xs text-slate-500">${o.date || ''}</td>
+            <td class="p-4">
+                <div class="font-semibold text-slate-800">${o.name}</div>
+                <div class="text-xs text-slate-500">${o.phone}</div>
+            </td>
+            <td class="p-4 text-font-medium text-slate-700">
+                ${formatItemsToHTML(o.items)}
+            </td>
+            <td class="p-4 font-bold text-amber-900">${o.total}</td>
+            <td class="p-4">
+                <span class="px-2.5 py-1 rounded-full text-xs font-bold ${o.status === 'CONFIRMED' ? 'bg-emerald-100 text-emerald-700' : 'bg-amber-100 text-amber-700'}">
+                    ${o.status === 'CONFIRMED' ? 'Đã Xác Nhận' : 'Chờ Xử Lý'}
+                </span>
+            </td>
+            <td class="p-4 text-center">
+                ${o.status !== 'CONFIRMED' ? `
+                    <button onclick="handleProcessClick(${index}); playBell();" class="px-3 py-1 bg-amber-900 text-white rounded-lg text-xs font-bold hover:bg-amber-800">
+                        Xử lý
+                    </button>
+                ` : '<span class="text-xs text-slate-400">Hoàn tất</span>'}
+            </td>
+        </tr>
+    `).join('');
+}
+
+// Hàm trung gian để gọi showModal an toàn tuyệt đối bằng index
+function handleProcessClick(index) {
+    const targetOrder = allOrdersData[index];
+    if (targetOrder) {
+        showModal(targetOrder);
+    }
+}
 
     // Khởi chạy
     checkAuth();
