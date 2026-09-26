@@ -62,17 +62,19 @@
     <div class="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
       <div class="overflow-x-auto">
         <table class="w-full text-left border-collapse">
-          <thead>
-            <tr class="bg-slate-50 border-b border-slate-200 text-xs font-bold text-slate-500 uppercase tracking-wider">
-              <th class="p-4">Mã Đơn</th>
-              <th class="p-4">Thời Gian</th>
-              <th class="p-4">Khách Hàng</th>
-              <th class="p-4 min-w-[280px]">Sản Phẩm</th>
-              <th class="p-4">Tổng Tiền</th>
-              <th class="p-4">Trạng Thái</th>
-              <th class="p-4 text-center">Thao Tác</th>
-            </tr>
-          </thead>
+<thead>
+    <tr class="text-left text-xs text-slate-500 border-b border-slate-200">
+        <th class="p-4">Mã Đơn</th>
+        <th class="p-4">Ngày Đặt</th>
+        <th class="p-4">Khách Hàng & SĐT</th>
+        <th class="p-4">Địa Chỉ</th>
+        <th class="p-4">Chi Tiết Đơn Hàng</th>
+        <th class="p-4">Tổng Thanh Toán</th>
+        <th class="p-4">Phương Thức</th>
+        <th class="p-4">Trạng Thái</th>
+        <th class="p-4 text-center">Thao Tác</th>
+    </tr>
+</thead>
           <tbody id="orderTableBody" class="divide-y divide-slate-100 text-sm">
             <tr>
               <td colspan="7" class="p-8 text-center text-slate-400">Đang tải dữ liệu đơn hàng...</td>
@@ -335,26 +337,28 @@ async function confirmOrder() {
 
 let allOrdersData = []; // Biến lưu tạm danh sách đơn hàng toàn cục
 
+let allOrdersData = [];
+
 function renderTable(orders) {
-    allOrdersData = orders || []; // Lưu lại để dùng khi bấm nút
+    allOrdersData = orders || [];
     const tbody = document.getElementById('orderTableBody');
     if (!orders || orders.length === 0) {
-        tbody.innerHTML = '<tr><td colspan="7" class="p-8 text-center text-slate-400">Chưa có đơn hàng nào</td></tr>';
+        tbody.innerHTML = '<tr><td colspan="9" class="p-8 text-center text-slate-400">Chưa có đơn hàng nào</td></tr>';
         return;
     }
 
     tbody.innerHTML = orders.map((o, index) => `
-        <tr class="hover:bg-slate-50 transition">
+        <tr class="hover:bg-slate-50 transition border-b border-slate-100">
             <td class="p-4 font-bold text-slate-900">#${o.orderId}</td>
             <td class="p-4 text-xs text-slate-500">${o.date || ''}</td>
             <td class="p-4">
-                <div class="font-semibold text-slate-800">${o.name}</div>
-                <div class="text-xs text-slate-500">${o.phone}</div>
+                <div class="font-semibold text-slate-800">${o.name || ''}</div>
+                <div class="text-xs text-slate-500">${o.phone || ''}</div>
             </td>
-            <td class="p-4 text-font-medium text-slate-700">
-                ${formatItemsToHTML(o.items)}
-            </td>
-            <td class="p-4 font-bold text-amber-900">${o.total}</td>
+            <td class="p-4 text-xs text-slate-600 max-w-xs truncate">${o.address || ''}</td>
+            <td class="p-4 text-xs text-slate-700">${formatItemsToHTML(o.items)}</td>
+            <td class="p-4 font-bold text-amber-900">${o.total || ''}</td>
+            <td class="p-4 text-xs font-medium text-slate-700">${o.paymentMethod || 'COD'}</td>
             <td class="p-4">
                 <span class="px-2.5 py-1 rounded-full text-xs font-bold ${o.status === 'CONFIRMED' ? 'bg-emerald-100 text-emerald-700' : 'bg-amber-100 text-amber-700'}">
                     ${o.status === 'CONFIRMED' ? 'Đã Xác Nhận' : 'Chờ Xử Lý'}
