@@ -302,26 +302,12 @@
     }
 
     // Nút 1: XÁC NHẬN ĐƠN
-    async function confirmOrder() {
+    function confirmOrder() {
       if (!currentProcessingOrder) return;
-      
+
       stopBell();
       document.getElementById('orderModal').classList.add('hidden');
       knownOrders.add(currentProcessingOrder.orderId);
-
-      try {
-        await fetch(SCRIPT_URL, {
-          method: 'POST',
-          body: JSON.stringify({ 
-            action: 'updateStatus', 
-            orderId: currentProcessingOrder.orderId, 
-            status: 'CONFIRMED' 
-          })
-        });
-        fetchOrders();
-      } catch (e) {
-        console.error("Lỗi cập nhật đơn:", e);
-      }
     }
 
     // Nút 2: CHỜ XỬ LÝ (Ẩn popup, dừng chuông để kiểm tra kho)
