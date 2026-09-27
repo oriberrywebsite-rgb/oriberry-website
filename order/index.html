@@ -36,12 +36,19 @@
                 </a>
             </div>
             
-            <!-- Nút chọn hình thức nhận hàng (Thay thế cho nút chọn cửa hàng cũ) -->
-            <button onclick="openFulfillmentModal()" class="flex items-center space-x-2 bg-stone-100 hover:bg-stone-200 text-stone-800 px-3.5 py-2 rounded-xl text-xs font-semibold transition border border-stone-200 shadow-sm cursor-pointer">
-                <i class="fa-solid fa-store text-amber-900"></i>
-                <span id="headerFulfillmentLabel">Uống tại quán</span>
-                <i class="fa-solid fa-chevron-down text-[10px] text-stone-500"></i>
-            </button>
+            <!-- Nút chọn hình thức & địa điểm nhận hàng (Kết hợp V0 + V2) -->
+            <div onclick="openFulfillmentModal()" class="flex items-center space-x-2 cursor-pointer bg-stone-50 hover:bg-stone-100 px-3.5 py-1.5 rounded-xl border border-stone-200 transition shadow-sm">
+                <div class="bg-amber-100 text-amber-900 w-6 h-6 rounded-full flex items-center justify-center">
+                    <i class="fa-solid fa-store text-[10px]" id="headerIcon"></i>
+                </div>
+                <div>
+                    <div class="text-[9px] text-stone-500 flex items-center gap-1">
+                        <span id="fulfillmentLabel">Hình thức</span> 
+                        <i class="fa-solid fa-chevron-down text-[7px]"></i>
+                    </div>
+                    <div class="font-bold text-xs text-stone-900 truncate max-w-[140px]" id="fulfillmentValue">Chọn cửa hàng</div>
+                </div>
+            </div>
         </div>
     </header>
 
@@ -103,51 +110,126 @@
         </div>
     </div>
 
-    <!-- MODAL CHỌN HÌNH THỨC NHẬN HÀNG (Pop-up theo yêu cầu) -->
-    <div id="fulfillmentModal" class="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
-        <div class="relative w-full max-w-sm bg-white rounded-2xl shadow-2xl p-6 space-y-4">
-            <button onclick="closeModal('fulfillmentModal')" class="absolute top-3 right-3 text-stone-400 hover:text-stone-800 text-xl font-bold"><i class="fa-solid fa-xmark"></i></button>
-            <h3 class="text-base font-bold text-stone-900 border-b border-stone-100 pb-2">Chọn hình thức nhận hàng</h3>
-            <div class="space-y-2">
-                <button onclick="selectFulfillment('Uống tại quán')" class="w-full text-left px-4 py-3 rounded-xl border border-stone-200 hover:border-amber-900 hover:bg-amber-900/5 transition text-xs font-bold text-stone-800 flex items-center justify-between">
-                    <span>Uống tại quán (Dine-in)</span>
-                    <i class="fa-solid fa-mug-hot text-amber-900"></i>
-                </button>
-                <button onclick="selectFulfillment('Mang đi')" class="w-full text-left px-4 py-3 rounded-xl border border-stone-200 hover:border-amber-900 hover:bg-amber-900/5 transition text-xs font-bold text-stone-800 flex items-center justify-between">
-                    <span>Mang đi (Pickup)</span>
-                    <i class="fa-solid fa-bag-shopping text-amber-900"></i>
-                </button>
-                <button onclick="selectFulfillment('Giao tận nơi')" class="w-full text-left px-4 py-3 rounded-xl border border-stone-200 hover:border-amber-900 hover:bg-amber-900/5 transition text-xs font-bold text-stone-800 flex items-center justify-between">
-                    <span>Giao tận nơi (Delivery)</span>
-                    <i class="fa-solid fa-truck-fast text-amber-900"></i>
-                </button>
-            </div>
-        </div>
-    </div>
+    <!-- ================= MODALS HỆ THỐNG (LUỒNG CHỌN NÂNG CAO TỪ V0) ================= -->
 
-    <!-- MODAL CHI TIẾT MÓN (GIỐNG STYLE /SHOP NHƯNG TÙY CHỈNH THEO MÓN ĂN/ĐỒ UỐNG) -->
-    <div id="detailModal" class="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
-        <div class="relative w-full max-w-lg bg-white rounded-2xl shadow-2xl overflow-hidden max-h-[90vh] flex flex-col">
-            <button onclick="closeModal('detailModal')" class="absolute top-3 right-3 bg-black/50 text-white w-8 h-8 rounded-full flex items-center justify-center z-10 transition"><i class="fa-solid fa-xmark"></i></button>
-            <div class="overflow-y-auto p-5 space-y-4">
-                <img id="detailMainImg" src="" class="w-full h-56 object-cover rounded-xl bg-stone-100">
-                <span id="detailTag" class="inline-block text-[10px] font-bold bg-amber-900/10 text-amber-950 px-2.5 py-1 rounded-md uppercase tracking-wide"></span>
-                <h2 id="detailName" class="text-xl font-bold text-stone-900"></h2>
-                <p id="detailPrice" class="text-lg font-bold text-amber-900"></p>
-                <div class="space-y-1">
-                    <label class="block text-xs font-bold text-stone-700 uppercase tracking-wider">Ghi chú cho món (Note):</label>
-                    <input type="text" id="itemNoteInput" placeholder="Ví dụ: Ít đá, nhiều sữa..." class="w-full text-xs border border-stone-300 rounded-xl p-2.5 focus:outline-none focus:border-amber-700">
+    <!-- MODAL 1: CHỌN PHƯƠNG THỨC NHẬN HÀNG -->
+    <div id="fulfillmentModal" class="fixed inset-0 bg-black/50 z-50 flex items-end sm:items-center justify-center hidden">
+        <div class="bg-white w-full max-w-lg rounded-t-3xl sm:rounded-2xl p-5 max-h-[90vh] overflow-y-auto">
+            <div class="flex justify-between items-center mb-4">
+                <h3 class="font-bold text-lg text-stone-900">Chọn phương thức nhận hàng</h3>
+                <button onclick="closeModal('fulfillmentModal')" class="text-stone-400 hover:text-stone-600 p-1 cursor-pointer"><i class="fa-solid fa-xmark text-xl"></i></button>
+            </div>
+            <div class="space-y-3">
+                <div onclick="selectFulfillment('DELIVERY')" class="border border-stone-200 p-4 rounded-xl cursor-pointer hover:border-amber-900 hover:bg-amber-900/5 transition flex items-start gap-3">
+                    <i class="fa-solid fa-motorcycle text-xl text-amber-900 mt-1"></i>
+                    <div>
+                        <div class="font-bold text-stone-900">Giao hàng tận nơi (Delivery)</div>
+                        <div class="text-xs text-stone-500 mt-0.5">Chọn phường giao hàng, tính phí ship tạm tính & xác nhận trước khi giao.</div>
+                    </div>
                 </div>
-                <div class="text-xs text-stone-600 bg-stone-50 p-3 rounded-xl border border-stone-200" id="detailLongDesc"></div>
-                <div class="pt-2 flex gap-3">
-                    <button onclick="closeModal('detailModal')" class="w-1/3 py-2.5 bg-stone-100 text-stone-700 text-xs font-semibold rounded-xl transition">Đóng</button>
-                    <button onclick="addCurrentItemToCart()" class="w-2/3 py-2.5 bg-amber-950 text-white text-xs font-bold rounded-xl transition shadow-sm">Thêm vào giỏ</button>
+                <div onclick="selectFulfillment('PICKUP')" class="border border-stone-200 p-4 rounded-xl cursor-pointer hover:border-amber-900 hover:bg-amber-900/5 transition flex items-start gap-3">
+                    <i class="fa-solid fa-bag-shopping text-xl text-amber-900 mt-1"></i>
+                    <div>
+                        <div class="font-bold text-stone-900">Đến lấy mang đi (Pickup)</div>
+                        <div class="text-xs text-stone-500 mt-0.5">Chọn cơ sở gần nhất để ghé lấy đồ uống nhanh chóng.</div>
+                    </div>
+                </div>
+                <div onclick="selectFulfillment('DINE_IN')" class="border border-stone-200 p-4 rounded-xl cursor-pointer hover:border-amber-900 hover:bg-amber-900/5 transition flex items-start gap-3">
+                    <i class="fa-solid fa-utensils text-xl text-amber-900 mt-1"></i>
+                    <div>
+                        <div class="font-bold text-stone-900">Uống tại quán (Dine-in tại bàn)</div>
+                        <div class="text-xs text-stone-500 mt-0.5">Chọn cơ sở và mã bàn ngồi của bạn.</div>
+                    </div>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- MODAL GIỎ HÀNG -->
+    <!-- MODAL 2: CHỌN CỬA HÀNG ORIBERRY -->
+    <div id="storeModal" class="fixed inset-0 bg-black/50 z-50 flex items-end sm:items-center justify-center hidden">
+        <div class="bg-white w-full max-w-lg rounded-t-3xl sm:rounded-2xl p-5 max-h-[90vh] overflow-y-auto">
+            <div class="flex justify-between items-center mb-4">
+                <button onclick="backToFulfillmentModal()" class="text-stone-600 text-sm font-medium cursor-pointer"><i class="fa-solid fa-arrow-left"></i> Quay lại</button>
+                <h3 class="font-bold text-lg text-stone-900">Chọn cửa hàng Oriberry</h3>
+                <button onclick="closeModal('storeModal')" class="text-stone-400 cursor-pointer"><i class="fa-solid fa-xmark text-xl"></i></button>
+            </div>
+            <div class="space-y-3" id="storeListContainer"></div>
+        </div>
+    </div>
+
+    <!-- MODAL 3: CHỌN PHƯỜNG & ĐỊA CHỈ DELIVERY -->
+    <div id="deliveryModal" class="fixed inset-0 bg-black/50 z-50 flex items-end sm:items-center justify-center hidden">
+        <div class="bg-white w-full max-w-lg rounded-t-3xl sm:rounded-2xl p-5 max-h-[90vh] overflow-y-auto">
+            <div class="flex justify-between items-center mb-4">
+                <button onclick="backToFulfillmentModal()" class="text-stone-600 text-sm font-medium cursor-pointer"><i class="fa-solid fa-arrow-left"></i> Quay lại</button>
+                <h3 class="font-bold text-lg text-stone-900">Địa chỉ giao hàng</h3>
+                <button onclick="closeModal('deliveryModal')" class="text-stone-400 cursor-pointer"><i class="fa-solid fa-xmark text-xl"></i></button>
+            </div>
+            <div class="space-y-3">
+                <div>
+                    <label class="block text-xs font-bold text-stone-600 mb-1">Chọn Phường phụ trách:</label>
+                    <select id="wardSelect" class="w-full p-2.5 border border-stone-300 rounded-xl text-xs bg-white focus:outline-none focus:border-amber-700">
+                        <option value="">-- Chọn phường giao hàng --</option>
+                        <option value="Phường Tràng Tiền / Hàng Bài">Phường Tràng Tiền / Hàng Bài (Giao từ Ấu Triệu)</option>
+                        <option value="Phường Quảng An / Tây Hồ">Phường Quảng An / Tây Hồ (Giao từ Quảng An)</option>
+                        <option value="Phường Trung Liệt / Đống Đa">Phường Trung Liệt / Đặng Tiến Đông (Giao từ Đặng Tiến Đông)</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-stone-600 mb-1">Số nhà, tên đường cụ thể / Số bàn (nếu có):</label>
+                    <input type="text" id="deliveryAddressDetail" placeholder="Ví dụ: Số 12 ngõ..." class="w-full p-2.5 border border-stone-300 rounded-xl text-xs focus:outline-none focus:border-amber-700">
+                </div>
+                <div class="bg-amber-50 p-3 rounded-xl text-xs text-amber-900">
+                    <i class="fa-solid fa-circle-info"></i> Phí ship tạm tính sẽ hiển thị và nhân viên sẽ liên hệ xác nhận trước khi giao.
+                </div>
+                <button onclick="confirmDeliveryAddress()" class="w-full bg-amber-950 hover:bg-neutral-900 text-white py-3 rounded-xl font-bold text-xs uppercase tracking-wider shadow transition cursor-pointer">Xác nhận địa chỉ giao hàng</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL 4: CHI TIẾT MÓN, CROSS-SELLING & NOTE FOR ORIBERRY -->
+    <div id="productDetailModal" class="fixed inset-0 bg-black/50 z-50 flex items-end sm:items-center justify-center hidden">
+        <div class="bg-white w-full max-w-lg rounded-t-3xl sm:rounded-2xl max-h-[90vh] overflow-y-auto flex flex-col shadow-2xl">
+            <div class="relative w-full h-56 bg-stone-100">
+                <img id="modalProdImg" src="" alt="" class="w-full h-full object-cover">
+                <button onclick="closeModal('productDetailModal')" class="absolute top-3 right-3 bg-black/50 text-white w-8 h-8 rounded-full flex items-center justify-center cursor-pointer transition"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            <div class="p-5 flex-1 space-y-4">
+                <div>
+                    <span id="modalProdTag" class="inline-block text-[10px] font-bold bg-amber-900/10 text-amber-950 px-2.5 py-1 rounded-md uppercase tracking-wide mb-1.5"></span>
+                    <h2 id="modalProdName" class="text-xl font-bold text-stone-900">Tên món</h2>
+                    <div id="modalProdPrice" class="text-amber-900 font-bold text-lg mt-1">0đ</div>
+                </div>
+                <p id="modalProdDesc" class="text-xs text-stone-600 leading-relaxed"></p>
+                
+                <!-- NOTE FOR ORIBERRY -->
+                <div>
+                    <label class="block text-xs font-bold text-stone-700 uppercase tracking-wider mb-1">Note for Oriberry (Ghi chú cho món):</label>
+                    <input type="text" id="modalItemNote" placeholder="Ví dụ: Ít đá, nhiều sữa, không đường..." class="w-full p-2.5 border border-stone-300 rounded-xl text-xs focus:outline-none focus:border-amber-700">
+                </div>
+
+                <!-- GỢI Ý DÙNG KÈM (CROSS-SELLING) -->
+                <div>
+                    <div class="text-xs font-bold text-stone-500 uppercase tracking-wider mb-2">Gợi ý dùng kèm</div>
+                    <div class="flex gap-3 overflow-x-auto no-scrollbar pb-2" id="crossSellContainer"></div>
+                </div>
+
+                <!-- SỐ LƯỢNG & NÚT THÊM VÀO GIỎ -->
+                <div class="pt-3 border-t border-stone-100 flex items-center justify-between gap-4">
+                    <div class="flex items-center border border-stone-300 rounded-xl overflow-hidden">
+                        <button onclick="adjustModalQty(-1)" class="px-3 py-2 bg-stone-100 hover:bg-stone-200 font-bold text-stone-700"><i class="fa-solid fa-minus text-xs"></i></button>
+                        <span id="modalQty" class="px-4 font-bold text-sm text-stone-800">1</span>
+                        <button onclick="adjustModalQty(1)" class="px-3 py-2 bg-stone-100 hover:bg-stone-200 font-bold text-stone-700"><i class="fa-solid fa-plus text-xs"></i></button>
+                    </div>
+                    <button onclick="addToCartFromModal()" id="modalAddBtn" class="flex-1 bg-amber-950 hover:bg-neutral-900 text-white py-3 rounded-xl font-bold text-xs uppercase tracking-wider shadow transition cursor-pointer">
+                        Thêm vào giỏ - 0đ
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL GIỎ HÀNG & ĐẶT HÀNG -->
     <div id="cartModal" class="fixed inset-0 z-50 hidden">
         <div class="fixed inset-0 bg-black/60 backdrop-blur-sm" onclick="closeModal('cartModal')"></div>
         <div class="fixed inset-y-0 right-0 max-w-full flex pl-10">
@@ -177,7 +259,6 @@
 
     <!-- SCRIPTS LOGIC -->
     <script>
-        // Link Google Apps Script tương ứng với sheet của anh
         const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbymyOwnFx1K-PXq318HdJB06JVOeWZBb1PXkvT7mkowr8997UoOpxTLeIB56mQ2T5Gd/exec?action=getFoodMenu";
         const CATEGORIES = [
             { id: 'Coffee', name: 'Coffee', icon: 'fa-mug-hot' },
@@ -189,16 +270,28 @@
             { id: 'Spaghetti', name: 'Spaghetti', icon: 'fa-utensils' }
         ];
 
+        const STORES = [
+            { code: 'AU_TRIEU', name: 'Oriberry Ấu Triệu', address: '36 Ấu Triệu, Hoàn Kiếm, Hà Nội' },
+            { code: 'QUANG_AN', name: 'Oriberry Quảng An', address: '12 Đặng Thai Mai, Tây Hồ, Hà Nội' },
+            { code: 'DANG_TIEN_DONG', name: 'Oriberry Đặng Tiến Đông', address: '155 Đặng Tiến Đông, Đống Đa, Hà Nội' }
+        ];
+
         let PRODUCTS = [];
-        let activeItem = null;
+        let currentFulfillment = 'DINE_IN';
+        let selectedStoreOrLocation = 'Oriberry Ấu Triệu';
+        let activeProductForModal = null;
+        let currentModalQty = 1;
         let cart = JSON.parse(localStorage.getItem('oriberry_order_cart') || '[]');
 
         document.addEventListener('DOMContentLoaded', () => {
             renderSidebarCategories();
+            renderStores();
             fetchMenuProducts();
             updateCartUI();
+            checkUrlTableParam();
         });
 
+        // Xử lý bật/tắt Sidebar ẩn/hiện
         function toggleSidebar() {
             const sidebar = document.getElementById('categorySidebar');
             if (sidebar.classList.contains('-translate-x-full')) showSidebar();
@@ -217,6 +310,23 @@
         function maybeHideSidebarOnContentClick() {
             const sidebar = document.getElementById('categorySidebar');
             if (!sidebar.classList.contains('-translate-x-full')) hideSidebar();
+        }
+
+        function checkUrlTableParam() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const table = urlParams.get('table');
+            const store = urlParams.get('store') || 'AU_TRIEU';
+            if (table) {
+                currentFulfillment = 'DINE_IN';
+                const storeObj = STORES.find(s => s.code === store) || STORES[0];
+                selectedStoreOrLocation = `${storeObj.name} - Bàn ${table}`;
+                document.getElementById('headerIcon').className = "fa-solid fa-utensils text-[10px]";
+                document.getElementById('fulfillmentLabel').innerText = "Uống tại quán";
+                document.getElementById('fulfillmentValue').innerText = `Bàn: ${table}`;
+                document.getElementById('custAddress').value = `Uống tại bàn ${table} (${storeObj.name})`;
+            } else {
+                openFulfillmentModal();
+            }
         }
 
         function renderSidebarCategories() {
@@ -255,7 +365,6 @@
                 PRODUCTS = Array.isArray(result) ? result : (result.data || []);
                 renderMenuProducts();
             } catch (err) {
-                // Dữ liệu mẫu minh họa nếu chưa kết nối sheet
                 PRODUCTS = [
                     { id: '1', name: 'Airy-cano Classic', category: 'Coffee', price: 45000, shortDesc: 'Hương vị Americano nguyên bản đậm đà.', img1: 'https://images.unsplash.com/photo-1514432324607-a09d9b4aefdd?w=300' },
                     { id: '2', name: 'Trà Sen Vàng Cao Cấp', category: 'Tea', price: 55000, shortDesc: 'Trà ô long thượng hạng kết hợp hương sen mộc mạc.', img1: 'https://images.unsplash.com/photo-1576092768241-dec231879fc3?w=300' }
@@ -268,7 +377,7 @@
             const sortVal = document.getElementById('sort-price')?.value || 'default';
             const searchKeyword = document.getElementById('search-input')?.value.toLowerCase() || '';
 
-            let filtered = PRODUCTS.filter(p => p.name.toLowerCase().includes(searchKeyword));
+            let filtered = PRODUCTS.filter(p => (p.name || '').toLowerCase().includes(searchKeyword));
 
             if (sortVal === 'low-to-high') filtered.sort((a, b) => Number(a.price) - Number(b.price));
             else if (sortVal === 'high-to-low') filtered.sort((a, b) => Number(b.price) - Number(a.price));
@@ -280,12 +389,15 @@
                 const groupItems = filtered.filter(p => (p.category || '').trim().toLowerCase() === cat.id.toLowerCase());
                 if (groupItems.length > 0) {
                     let cards = groupItems.map(p => `
-                        <div class="bg-white border border-stone-200 rounded-2xl p-3.5 shadow-sm hover:shadow-md transition flex items-center justify-between gap-3 cursor-pointer" onclick="openDetailModal('${p.id}')">
+                        <div class="bg-white border border-stone-200 rounded-2xl p-3.5 shadow-sm hover:shadow-md transition flex items-center justify-between gap-3 cursor-pointer" onclick="openProductModal('${p.id}')">
                             <img src="${p.img1 || 'https://images.unsplash.com/photo-1559056199-641a0ac8b55e?w=300'}" class="w-20 h-20 object-cover rounded-xl flex-shrink-0 bg-stone-100">
                             <div class="flex-1 min-w-0">
                                 <h3 class="text-sm font-bold text-stone-900 truncate">${p.name}</h3>
                                 <p class="text-[11px] text-stone-500 line-clamp-2 mt-0.5">${p.shortDesc || ''}</p>
                                 <span class="text-xs font-bold text-amber-900 mt-1 inline-block">${Number(p.price || 0).toLocaleString('vi-VN')}đ</span>
+                            </div>
+                            <div class="w-8 h-8 rounded-full bg-amber-900/10 text-amber-900 flex items-center justify-center hover:bg-amber-950 hover:text-white transition flex-shrink-0 shadow-sm">
+                                <i class="fa-solid fa-plus text-xs"></i>
                             </div>
                         </div>
                     `).join('');
@@ -304,35 +416,122 @@
             container.innerHTML = htmlContent || `<div class="text-center py-12 text-stone-400 text-xs">Không tìm thấy món phù hợp.</div>`;
         }
 
+        // Luồng chọn hình thức & cơ sở quán (Modal V0)
         function openFulfillmentModal() { document.getElementById('fulfillmentModal').classList.remove('hidden'); }
+        function closeModal(id) { document.getElementById(id).classList.add('hidden'); }
+
         function selectFulfillment(type) {
-            document.getElementById('headerFulfillmentLabel').innerText = type;
+            currentFulfillment = type;
             closeModal('fulfillmentModal');
+            if (type === 'DELIVERY') {
+                document.getElementById('deliveryModal').classList.remove('hidden');
+            } else {
+                document.getElementById('storeModal').classList.remove('hidden');
+            }
         }
 
-        function openDetailModal(id) {
-            activeItem = PRODUCTS.find(p => String(p.id) === String(id));
-            if (!activeItem) return;
-            document.getElementById('detailMainImg').src = activeItem.img1 || '';
-            document.getElementById('detailTag').innerText = activeItem.category || 'Oriberry';
-            document.getElementById('detailName').innerText = activeItem.name || '';
-            document.getElementById('detailPrice').innerText = Number(activeItem.price || 0).toLocaleString('vi-VN') + 'đ';
-            document.getElementById('detailLongDesc').innerText = activeItem.longDesc || activeItem.shortDesc || 'Sản phẩm chất lượng từ Oriberry.';
-            document.getElementById('itemNoteInput').value = '';
-            document.getElementById('detailModal').classList.remove('hidden');
+        function backToFulfillmentModal() {
+            closeModal('storeModal');
+            closeModal('deliveryModal');
+            openFulfillmentModal();
         }
 
-        function addCurrentItemToCart() {
-            if (!activeItem) return;
-            const note = document.getElementById('itemNoteInput').value.trim();
-            const cartKey = `${activeItem.id}-${note}`;
+        function renderStores() {
+            const container = document.getElementById('storeListContainer');
+            container.innerHTML = STORES.map(s => `
+                <div onclick="chooseStore('${s.code}')" class="border border-stone-200 p-3.5 rounded-xl cursor-pointer hover:border-amber-900 hover:bg-amber-900/5 transition">
+                    <div class="font-bold text-sm text-stone-900">${s.name}</div>
+                    <div class="text-xs text-stone-500 mt-0.5">${s.address}</div>
+                </div>
+            `).join('');
+        }
+
+        function chooseStore(code) {
+            const storeObj = STORES.find(s => s.code === code);
+            selectedStoreOrLocation = storeObj.name;
+            closeModal('storeModal');
+            
+            const isDineIn = (currentFulfillment === 'DINE_IN');
+            document.getElementById('headerIcon').className = isDineIn ? "fa-solid fa-utensils text-[10px]" : "fa-solid fa-bag-shopping text-[10px]";
+            document.getElementById('fulfillmentLabel').innerText = isDineIn ? "Uống tại quán" : "Đến lấy mang đi";
+            document.getElementById('fulfillmentValue').innerText = storeObj.name;
+            document.getElementById('custAddress').value = `${isDineIn ? 'Uống tại quán' : 'Đến lấy'} - ${storeObj.name} (${storeObj.address})`;
+        }
+
+        function confirmDeliveryAddress() {
+            const ward = document.getElementById('wardSelect').value;
+            const detail = document.getElementById('deliveryAddressDetail').value;
+            if(!ward || !detail) {
+                alert('Vui lòng chọn phường và nhập địa chỉ chi tiết!');
+                return;
+            }
+            selectedStoreOrLocation = `${detail}, ${ward}`;
+            closeModal('deliveryModal');
+            document.getElementById('headerIcon').className = "fa-solid fa-motorcycle text-[10px]";
+            document.getElementById('fulfillmentLabel').innerText = "Giao hàng";
+            document.getElementById('fulfillmentValue').innerText = detail;
+            document.getElementById('custAddress').value = `Giao tận nơi: ${detail}, ${ward}`;
+        }
+
+        // Popup chi tiết món kèm Cross-selling & Note
+        function openProductModal(id) {
+            activeProductForModal = PRODUCTS.find(p => String(p.id) === String(id));
+            if (!activeProductForModal) return;
+            currentModalQty = 1;
+            
+            document.getElementById('modalProdImg').src = activeProductForModal.img1 || '';
+            document.getElementById('modalProdTag').innerText = activeProductForModal.category || 'Oriberry';
+            document.getElementById('modalProdName').innerText = activeProductForModal.name || '';
+            document.getElementById('modalProdPrice').innerText = Number(activeProductForModal.price || 0).toLocaleString('vi-VN') + 'đ';
+            document.getElementById('modalProdDesc').innerText = activeProductForModal.longDesc || activeProductForModal.shortDesc || 'Sản phẩm chất lượng từ Oriberry.';
+            document.getElementById('modalItemNote').value = '';
+            document.getElementById('modalQty').innerText = currentModalQty;
+            updateModalAddBtn();
+
+            // Gợi ý dùng kèm (Cross-selling)
+            const crossSells = PRODUCTS.filter(p => String(p.id) !== String(id)).slice(0, 4);
+            document.getElementById('crossSellContainer').innerHTML = crossSells.map(cs => `
+                <div onclick="openProductModal('${cs.id}')" class="w-32 flex-shrink-0 border border-stone-200 rounded-xl p-2 bg-stone-50 flex flex-col justify-between cursor-pointer hover:border-amber-900 transition">
+                    <img src="${cs.img1 || ''}" class="w-full h-16 object-cover rounded-lg mb-1 bg-stone-200">
+                    <div class="text-[11px] font-bold text-stone-800 truncate">${cs.name}</div>
+                    <div class="text-[11px] text-amber-900 font-bold">${Number(cs.price || 0).toLocaleString('vi-VN')}đ</div>
+                </div>
+            `).join('') || '<div class="text-xs text-stone-400">Không có sản phẩm gợi ý.</div>';
+
+            document.getElementById('productDetailModal').classList.remove('hidden');
+        }
+
+        function adjustModalQty(change) {
+            currentModalQty += change;
+            if (currentModalQty < 1) currentModalQty = 1;
+            document.getElementById('modalQty').innerText = currentModalQty;
+            updateModalAddBtn();
+        }
+
+        function updateModalAddBtn() {
+            const total = Number(activeProductForModal.price || 0) * currentModalQty;
+            document.getElementById('modalAddBtn').innerText = `THÊM VÀO GIỎ - ${total.toLocaleString('vi-VN')}đ`;
+        }
+
+        function addToCartFromModal() {
+            if (!activeProductForModal) return;
+            const note = document.getElementById('modalItemNote').value.trim();
+            const cartKey = `${activeProductForModal.id}-${note}`;
             const existing = cart.find(i => i.key === cartKey);
-            if (existing) existing.qty += 1;
-            else {
-                cart.push({ key: cartKey, id: activeItem.id, name: activeItem.name, price: Number(activeItem.price), note: note, qty: 1 });
+            if (existing) {
+                existing.qty += currentModalQty;
+            } else {
+                cart.push({
+                    key: cartKey,
+                    id: activeProductForModal.id,
+                    name: activeProductForModal.name,
+                    price: Number(activeProductForModal.price),
+                    note: note,
+                    qty: currentModalQty
+                });
             }
             saveCart();
-            closeModal('detailModal');
+            closeModal('productDetailModal');
             openCartModal();
         }
 
@@ -382,13 +581,19 @@
         }
 
         function openCartModal() { document.getElementById('cartModal').classList.remove('hidden'); }
-        function closeModal(id) { document.getElementById(id).classList.add('hidden'); }
 
         async function submitOrder(e) {
             e.preventDefault();
             if (cart.length === 0) return alert("Giỏ hàng trống!");
-            alert("Gửi đơn hàng thành công! Hệ thống sẽ xử lý.");
-            cart = []; saveCart(); closeModal('cartModal');
+            
+            const name = document.getElementById('custName').value;
+            const phone = document.getElementById('custPhone').value;
+            const address = document.getElementById('custAddress').value;
+
+            alert(`Gửi đơn hàng thành công cho khách hàng ${name} (${phone}) tại [${address}] với ${cart.length} món! Hệ thống đang chuyển đến bộ phận xử lý.`);
+            cart = []; 
+            saveCart(); 
+            closeModal('cartModal');
         }
     </script>
 </body>
