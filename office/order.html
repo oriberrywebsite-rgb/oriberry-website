@@ -345,9 +345,9 @@ function renderTable(orders) {
             </td>
             <td class="p-3 text-xs text-slate-600 max-w-xs">${o.address || ''}</td>
             <td class="p-3 text-xs text-slate-700">${formatItemsToHTML(o.items)}</td>
-            <td class="p-3 text-right font-medium text-slate-700 whitespace-nowrap">${o.itemTotal || o.tienHang || '0đ'}</td>
-            <td class="p-3 text-right font-medium text-slate-600 whitespace-nowrap">${o.shippingFee || o.phiShip || '0đ'}</td>
-            <td class="p-3 text-right font-bold text-amber-900 whitespace-nowrap">${o.total || o.tongThanhToan || '0đ'}</td>
+            <td class="p-3 text-right font-medium text-slate-700 whitespace-nowrap">${o.itemsAmount || '0đ'}</td>
+            <td class="p-3 text-right font-medium text-slate-600 whitespace-nowrap">${o.shippingFee || '0đ'}</td>
+            <td class="p-3 text-right font-bold text-amber-900 whitespace-nowrap">${o.totalAmount || '0đ'}</td>
             <td class="p-3 whitespace-nowrap">
                 <span class="px-2.5 py-1 rounded-full text-xs font-bold ${o.status === 'CONFIRMED' ? 'bg-emerald-100 text-emerald-700' : 'bg-amber-100 text-amber-700'}">
                     ${o.status === 'CONFIRMED' ? 'Đã Xác Nhận' : 'Chờ Xử Lý'}
