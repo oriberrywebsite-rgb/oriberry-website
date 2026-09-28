@@ -31,6 +31,7 @@
                 <button onclick="toggleSidebar()" class="w-9 h-9 rounded-xl bg-amber-900/10 text-amber-900 flex items-center justify-center hover:bg-amber-900/25 transition shadow-sm cursor-pointer" title="Danh mục món">
                     <i class="fa-solid fa-bars text-sm"></i>
                 </button>
+                <svg style="width:22px;height:22px;fill:#4A3525;margin-right:6px;" viewBox="0 0 24 24"><path d="M2,21V19H20V21H2M20,8V5H18V8H20M20,3A2,2 0 0,1 22,5V8A2,2 0 0,1 20,10H18V13A4,4 0 0,1 14,17H8A4,4 0 0,1 4,13V3H20M16,13V5H6V13A2,2 0 0,0 8,15H14A2,2 0 0,0 16,13Z"/></svg>
                 <a href="/" class="flex items-center gap-2 font-black text-lg tracking-wider text-gray-900 uppercase font-serif">
                     ORIBERRY
                 </a>
@@ -46,7 +47,7 @@
                         <span id="fulfillmentLabel">Hình thức</span> 
                         <i class="fa-solid fa-chevron-down text-[7px]"></i>
                     </div>
-                    <div class="font-bold text-xs text-stone-900 truncate max-w-[140px]" id="fulfillmentValue">Chọn cửa hàng</div>
+                    <div class="font-bold text-xs text-stone-900 truncate max-w-[140px]" id="fulfillmentValue">Nhận hàng</div>
                 </div>
             </div>
         </div>
@@ -71,21 +72,6 @@
         <!-- KHUNG SẢN PHẨM CHÍNH -->
         <section class="w-full overflow-y-auto h-[calc(100vh-130px)] p-4 sm:p-6 space-y-6" id="mainMenuSection" onclick="maybeHideSidebarOnContentClick()">
             
-            <!-- THANH BỘ LỌC (SẮP XẾP GIÁ & TÌM KIẾM) -->
-            <div class="bg-white p-3 rounded-2xl border border-stone-200 shadow-sm space-y-2 sticky top-0 z-10">
-                <div class="text-[11px] font-bold uppercase tracking-wider text-stone-600 flex items-center justify-between px-1">
-                    <span class="flex items-center gap-1.5"><i class="fa-solid fa-filter text-amber-900"></i> Bộ lọc menu</span>
-                 </div>
-                <div class="grid grid-cols-2 gap-2">
-                    <select id="sort-price" onchange="renderMenuProducts()" class="w-full text-xs border border-stone-300 rounded-xl p-2 bg-white focus:outline-none focus:border-amber-700 font-semibold text-stone-700 truncate cursor-pointer">
-                        <option value="default" selected>Sắp xếp giá</option>
-                        <option value="low-to-high">Giá: Thấp đến Cao</option>
-                        <option value="high-to-low">Giá: Cao xuống Thấp</option>
-                    </select>
-                    <input type="text" id="search-input" oninput="renderMenuProducts()" placeholder="Tìm tên món..." class="w-full text-xs border border-stone-300 rounded-xl p-2 bg-white focus:outline-none focus:border-amber-700 font-semibold text-stone-700">
-                </div>
-            </div>
-
             <!-- DANH SÁCH MÓN ĂN PHÂN THEO NHÓM -->
             <div id="menuContentContainer" class="space-y-8">
                 <div class="text-center py-12 text-stone-400 text-xs">Đang tải thực đơn Oriberry...</div>
