@@ -256,29 +256,19 @@
             { id: 'Spaghetti', name: 'Spaghetti', icon: 'fa-utensils' }
         ];
 
-let STORES = []; // Khởi tạo mảng trống, dữ liệu sẽ tự động fetch từ Google Sheet tab Stores
+// Khai báo chết 6 cửa hàng chuẩn của anh, không fetch lung tung nữa để tránh lỗi
+let STORES = [
+    { id: 'QA', code: 'QA', name: 'Oriberry QA', address: '28 Quang An, Tay Ho' },
+    { id: 'TNV', code: 'TNV', name: 'Oriberry TNV', address: '24A To Ngoc Van, Tay Ho' },
+    { id: '1PSM', code: '1PSM', name: 'Oriberry 1PSM', address: '1 Pham Su Manh, Hoan Kiem' },
+    { id: '6APSM', code: '6APSM', name: 'Oriberry 6APSM', address: '6A Pham Su Manh, Hoan Kiem' },
+    { id: 'TD', code: 'TD', name: 'Oriberry TD', address: '11B Tong Dan, Hoan Kiem' },
+    { id: 'DTD', code: 'DTD', name: 'Oriberry DTD', address: '23-25 Dang Tien Dong, Dong Da' }
+];
 
-// Hàm fetch danh sách cửa hàng động từ Google Apps Script
-async function fetchStoresData() {
-    try {
-        const storeUrl = SCRIPT_URL.replace('getFoodMenu', 'getStores');
-        const res = await fetch(storeUrl);
-        const data = await res.json();
-        STORES = Array.isArray(data) ? data : (data.data || []);
-        renderStores();
-    } catch (err) {
-        console.error("Lỗi tải danh sách cửa hàng:", err);
-        // Fallback dự phòng chuẩn xác theo tab Stores của anh
-        STORES = [
-            { id: 'QA', code: 'QA', name: 'Oriberry QA', address: '28 Quang An, Tay Ho' },
-            { id: 'TNV', code: 'TNV', name: 'Oriberry TNV', address: '24A To Ngoc Van, Tay Ho' },
-            { id: '1PSM', code: '1PSM', name: 'Oriberry 1PSM', address: '1 Pham Su Manh, Hoan Kiem' },
-            { id: '6APSM', code: '6APSM', name: 'Oriberry 6APSM', address: '6A Pham Su Manh, Hoan Kiem' },
-            { id: 'TD', code: 'TD', name: 'Oriberry TD', address: '11B Tong Dan, Hoan Kiem' },
-            { id: 'DTD', code: 'DTD', name: 'Oriberry DTD', address: '23-25 Dang Tien Dong, Dong Da' }
-        ];
-        renderStores();
-    }
+// Hàm fetchStoresData bây giờ chỉ cần gọi renderStores luôn cho chắc cú
+function fetchStoresData() {
+    renderStores();
 }
 
 let PRODUCTS = [];
