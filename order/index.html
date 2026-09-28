@@ -589,10 +589,10 @@ async function submitOrder(e) {
   const totalAmount = cart.reduce((sum, item) => sum + (item.price * item.qty), 0);
 
   // Gói dữ liệu có gắn "tem" phân định STORE_DRINK
-  const payload = {
-    sourceChannel: 'STORE_DRINK', // <--- Cực kỳ quan trọng để Code.gs rẽ nhánh sang Store.gs
-    storeCode: document.getElementById('storeSelect')?.value || document.getElementById('storeName')?.innerText || "Oriberry Quảng An",
-    fulfillmentType: "Uống tại quán",
+const payload = {
+    sourceChannel: 'STORE_DRINK', 
+    storeCode: (typeof selectedStore !== 'undefined' && selectedStore?.name) ? selectedStore.name : (document.getElementById('storeNameDisplay')?.innerText || "Oriberry Quảng An"),
+    fulfillmentType: document.getElementById('fulfillmentValue')?.innerText || "Uống tại quán",
     locationDetail: address,
     customerName: name,
     customerPhone: phone,
