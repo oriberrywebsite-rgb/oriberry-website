@@ -642,7 +642,7 @@
             if (submitBtn) { submitBtn.disabled = true; submitBtn.innerText = "ĐANG GỬI ĐƠN HÀNG..."; }
 
             const payload = {
-                customerName: name, customerPhone: phone, customerAddress: address,
+                sourceChannel: 'SHOP_ONLINE', customerName: name, customerPhone: phone, customerAddress: address, orderDetails: getCartDetailsString(),
                 orderDetails: itemsDetail, itemsAmount: itemsAmount, shippingFee: shippingFee,
                 totalAmount: totalAmount, paymentMethod: "COD", notes: note
             };
