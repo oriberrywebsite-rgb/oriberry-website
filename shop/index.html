@@ -261,7 +261,7 @@
         let activeProductForPop = null;
         let selectedPopGrind = GRIND_OPTIONS[0];
         let selectedPopQty = 1;
-        let cart = JSON.parse(localStorage.getItem('oriberry_cart') || '[]');
+        let cart = JSON.parse(localStorage.getItem('oriberry_shop_cart') || '[]');
 
         document.addEventListener('DOMContentLoaded', () => {
             renderCategorySidebar();
@@ -540,7 +540,7 @@
         }
 
         function saveCart() {
-            localStorage.setItem('oriberry_cart', JSON.stringify(cart));
+            localStorage.setItem('oriberry_shop_cart', JSON.stringify(cart));
             updateCartUI();
         }
 
