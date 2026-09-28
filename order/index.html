@@ -576,19 +576,61 @@ let cart = JSON.parse(localStorage.getItem('oriberry_order_cart')) || [];
 
         function openCartModal() { document.getElementById('cartModal').classList.remove('hidden'); }
 
-        async function submitOrder(e) {
-            e.preventDefault();
-            if (cart.length === 0) return alert("Giỏ hàng trống!");
-            
-            const name = document.getElementById('custName').value;
-            const phone = document.getElementById('custPhone').value;
-            const address = document.getElementById('custAddress').value;
+async function submitOrder(e) {
+  e.preventDefault();
+  if (cart.length === 0) return alert("Giỏ hàng trống!");
 
-            alert(`Gửi đơn hàng thành công cho khách hàng ${name} (${phone}) tại [${address}] với ${cart.length} món! Hệ thống đang chuyển đến bộ phận xử lý.`);
-            cart = []; 
-            saveCart(); 
-            closeModal('cartModal');
-        }
+  const name = document.getElementById('custName').value;
+  const phone = document.getElementById('custPhone').value;
+  const address = document.getElementById('custAddress')?.value || "";
+
+  // Gom chi tiết giỏ hàng đồ uống
+  const itemsDetail = cart.map(i => `${i.name} x${i.qty} (${(i.price * i.qty).toLocaleString('vi-VN')}đ)`).join(' | ');
+  const totalAmount = cart.reduce((sum, item) => sum + (item.price * item.qty), 0);
+
+  // Gói dữ liệu có gắn "tem" phân định STORE_DRINK
+  const payload = {
+    sourceChannel: 'STORE_DRINK', // <--- Cực kỳ quan trọng để Code.gs rẽ nhánh sang Store.gs
+    storeCode: "Oriberry Quảng An", 
+    fulfillmentType: "Uống tại quán",
+    locationDetail: address,
+    customerName: name,
+    customerPhone: phone,
+    orderDetails: itemsDetail,
+    notes: "", 
+    totalAmount: totalAmount,
+    paymentMethod: "COD"
+  };
+
+  const submitBtn = document.getElementById('submit-btn');
+  if (submitBtn) { 
+    submitBtn.disabled = true; 
+    submitBtn.innerText = "ĐANG GỬI ĐƠN..."; 
+  }
+
+  try {
+    // Sử dụng trực tiếp biến SCRIPT_URL sẵn có trong file của anh
+    await fetch(SCRIPT_URL, { 
+      method: 'POST', 
+      mode: 'no-cors', 
+      headers: { 'Content-Type': 'application/json' }, 
+      body: JSON.stringify(payload) 
+    });
+
+    alert(`Gửi đơn hàng thành công cho khách hàng ${name} (${phone})!`);
+    cart = [];
+    saveCart();
+    closeModal('cartModal');
+    if (typeof updateCartUI === 'function') updateCartUI();
+  } catch (err) {
+    alert("Có lỗi xảy ra khi gửi đơn. Vui lòng thử lại!");
+  } finally {
+    if (submitBtn) { 
+      submitBtn.disabled = false; 
+      submitBtn.innerText = "XÁC NHẬN ĐẶT HÀNG"; 
+    }
+  }
+}
     </script>
 </body>
 </html>
