@@ -32,8 +32,8 @@
                     <i class="fa-solid fa-bars text-sm"></i>
                 </button>
                 <svg style="width:22px;height:22px;fill:#4A3525;margin-right:6px;" viewBox="0 0 24 24"><path d="M2,21V19H20V21H2M20,8V5H18V8H20M20,3A2,2 0 0,1 22,5V8A2,2 0 0,1 20,10H18V13A4,4 0 0,1 14,17H8A4,4 0 0,1 4,13V3H20M16,13V5H6V13A2,2 0 0,0 8,15H14A2,2 0 0,0 16,13Z"/></svg>
-                <a href="/" class="flex items-center gap-2 font-black text-lg tracking-wider text-gray-900 uppercase font-serif">
-                    ORIBERRY
+                <a href="/" class="flex items-center gap-2 font-black text-lg tracking-wider text-gray-900 uppercase">
+                    <i class="fa-solid fa-solid fa-fire-flame-curved text-amber-900"></i> ORIBERRY MENU
                 </a>
             </div>
             
@@ -215,7 +215,7 @@
         </div>
     </div>
 
-    <!-- MODAL GIỎ HÀNG & ĐẶT HÀNG -->
+
     <div id="cartModal" class="fixed inset-0 z-50 hidden">
         <div class="fixed inset-0 bg-black/60 backdrop-blur-sm" onclick="closeModal('cartModal')"></div>
         <div class="fixed inset-y-0 right-0 max-w-full flex pl-10">
@@ -256,22 +256,40 @@
             { id: 'Spaghetti', name: 'Spaghetti', icon: 'fa-utensils' }
         ];
 
-        const STORES = [
-            { code: 'AU_TRIEU', name: 'Oriberry Ấu Triệu', address: '36 Ấu Triệu, Hoàn Kiếm, Hà Nội' },
-            { code: 'QUANG_AN', name: 'Oriberry Quảng An', address: '12 Đặng Thai Mai, Tây Hồ, Hà Nội' },
-            { code: 'DANG_TIEN_DONG', name: 'Oriberry Đặng Tiến Đông', address: '155 Đặng Tiến Đông, Đống Đa, Hà Nội' }
+let STORES = []; // Khởi tạo mảng trống, dữ liệu sẽ tự động fetch từ Google Sheet tab Stores
+
+// Hàm fetch danh sách cửa hàng động từ Google Apps Script
+async function fetchStoresData() {
+    try {
+        const storeUrl = SCRIPT_URL.replace('getFoodMenu', 'getStores');
+        const res = await fetch(storeUrl);
+        const data = await res.json();
+        STORES = Array.isArray(data) ? data : (data.data || []);
+        renderStores();
+    } catch (err) {
+        console.error("Lỗi tải danh sách cửa hàng:", err);
+        // Fallback dự phòng chuẩn xác theo tab Stores của anh
+        STORES = [
+            { id: 'QA', code: 'QA', name: 'Oriberry QA', address: '28 Quang An, Tay Ho' },
+            { id: 'TNV', code: 'TNV', name: 'Oriberry TNV', address: '24A To Ngoc Van, Tay Ho' },
+            { id: '1PSM', code: '1PSM', name: 'Oriberry 1PSM', address: '1 Pham Su Manh, Hoan Kiem' },
+            { id: '6APSM', code: '6APSM', name: 'Oriberry 6APSM', address: '6A Pham Su Manh, Hoan Kiem' },
+            { id: 'TD', code: 'TD', name: 'Oriberry TD', address: '11B Tong Dan, Hoan Kiem' },
+            { id: 'DTD', code: 'DTD', name: 'Oriberry DTD', address: '23-25 Dang Tien Dong, Dong Da' }
         ];
+        renderStores();
+    }
+}
 
-        let PRODUCTS = [];
-        let currentFulfillment = 'DINE_IN';
-        let selectedStoreOrLocation = 'Oriberry Ấu Triệu';
-        let activeProductForModal = null;
-        let currentModalQty = 1;
-        let cart = JSON.parse(localStorage.getItem('oriberry_order_cart') || '[]');
-
+let PRODUCTS = [];
+let currentFulfillment = 'DINE_IN';
+let selectedStoreOrLocation = 'Oriberry QA';
+let activeProductForModal = null;
+let currentModalQty = 1;
+let cart = JSON.parse(localStorage.getItem('oriberry_order_cart')) || [];
         document.addEventListener('DOMContentLoaded', () => {
             renderSidebarCategories();
-            renderStores();
+            fetchStoresData();
             fetchMenuProducts();
             updateCartUI();
             checkUrlTableParam();
