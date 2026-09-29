@@ -612,6 +612,16 @@
         function openCartModal() { updateCartTotals(); document.getElementById('cartModal').classList.remove('hidden'); }
         function closeModal(id) { document.getElementById(id).classList.add('hidden'); }
 
+function getCartDetailsString() {
+            if (!cart || cart.length === 0) return "Giỏ hàng trống";
+            return cart.map(item => {
+                let details = `- ${item.name} (SL: ${item.qty})`;
+                if (item.grind) details += ` [Cỡ xay: ${item.grind}]`;
+                details += ` - ${Number(item.price * item.qty).toLocaleString('vi-VN')}₫`;
+                return details;
+            }).join('\n');
+        }
+
         async function submitOrder(e) {
             e.preventDefault();
             if (cart.length === 0) return alert("Your cart is empty!");
@@ -636,13 +646,13 @@
             else if (zoneSelect === 'provinces') shippingFee = 45000;
 
             const totalAmount = itemsAmount + shippingFee;
-            const itemsDetail = cart.map(i => `${i.name} (${i.grind}) x${i.qty} [${(i.price * i.qty).toLocaleString('vi-VN')}đ]`).join(' | ');
+            const itemsDetail = getCartDetailsString();
 
             const submitBtn = document.getElementById('submitBtn');
             if (submitBtn) { submitBtn.disabled = true; submitBtn.innerText = "ĐANG GỬI ĐƠN HÀNG..."; }
 
             const payload = {
-                sourceChannel: 'SHOP_ONLINE', customerName: name, customerPhone: phone, customerAddress: address, orderDetails: getCartDetailsString(),
+                customerName: name, customerPhone: phone, customerAddress: address,
                 orderDetails: itemsDetail, itemsAmount: itemsAmount, shippingFee: shippingFee,
                 totalAmount: totalAmount, paymentMethod: "COD", notes: note
             };
@@ -655,7 +665,7 @@
             } catch (err) {
                 alert("Có lỗi xảy ra khi gửi đơn hàng. Vui lòng thử lại!");
             } finally {
-                if (submitBtn) { submitBtn.disabled = false; submitBtn.innerText = "XÁC NHẬN ĐẶT HÀNG"; }
+                if (submitBtn) { submitBtn.disabled = false; submitBtn.innerText = "PLACE ORDER"; }
             }
         }
     </script>
