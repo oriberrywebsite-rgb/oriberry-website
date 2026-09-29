@@ -360,18 +360,21 @@ let cart = JSON.parse(localStorage.getItem('oriberry_order_cart')) || [];
         }
 
         async function fetchMenuProducts() {
-            try {
-                const res = await fetch(SCRIPT_URL);
-                const result = await res.json();
-                PRODUCTS = Array.isArray(result) ? result : (result.data || []);
+        try {
+            const res = await fetch(SCRIPT_URL);
+            const result = await res.json();
+            PRODUCTS = Array.isArray(result) ? result : (result.data || []);
+        renderMenuProducts();
 
-                renderMenuProducts();
-            }
-        }
-    // Tải danh sách Add-ons từ Google Sheets
-            google.script.run.withSuccessHandler(function(addons) {
+        // Tải thêm danh sách Add-ons từ Google Sheets nằm TRONG try luôn cho an toàn
+        google.script.run.withSuccessHandler(function(addons) {
             window.allAddons = addons;
-            }).getAddonsData();
+        }).getAddonsData();
+
+    } catch (err) {
+        console.error("Lỗi tải menu hoặc add-ons:", err);
+    }
+}
         function renderMenuProducts() {
             const sortVal = document.getElementById('sort-price')?.value || 'default';
             const searchKeyword = document.getElementById('search-input')?.value.toLowerCase() || '';
