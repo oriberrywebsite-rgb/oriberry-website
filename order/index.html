@@ -511,12 +511,7 @@ async function fetchAddonsData() {
             </label>
         `;
     }
-    // Gắn dữ liệu Size vào HTML (có kiểm tra tồn tại để tránh lỗi đứng web)
-    const sizeContainer = document.getElementById('modalSizeContainer');
-    if (sizeContainer) {
-        sizeContainer.innerHTML = sizeHtml;
-    }
-               
+
     // 3. Lọc và hiển thị danh sách Add-ons theo category sản phẩm
     const productCategory = String(activeProductForModal.category || "").toLowerCase();
     const availableAddons = (window.allAddons || []).filter(addon => 
