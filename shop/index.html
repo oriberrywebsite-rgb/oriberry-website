@@ -622,7 +622,7 @@ function getCartDetailsString() {
             }).join('\n');
         }
 
-        async function submitOrder(e) {
+async function submitOrder(e) {
             e.preventDefault();
             if (cart.length === 0) return alert("Your cart is empty!");
 
@@ -646,7 +646,7 @@ function getCartDetailsString() {
             else if (zoneSelect === 'provinces') shippingFee = 45000;
 
             const totalAmount = itemsAmount + shippingFee;
-            const itemsDetail = getCartDetailsString();
+            const itemsDetail = cart.map(i => `${i.name} (${i.grind}) x${i.qty} [${(i.price * i.qty).toLocaleString('vi-VN')}đ]`).join(' | ');
 
             const submitBtn = document.getElementById('submitBtn');
             if (submitBtn) { submitBtn.disabled = true; submitBtn.innerText = "ĐANG GỬI ĐƠN HÀNG..."; }
