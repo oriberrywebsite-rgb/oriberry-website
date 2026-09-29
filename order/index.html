@@ -269,10 +269,6 @@ let STORES = [
 // Biến toàn cục lưu trữ danh sách Add-ons
 let windowAllAddons = [];
 
-// Gọi lấy danh sách Add-ons từ Google Sheets khi trang load
-google.script.run.withSuccessHandler(function(addons) {
-    windowAllAddons = addons;
-}).getAddonsData();
 // Hàm fetchStoresData bây giờ chỉ cần gọi renderStores luôn cho chắc cú
 function fetchStoresData() {
     renderStores();
