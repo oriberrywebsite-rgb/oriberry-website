@@ -373,7 +373,18 @@ async function fetchMenuProducts() {
 
             if (sortVal === 'low-to-high') filtered.sort((a, b) => Number(a.price) - Number(b.price));
             else if (sortVal === 'high-to-low') filtered.sort((a, b) => Number(b.price) - Number(a.price));
-
+// Hàm tải danh sách Add-ons / Toppings từ Google Sheets
+let windowAllAddons = [];
+async function fetchAddonsData() {
+    try {
+        const res = await fetch(SCRIPT_URL + '?action=getAddonsData');
+        const result = await res.json();
+        windowAllAddons = Array.isArray(result) ? result : (result.data || []);
+    } catch (err) {
+        console.error("Lỗi tải danh sách add-ons:", err);
+        windowAllAddons = [];
+    }
+}
             const container = document.getElementById('menuContentContainer');
             let htmlContent = '';
 
@@ -479,28 +490,29 @@ async function fetchMenuProducts() {
     document.getElementById('modalProdDesc').innerText = activeProductForModal.longDesc || activeProductForModal.shortDesc || 'Sản phẩm chất lượng từ Oriberry.';
     document.getElementById('modalQty').innerText = currentModalQty;
             
-    // 2. Xử lý phần chọn Size (Normal / Large)
+// 2. Xử lý phần Chọn Size (Normal / Large)
     const normalPrice = Number(activeProductForModal.normal_price || activeProductForModal.price || 0);
     const largePrice = Number(activeProductForModal.large_price || 0);
 
-    let sizeHtml = `
-        <div style="margin: 10px 0;">
-            <label style="font-weight: bold; display: block; margin-bottom: 5px;">Chọn Size:</label>
-            <label style="margin-right: 15px; cursor: pointer;">
-                <input type="radio" name="productSize" value="normal" checked onchange="updateModalPrices()"> 
+    let sizeHtml = '';
+    if (normalPrice > 0) {
+        sizeHtml += `
+            <label style="cursor: pointer; margin-right: 20px;">
+                <input type="radio" name="productSize" value="normal" checked onchange="updateModalPrices()">
                 Normal (${normalPrice.toLocaleString('vi-VN')}đ)
             </label>
-    `;
+        `;
+    }
     if (largePrice > 0) {
         sizeHtml += `
             <label style="cursor: pointer;">
-                <input type="radio" name="productSize" value="large" onchange="updateModalPrices()"> 
+                <input type="radio" name="productSize" value="large" onchange="updateModalPrices()">
                 Large (${largePrice.toLocaleString('vi-VN')}đ)
             </label>
         `;
     }
-    sizeHtml += `</div>`;
-
+    document.getElementById('modalSizeContainer').innerHTML = sizeHtml;
+            
     // 3. Lọc và hiển thị danh sách Add-ons theo category sản phẩm
     const productCategory = String(activeProductForModal.category || "").toLowerCase();
     const availableAddons = (window.allAddons || []).filter(addon => 
@@ -526,16 +538,12 @@ async function fetchMenuProducts() {
     }
     addonHtml += `</div></div>`;
 
-    // Chèn phần chọn Size và Add-ons vào giao diện modal
-    let extraContainer = document.getElementById('modalExtraOptions');
-    if (!extraContainer) {
-        extraContainer = document.createElement('div');
-        extraContainer.id = 'modalExtraOptions';
-        const descEl = document.getElementById('modalProdDesc');
-        if (descEl && descEl.parentNode) {
-            descEl.parentNode.insertBefore(extraContainer, descEl.nextSibling);
-        }
-    }
+// Gắn trực tiếp Size và Topping vào đúng container trên modal
+    const sizeContainer = document.getElementById('modalSizeContainer');
+    if (sizeContainer) sizeContainer.innerHTML = sizeHtml;
+
+    const addonContainer = document.getElementById('modalAddonContainer');
+    if (addonContainer) addonContainer.innerHTML = addonHtml;
     extraContainer.innerHTML = sizeHtml + addonHtml;
 
     // Cập nhật lại giá tiền ban đầu
@@ -744,5 +752,10 @@ const payload = {
   }
 }
     </script>
+    // Khởi chạy tải dữ liệu khi trang vừa mở
+    fetchMenuProducts();
+    fetchAddonsData();
+
+</script>
 </body>
 </html>
