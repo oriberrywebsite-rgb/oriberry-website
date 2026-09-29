@@ -471,13 +471,14 @@ async function fetchMenuProducts() {
     if (!activeProductForModal) return;
     currentModalQty = 1;
 
-    // 1. Điền thông tin cơ bản
-    document.getElementById('modalProdImg').src = activeProductForModal.img || '';
+// 1. Điền thông tin cơ bản với trường ảnh là img1
+    const prodImg = activeProductForModal.img1 || activeProductForModal.img || activeProductForModal.image || 'https://images.unsplash.com/photo-1559056199-641a0ac3b55e-300';
+    document.getElementById('modalProdImg').src = prodImg;
     document.getElementById('modalProdTag').innerText = activeProductForModal.category || 'Oriberry';
     document.getElementById('modalProdName').innerText = activeProductForModal.name || '';
     document.getElementById('modalProdDesc').innerText = activeProductForModal.longDesc || activeProductForModal.shortDesc || 'Sản phẩm chất lượng từ Oriberry.';
     document.getElementById('modalQty').innerText = currentModalQty;
-
+            
     // 2. Xử lý phần chọn Size (Normal / Large)
     const normalPrice = Number(activeProductForModal.normal_price || activeProductForModal.price || 0);
     const largePrice = Number(activeProductForModal.large_price || 0);
