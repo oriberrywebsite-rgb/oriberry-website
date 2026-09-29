@@ -359,20 +359,14 @@ let cart = JSON.parse(localStorage.getItem('oriberry_order_cart')) || [];
             if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
         }
 
-        async function fetchMenuProducts() {
-        try {
-            const res = await fetch(SCRIPT_URL);
-            const result = await res.json();
-            PRODUCTS = Array.isArray(result) ? result : (result.data || []);
+async function fetchMenuProducts() {
+    try {
+        const res = await fetch(SCRIPT_URL);
+        const result = await res.json();
+        PRODUCTS = Array.isArray(result) ? result : (result.data || []);
         renderMenuProducts();
-
-        // Tải thêm danh sách Add-ons từ Google Sheets nằm TRONG try luôn cho an toàn
-        google.script.run.withSuccessHandler(function(addons) {
-            window.allAddons = addons;
-        }).getAddonsData();
-
     } catch (err) {
-        console.error("Lỗi tải menu hoặc add-ons:", err);
+        console.error("Lỗi tải menu:", err);
     }
 }
         function renderMenuProducts() {
