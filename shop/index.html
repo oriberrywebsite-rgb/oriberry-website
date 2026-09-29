@@ -218,7 +218,7 @@
                     </div>
                     <form id="checkoutForm" onsubmit="submitOrder(event)" class="space-y-2.5 pt-1">
                         <input type="text" id="custName" placeholder="Your name *" required minlength="2" class="w-full text-xs border border-gray-300 rounded-xl p-2.5 focus:outline-none focus:border-amber-700">
-                        <input type="tel" id="custPhone" placeholder="Phone number * (VD: 0901234567)" required pattern="^(0[3|5|7|8|9])+([0-9]{8})$" class="w-full text-xs border border-gray-300 rounded-xl p-2.5 focus:outline-none focus:border-amber-700">
+                        <input type="tel" id="custPhone" placeholder="Phone number * (VD: 0901234567)" required pattern="^(03|05|07|08|09)[0-9]{8}$" class="w-full text-xs border border-gray-300 rounded-xl p-2.5 focus:outline-none focus:border-amber-700">
                         <textarea id="custAddress" placeholder="Shipping address..." rows="2" required minlength="8" class="w-full text-xs border border-gray-300 rounded-xl p-2.5 focus:outline-none focus:border-amber-700"></textarea>
                         <textarea id="custNote" placeholder="Note for Oriberry..." rows="1" class="w-full text-xs border border-gray-300 rounded-xl p-2.5 focus:outline-none focus:border-amber-700"></textarea>
                         <button type="submit" id="submitBtn" class="w-full bg-neutral-900 hover:bg-amber-950 text-white font-bold py-3 rounded-xl text-xs transition uppercase tracking-wider shadow-md cursor-pointer">PLACE ORDER</button>
@@ -631,7 +631,7 @@ async function submitOrder(e) {
             const address = document.getElementById('custAddress').value.trim();
             const note = document.getElementById('custNote') ? document.getElementById('custNote').value.trim() : '';
 
-            const phoneRegex = /^(0[3|5|7|8|9])+([0-9]{8})$/;
+            const phoneRegex = /^(03|05|07|08|09)[0-9]{8}$/;
             if (!phoneRegex.test(phone)) { alert("Số điện thoại không hợp lệ. Vui lòng nhập đúng 10 chữ số."); return; }
 
             const subtotal = cart.reduce((sum, item) => sum + (item.price * item.qty), 0);
