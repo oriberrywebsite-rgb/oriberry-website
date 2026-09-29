@@ -477,20 +477,20 @@ async function fetchAddonsData() {
         }
 
         // Popup chi tiết món kèm Cross-selling & Note
-        function openProductModal(id) {
+function openProductModal(id) {
     activeProductForModal = PRODUCTS.find(p => String(p.id) === String(id));
     if (!activeProductForModal) return;
     currentModalQty = 1;
 
-// 1. Lấy thông tin cơ bản với trường ảnh 
+    // 1. Lấy thông tin cơ bản với trường ảnh
     const prodImg = activeProductForModal.img || activeProductForModal.image || 'https://images.unsplash.com/photo-1550566199-641a8ac3b55e-300';
     document.getElementById('modalProdImg').src = prodImg;
     document.getElementById('modalProdTag').innerText = activeProductForModal.category || 'Oriberry';
     document.getElementById('modalProdName').innerText = activeProductForModal.name || '';
     document.getElementById('modalProdDesc').innerText = activeProductForModal.longDesc || activeProductForModal.shortDesc || '';
     document.getElementById('modalQty').innerText = currentModalQty;
-            
-// 2. Xử lý phần Chọn Size (Normal / Large)
+
+    // 2. Xử lý phần Chọn Size (Normal / Large)
     const normalPrice = Number(activeProductForModal.normal_price || activeProductForModal.price || 0);
     const largePrice = Number(activeProductForModal.large_price || 0);
 
@@ -499,7 +499,7 @@ async function fetchAddonsData() {
         sizeHtml += `
             <label style="cursor: pointer; margin-right: 20px;">
                 <input type="radio" name="productSize" value="normal" checked onchange="updateModalPrices()">
-                Normal (${normalPrice.toLocaleString('vi-VN')}đ)
+                Normal (${normalPrice.toLocaleString('vi-VN')}₫)
             </label>
         `;
     }
@@ -507,37 +507,32 @@ async function fetchAddonsData() {
         sizeHtml += `
             <label style="cursor: pointer;">
                 <input type="radio" name="productSize" value="large" onchange="updateModalPrices()">
-                Large (${largePrice.toLocaleString('vi-VN')}đ)
+                Large (${largePrice.toLocaleString('vi-VN')}₫)
             </label>
         `;
     }
 
     // 3. Lọc và hiển thị danh sách Add-ons theo category sản phẩm
-    const productCategory = String(activeProductForModal.category || "").toLowerCase();
-    const availableAddons = (window.allAddons || []).filter(addon => 
+    const productCategory = String(activeProductForModal.category || '').toLowerCase();
+    const availableAddons = (window.addons || []).filter(addon => 
         !addon.category || addon.category.toLowerCase() === productCategory
     );
 
-    let addonHtml = `
-        <div style="margin: 10px 0;">
-            <label style="font-weight: bold; display: block; margin-bottom: 5px;">Thêm Vị / Toppings:</label>
-            <div style="max-height: 120px; overflow-y: auto; border: 1px solid #eee; padding: 8px; border-radius: 4px;">
-    `;
+    let addonHtml = '';
     if (availableAddons.length > 0) {
-        addonHtml += availableAddons.map(addon => `
+        addonHtml = availableAddons.map(addon => `
             <div style="margin-bottom: 4px;">
                 <label style="cursor: pointer; font-size: 13px;">
                     <input type="checkbox" class="addon-checkbox" value="${addon.name}" data-price="${addon.price || 0}" onchange="updateModalPrices()">
-                    ${addon.name} (+${Number(addon.price || 0).toLocaleString('vi-VN')}đ)
+                    ${addon.name} (+${Number(addon.price || 0).toLocaleString('vi-VN')}₫)
                 </label>
             </div>
         `).join('');
     } else {
-        addonHtml += `<p style="color: #888; font-size: 12px; margin: 0;">Không có topping cho món này</p>`;
+        addonHtml = `<p style="color: #888; font-size: 12px; margin: 0;">Không có topping cho món này</p>`;
     }
-    addonHtml += `</div></div>`;
 
-// Gắn trực tiếp Size và Topping vào đúng container trên modal
+    // Gắn trực tiếp Size và Topping vào đúng container trên modal (Khai báo duy nhất tại đây)
     const sizeContainer = document.getElementById('modalSizeContainer');
     if (sizeContainer) sizeContainer.innerHTML = sizeHtml;
 
@@ -547,17 +542,22 @@ async function fetchAddonsData() {
     // Cập nhật lại giá tiền ban đầu
     updateModalPrices();
 
-    // 4. GIỮ NGUYÊN HOÀN TOÀN PHẦN GỢI Ý DÙNG KÈM (Cross-selling) CỦA ANH
+    // 4. GIỮ NGUYÊN HOÀN TOÀN PHẦN GỢI Ý KÈM (Cross-selling) CỦA ANH
     const crossSells = PRODUCTS.filter(p => String(p.id) !== String(id)).slice(0, 4);
-    document.getElementById('crossSellContainer').innerHTML = crossSells.map(cs => `
-        <div onclick="openProductModal('${cs.id}')" class="w-32 [flex-shrink:0] border border-stone-200 rounded-2xl p-2 bg-stone-50 flex flex-col justify-between cursor-pointer hover:border-amber-900 transition">
-            <img src="${cs.img || 'https://images.unsplash.com/photo-1559056199-641a0ac3b55e-300'}" class="w-full h-16 object-cover rounded-xl mb-1">
-            <div class="text-[11px] font-bold text-stone-800 truncate">${cs.name}</div>
-            <div class="text-[11px] text-amber-900 font-bold">${Number(cs.price || 0).toLocaleString('vi-VN')}đ</div>
-        </div>
-    `).join('') || '<div class="text-xs text-stone-400">Không có sản phẩm gợi ý.</div>';
+    const crossSellContainer = document.getElementById('crossSellContainer');
+    if (crossSellContainer) {
+        crossSellContainer.innerHTML = crossSells.length > 0 ? crossSells.map(cs => `
+            <div onclick="openProductModal('${cs.id}')" class="w-32 flex-shrink-0 border border-stone-200 rounded-2xl p-2 bg-stone-50 flex flex-col justify-between cursor-pointer hover:border-amber-300 transition">
+                <img src="${cs.img || cs.image || 'https://images.unsplash.com/photo-1550566199-641a8ac3b55e-300'}" class="w-full h-16 object-cover rounded-xl mb-1">
+                <div class="text-[11px] font-bold text-stone-900 truncate">${cs.name}</div>
+                <div class="text-[10px] text-amber-900 font-bold">${Number(cs.price || cs.normal_price || 0).toLocaleString('vi-VN')}₫</div>
+            </div>
+        `).join('') : '<div class="text-xs text-stone-400">Không có sản phẩm gợi ý.</div>';
+    }
 
-    document.getElementById('productDetailModal').classList.remove('hidden');
+    // Mở modal
+    const modal = document.getElementById('productModal');
+    if (modal) modal.classList.remove('hidden');
 }
 
 // Hàm phụ trợ tính lại giá tổng động trong Modal khi đổi Size hoặc chọn Add-on
