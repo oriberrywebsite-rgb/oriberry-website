@@ -482,12 +482,12 @@ async function fetchAddonsData() {
     if (!activeProductForModal) return;
     currentModalQty = 1;
 
-// 1. Điền thông tin cơ bản với trường ảnh là img1
-    const prodImg = activeProductForModal.img1 || activeProductForModal.img || activeProductForModal.image || 'https://images.unsplash.com/photo-1559056199-641a0ac3b55e-300';
+// 1. Lấy thông tin cơ bản với trường ảnh 
+    const prodImg = activeProductForModal.img || activeProductForModal.image || 'https://images.unsplash.com/photo-1550566199-641a8ac3b55e-300';
     document.getElementById('modalProdImg').src = prodImg;
     document.getElementById('modalProdTag').innerText = activeProductForModal.category || 'Oriberry';
     document.getElementById('modalProdName').innerText = activeProductForModal.name || '';
-    document.getElementById('modalProdDesc').innerText = activeProductForModal.longDesc || activeProductForModal.shortDesc || 'Oriberry';
+    document.getElementById('modalProdDesc').innerText = activeProductForModal.longDesc || activeProductForModal.shortDesc || '';
     document.getElementById('modalQty').innerText = currentModalQty;
             
 // 2. Xử lý phần Chọn Size (Normal / Large)
