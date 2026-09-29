@@ -159,6 +159,7 @@
     <option value="Khu vực Hoàn Kiếm">Khu vực Hoàn Kiếm</option>
     <option value="Khu vực Tây Hồ">Khu vực Tây Hồ</option>
     <option value="Khu vực Đống Đa">Khu vực Đống Đa</option>
+    <option value="Khu vực khác">Khu vực khác</option>
 </select>
                 </div>
                 <div>
@@ -265,7 +266,13 @@ let STORES = [
     { id: 'TD', code: 'TD', name: 'Oriberry TD', address: '11B Tong Dan, Hoan Kiem' },
     { id: 'DTD', code: 'DTD', name: 'Oriberry DTD', address: '23-25 Dang Tien Dong, Dong Da' }
 ];
+// Biến toàn cục lưu trữ danh sách Add-ons
+let windowAllAddons = [];
 
+// Gọi lấy danh sách Add-ons từ Google Sheets khi trang load
+google.script.run.withSuccessHandler(function(addons) {
+    windowAllAddons = addons;
+}).getAddonsData();
 // Hàm fetchStoresData bây giờ chỉ cần gọi renderStores luôn cho chắc cú
 function fetchStoresData() {
     renderStores();
@@ -357,16 +364,14 @@ let cart = JSON.parse(localStorage.getItem('oriberry_order_cart')) || [];
                 const res = await fetch(SCRIPT_URL);
                 const result = await res.json();
                 PRODUCTS = Array.isArray(result) ? result : (result.data || []);
-                renderMenuProducts();
-            } catch (err) {
-                PRODUCTS = [
-                    { id: '1', name: 'Airy-cano Classic', category: 'Coffee', price: 45000, shortDesc: 'Hương vị Americano nguyên bản đậm đà.', img1: 'https://images.unsplash.com/photo-1514432324607-a09d9b4aefdd?w=300' },
-                    { id: '2', name: 'Trà Sen Vàng Cao Cấp', category: 'Tea', price: 55000, shortDesc: 'Trà ô long thượng hạng kết hợp hương sen mộc mạc.', img1: 'https://images.unsplash.com/photo-1576092768241-dec231879fc3?w=300' }
-                ];
+
                 renderMenuProducts();
             }
         }
-
+    // Tải danh sách Add-ons từ Google Sheets
+            google.script.run.withSuccessHandler(function(addons) {
+            window.allAddons = addons;
+            }).getAddonsData();
         function renderMenuProducts() {
             const sortVal = document.getElementById('sort-price')?.value || 'default';
             const searchKeyword = document.getElementById('search-input')?.value.toLowerCase() || '';
@@ -469,32 +474,117 @@ let cart = JSON.parse(localStorage.getItem('oriberry_order_cart')) || [];
 
         // Popup chi tiết món kèm Cross-selling & Note
         function openProductModal(id) {
-            activeProductForModal = PRODUCTS.find(p => String(p.id) === String(id));
-            if (!activeProductForModal) return;
-            currentModalQty = 1;
-            
-            document.getElementById('modalProdImg').src = activeProductForModal.img1 || '';
-            document.getElementById('modalProdTag').innerText = activeProductForModal.category || 'Oriberry';
-            document.getElementById('modalProdName').innerText = activeProductForModal.name || '';
-            document.getElementById('modalProdPrice').innerText = Number(activeProductForModal.price || 0).toLocaleString('vi-VN') + 'đ';
-            document.getElementById('modalProdDesc').innerText = activeProductForModal.longDesc || activeProductForModal.shortDesc || 'Sản phẩm chất lượng từ Oriberry.';
-            document.getElementById('modalItemNote').value = '';
-            document.getElementById('modalQty').innerText = currentModalQty;
-            updateModalAddBtn();
+    activeProductForModal = PRODUCTS.find(p => String(p.id) === String(id));
+    if (!activeProductForModal) return;
+    currentModalQty = 1;
 
-            // Gợi ý dùng kèm (Cross-selling)
-            const crossSells = PRODUCTS.filter(p => String(p.id) !== String(id)).slice(0, 4);
-            document.getElementById('crossSellContainer').innerHTML = crossSells.map(cs => `
-                <div onclick="openProductModal('${cs.id}')" class="w-32 flex-shrink-0 border border-stone-200 rounded-xl p-2 bg-stone-50 flex flex-col justify-between cursor-pointer hover:border-amber-900 transition">
-                    <img src="${cs.img1 || ''}" class="w-full h-16 object-cover rounded-lg mb-1 bg-stone-200">
-                    <div class="text-[11px] font-bold text-stone-800 truncate">${cs.name}</div>
-                    <div class="text-[11px] text-amber-900 font-bold">${Number(cs.price || 0).toLocaleString('vi-VN')}đ</div>
-                </div>
-            `).join('') || '<div class="text-xs text-stone-400">Không có sản phẩm gợi ý.</div>';
+    // 1. Điền thông tin cơ bản
+    document.getElementById('modalProdImg').src = activeProductForModal.img || '';
+    document.getElementById('modalProdTag').innerText = activeProductForModal.category || 'Oriberry';
+    document.getElementById('modalProdName').innerText = activeProductForModal.name || '';
+    document.getElementById('modalProdDesc').innerText = activeProductForModal.longDesc || activeProductForModal.shortDesc || 'Sản phẩm chất lượng từ Oriberry.';
+    document.getElementById('modalQty').innerText = currentModalQty;
 
-            document.getElementById('productDetailModal').classList.remove('hidden');
+    // 2. Xử lý phần chọn Size (Normal / Large)
+    const normalPrice = Number(activeProductForModal.normal_price || activeProductForModal.price || 0);
+    const largePrice = Number(activeProductForModal.large_price || 0);
+
+    let sizeHtml = `
+        <div style="margin: 10px 0;">
+            <label style="font-weight: bold; display: block; margin-bottom: 5px;">Chọn Size:</label>
+            <label style="margin-right: 15px; cursor: pointer;">
+                <input type="radio" name="productSize" value="normal" checked onchange="updateModalPrices()"> 
+                Normal (${normalPrice.toLocaleString('vi-VN')}đ)
+            </label>
+    `;
+    if (largePrice > 0) {
+        sizeHtml += `
+            <label style="cursor: pointer;">
+                <input type="radio" name="productSize" value="large" onchange="updateModalPrices()"> 
+                Large (${largePrice.toLocaleString('vi-VN')}đ)
+            </label>
+        `;
+    }
+    sizeHtml += `</div>`;
+
+    // 3. Lọc và hiển thị danh sách Add-ons theo category sản phẩm
+    const productCategory = String(activeProductForModal.category || "").toLowerCase();
+    const availableAddons = (window.allAddons || []).filter(addon => 
+        !addon.category || addon.category.toLowerCase() === productCategory
+    );
+
+    let addonHtml = `
+        <div style="margin: 10px 0;">
+            <label style="font-weight: bold; display: block; margin-bottom: 5px;">Thêm Vị / Toppings:</label>
+            <div style="max-height: 120px; overflow-y: auto; border: 1px solid #eee; padding: 8px; border-radius: 4px;">
+    `;
+    if (availableAddons.length > 0) {
+        addonHtml += availableAddons.map(addon => `
+            <div style="margin-bottom: 4px;">
+                <label style="cursor: pointer; font-size: 13px;">
+                    <input type="checkbox" class="addon-checkbox" value="${addon.name}" data-price="${addon.price || 0}" onchange="updateModalPrices()">
+                    ${addon.name} (+${Number(addon.price || 0).toLocaleString('vi-VN')}đ)
+                </label>
+            </div>
+        `).join('');
+    } else {
+        addonHtml += `<p style="color: #888; font-size: 12px; margin: 0;">Không có topping cho món này</p>`;
+    }
+    addonHtml += `</div></div>`;
+
+    // Chèn phần chọn Size và Add-ons vào giao diện modal
+    let extraContainer = document.getElementById('modalExtraOptions');
+    if (!extraContainer) {
+        extraContainer = document.createElement('div');
+        extraContainer.id = 'modalExtraOptions';
+        const descEl = document.getElementById('modalProdDesc');
+        if (descEl && descEl.parentNode) {
+            descEl.parentNode.insertBefore(extraContainer, descEl.nextSibling);
         }
+    }
+    extraContainer.innerHTML = sizeHtml + addonHtml;
 
+    // Cập nhật lại giá tiền ban đầu
+    updateModalPrices();
+
+    // 4. GIỮ NGUYÊN HOÀN TOÀN PHẦN GỢI Ý DÙNG KÈM (Cross-selling) CỦA ANH
+    const crossSells = PRODUCTS.filter(p => String(p.id) !== String(id)).slice(0, 4);
+    document.getElementById('crossSellContainer').innerHTML = crossSells.map(cs => `
+        <div onclick="openProductModal('${cs.id}')" class="w-32 [flex-shrink:0] border border-stone-200 rounded-2xl p-2 bg-stone-50 flex flex-col justify-between cursor-pointer hover:border-amber-900 transition">
+            <img src="${cs.img || 'https://images.unsplash.com/photo-1559056199-641a0ac3b55e-300'}" class="w-full h-16 object-cover rounded-xl mb-1">
+            <div class="text-[11px] font-bold text-stone-800 truncate">${cs.name}</div>
+            <div class="text-[11px] text-amber-900 font-bold">${Number(cs.price || 0).toLocaleString('vi-VN')}đ</div>
+        </div>
+    `).join('') || '<div class="text-xs text-stone-400">Không có sản phẩm gợi ý.</div>';
+
+    document.getElementById('productDetailModal').classList.remove('hidden');
+}
+
+// Hàm phụ trợ tính lại giá tổng động trong Modal khi đổi Size hoặc chọn Add-on
+function updateModalPrices() {
+    if (!activeProductForModal) return;
+
+    const sizeRadio = document.querySelector('input[name="productSize"]:checked');
+    const selectedSize = sizeRadio ? sizeRadio.value : 'normal';
+    
+    let basePrice = Number(activeProductForModal.normal_price || activeProductForModal.price || 0);
+    if (selectedSize === 'large' && activeProductForModal.large_price) {
+        basePrice = Number(activeProductForModal.large_price);
+    }
+
+    let addonTotal = 0;
+    document.querySelectorAll('.addon-checkbox:checked').forEach(cb => {
+        addonTotal += Number(cb.dataset.price || 0);
+    });
+
+    const qty = currentModalQty || 1;
+    const finalPrice = (basePrice + addonTotal) * qty;
+
+    const priceEl = document.getElementById('modalProdPrice');
+    if (priceEl) {
+        priceEl.innerText = finalPrice.toLocaleString('vi-VN') + 'đ';
+    }
+}
         function adjustModalQty(change) {
             currentModalQty += change;
             if (currentModalQty < 1) currentModalQty = 1;
@@ -507,27 +597,55 @@ let cart = JSON.parse(localStorage.getItem('oriberry_order_cart')) || [];
             document.getElementById('modalAddBtn').innerText = `THÊM VÀO GIỎ - ${total.toLocaleString('vi-VN')}đ`;
         }
 
-        function addToCartFromModal() {
-            if (!activeProductForModal) return;
-            const note = document.getElementById('modalItemNote').value.trim();
-            const cartKey = `${activeProductForModal.id}-${note}`;
-            const existing = cart.find(i => i.key === cartKey);
-            if (existing) {
-                existing.qty += currentModalQty;
-            } else {
-                cart.push({
-                    key: cartKey,
-                    id: activeProductForModal.id,
-                    name: activeProductForModal.name,
-                    price: Number(activeProductForModal.price),
-                    note: note,
-                    qty: currentModalQty
-                });
-            }
-            saveCart();
-            closeModal('productDetailModal');
-            openCartModal();
-        }
+function addToCartFromModal() {
+    if (!activeProductForModal) return;
+
+    // 1. Lấy thông tin Size đã chọn
+    const sizeRadio = document.querySelector('input[name="productSize"]:checked');
+    const selectedSize = sizeRadio ? sizeRadio.value : 'normal';
+    
+    let unitPrice = Number(activeProductForModal.normal_price || activeProductForModal.price || 0);
+    if (selectedSize === 'large' && activeProductForModal.large_price) {
+        unitPrice = Number(activeProductForModal.large_price);
+    }
+
+    // 2. Lấy danh sách các Add-ons được chọn
+    let selectedAddons = [];
+    let addonTotal = 0;
+    document.querySelectorAll('.addon-checkbox:checked').forEach(cb => {
+        selectedAddons.push(cb.value);
+        addonTotal += Number(cb.dataset.price || 0);
+    });
+
+    const qty = currentModalQty || 1;
+    const finalUnitPrice = unitPrice + addonTotal;
+
+    // 3. Tạo key định danh và tên món kèm Size + Topping
+    const noteText = document.getElementById('modalItemNote') ? document.getElementById('modalItemNote').value.trim() : '';
+    const cartKey = `${activeProductForModal.id}-${selectedSize}-${selectedAddons.join('_')}-${noteText}`;
+    
+    const existing = cart.find(i => i.key === cartKey);
+    if (existing) {
+        existing.qty += qty;
+    } else {
+        cart.push({
+            key: cartKey,
+            id: activeProductForModal.id,
+            name: activeProductForModal.name + 
+                  (selectedSize === 'large' ? ' (Size Large)' : ' (Size Normal)') + 
+                  (selectedAddons.length > 0 ? ' [+ ' + selectedAddons.join(', ') + ']' : ''),
+            price: finalUnitPrice,
+            note: noteText,
+            qty: qty,
+            img: activeProductForModal.img
+        });
+    }
+
+    // 4. Lưu giỏ hàng và cập nhật giao diện
+    saveCart();
+    closeModal('productDetailModal');
+    openCartModal();
+}
 
         function updateQty(key, delta) {
             const idx = cart.findIndex(i => i.key === key);
