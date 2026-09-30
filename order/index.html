@@ -495,7 +495,7 @@ function openProductModal(id) {
     currentModalQty = 1;
 
     // 1. Lấy thông tin cơ bản với trường ảnh
-    const prodImg = activeProductForModal.img || activeProductForModal.image || 'https://images.unsplash.com/photo-1550566199-641a8ac3b55e-300';
+    const prodImg = activeProductForModal.img1 || activeProductForModal.image || 'https://images.unsplash.com/photo-1550566199-641a8ac3b55e-300';
     document.getElementById('modalProdImg').src = prodImg;
     document.getElementById('modalProdTag').innerText = activeProductForModal.category || 'Oriberry';
     document.getElementById('modalProdName').innerText = activeProductForModal.name || '';
@@ -560,7 +560,7 @@ function openProductModal(id) {
     if (crossSellContainer) {
         crossSellContainer.innerHTML = crossSells.length > 0 ? crossSells.map(cs => `
             <div onclick="openProductModal('${cs.id}')" class="w-32 flex-shrink-0 border border-stone-200 rounded-2xl p-2 bg-stone-50 flex flex-col justify-between cursor-pointer hover:border-amber-300 transition">
-                <img src="${cs.img || cs.image || 'https://images.unsplash.com/photo-1550566199-641a8ac3b55e-300'}" class="w-full h-16 object-cover rounded-xl mb-1">
+                <img src="${cs.img1 || cs.image || 'https://images.unsplash.com/photo-1550566199-641a8ac3b55e-300'}" class="w-full h-16 object-cover rounded-xl mb-1">
                 <div class="text-[11px] font-bold text-stone-900 truncate">${cs.name}</div>
                 <div class="text-[10px] text-amber-900 font-bold">${Number(cs.price || cs.normal_price || 0).toLocaleString('vi-VN')}₫</div>
             </div>
