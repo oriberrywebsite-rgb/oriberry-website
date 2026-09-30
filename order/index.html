@@ -526,7 +526,7 @@ function openProductModal(id) {
 
     // 3. Lọc và hiển thị danh sách Add-ons theo category sản phẩm
     const productCategory = String(activeProductForModal.category || '').toLowerCase();
-    const availableAddons = (window.addons || []).filter(addon => 
+    const availableAddons = (windowAllAddons || []).filter(addon => 
         !addon.category || addon.category.toLowerCase() === productCategory
     );
 
