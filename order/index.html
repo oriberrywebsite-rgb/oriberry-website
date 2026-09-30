@@ -484,7 +484,6 @@ async function fetchMenuProducts() {
             document.getElementById('headerIcon').className = isDineIn ? "fa-solid fa-utensils text-[10px]" : "fa-solid fa-bag-shopping text-[10px]";
             document.getElementById('fulfillmentLabel').innerText = isDineIn ? "Uống tại quán" : "Đến lấy mang đi";
             document.getElementById('fulfillmentValue').innerText = storeObj.name;
-            document.getElementById('custAddress').value = `${isDineIn ? 'Uống tại quán' : 'Đến lấy'} - ${storeObj.name} (${storeObj.address})`;
         }
 
     function confirmDeliveryAddress() {
@@ -516,9 +515,10 @@ async function fetchMenuProducts() {
     document.getElementById('fulfillmentLabel').innerText = "Giao hàng";
     
     // 3. Hiển thị tên cửa hàng phụ trách lên nút góc trên bên phải thay vì chỉ hiện tên phường
-    document.getElementById('fulfillmentText').innerText = assignedStore;
-}
-
+    const fulfillmentEl = document.getElementById('fulfillmentText');
+    if (fulfillmentEl) {
+    fulfillmentEl.innerText = assignedStore;
+    }
         // Popup chi tiết món kèm Cross-selling & Note
 function openProductModal(id) {
     activeProductForModal = PRODUCTS.find(p => String(p.id) === String(id));
