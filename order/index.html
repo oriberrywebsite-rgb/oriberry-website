@@ -540,8 +540,12 @@ function openProductModal(id) {
         `;
     }
 
-// 3. Lấy trực tiếp toàn bộ danh sách Add-ons đã tải về
-        const availableAddons = Array.isArray(windowAllAddons) ? windowAllAddons : [];
+// 3. Lọc và hiển thị danh sách Add-ons chuẩn theo category sản phẩm
+        const productCategory = String(activeProductForModal.category || '').toLowerCase();
+        const availableAddons = (windowAllAddons || []).filter(addon => {
+            const addonCat = String(addon.category || '').toLowerCase();
+            return addonCat === productCategory || addonCat === 'all' || addonCat === 'topping' || addonCat === 'chung';
+        });
 
     let addonHtml = '';
     if (availableAddons.length > 0) {
