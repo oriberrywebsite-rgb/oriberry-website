@@ -484,7 +484,11 @@ async function fetchMenuProducts() {
             document.getElementById('headerIcon').className = isDineIn ? "fa-solid fa-utensils text-[10px]" : "fa-solid fa-bag-shopping text-[10px]";
             document.getElementById('fulfillmentLabel').innerText = isDineIn ? "Uống tại quán" : "Đến lấy mang đi";
             document.getElementById('fulfillmentValue').innerText = storeObj.name;
-        }
+            const custAddrInput = document.getElementById('custAddress');
+            if (custAddrInput) {
+            custAddrInput.value = `${isDineIn ? 'Uống tại quán' : 'Đến lấy mang đi'} - ${storeObj.name} (${storeObj.address})`;
+           }
+    }
 
     function confirmDeliveryAddress() {
     const ward = document.getElementById('wardSelect').value;
