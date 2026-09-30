@@ -772,7 +772,7 @@ async function submitOrder(e) {
 
     const payload = {
         sourceChannel: 'STORE_DRINK',
-        storeCode: finalStoreCode,        
+        storeCode: chosenStore,        
         fulfillmentType: chosenFulfillment, // Cột D: Loại hình nhận hàng
         locationDetail: finalLocationDetail, // Cột E: Địa chỉ chi tiết (chỉ có khi Delivery, lấy từ popup 1)
         customerName: name,
