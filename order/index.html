@@ -283,7 +283,7 @@ let STORES = [
 let windowAllAddons = [];
 async function fetchAddonsData() {
     try {
-        const res = await fetch(SCRIPT_URL + '?action=getAddonsData');
+        const res = await fetch(SCRIPT_URL + '?action=getAddons');
         const result = await res.json();
         
         // In chi tiết kiểu dữ liệu và nội dung ra để soi
