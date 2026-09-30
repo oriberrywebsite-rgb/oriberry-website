@@ -748,21 +748,20 @@ function addToCartFromModal() {
         function openCartModal() { document.getElementById('cartModal').classList.remove('hidden'); }
 
 async function submitOrder(e) {
-  e.preventDefault();
-  if (cart.length === 0) return alert("Giỏ hàng trống!");
+    e.preventDefault();
+    if (cart.length === 0) return alert("Giỏ hàng trống!");
 
-  const name = document.getElementById('custName').value;
-  const phone = document.getElementById('custPhone').value;
-  const address = document.getElementById('custAddress')?.value || "";
+    const name = document.getElementById('custName')?.value || "";
+    const phone = document.getElementById('custPhone')?.value || "";
+    
+    // Gom chi tiết giỏ hàng đồ uống
+    const itemsDetail = cart.map(i => `${i.name} x${i.qty} (${(i.price * i.qty).toLocaleString('vi-VN')}đ)`).join(' | ');
+    const totalAmount = cart.reduce((sum, item) => sum + (item.price * item.qty), 0);
 
-  // Gom chi tiết giỏ hàng đồ uống
-  const itemsDetail = cart.map(i => `${i.name} x${i.qty} (${(i.price * i.qty).toLocaleString('vi-VN')}đ)`).join(' | ');
-  const totalAmount = cart.reduce((sum, item) => sum + (item.price * item.qty), 0);
-
-// Lấy thẳng tên cửa hàng đã được định hình chuẩn từ Popup 1
+    // Lấy thẳng tên cửa hàng đã được định chuẩn từ Popup 1
     const chosenStore = (typeof selectedStoreOrLocation !== 'undefined' && selectedStoreOrLocation) ? selectedStoreOrLocation : "Oriberry Quảng An";
     const chosenFulfillment = (typeof currentFulfillment !== 'undefined' && currentFulfillment) ? currentFulfillment : "Uống tại quán";
-    
+
     // 1. Cột Location_Detail (Cột E): Chỉ lấy địa chỉ chi tiết đã được khai báo sẵn từ Popup 1 nếu là Delivery
     let finalLocationDetail = "";
     if (chosenFulfillment === 'DELIVERY' || chosenFulfillment === 'Giao hàng') {
@@ -771,54 +770,54 @@ async function submitOrder(e) {
         finalLocationDetail = ""; // Pickup / Dine-in thì cột E để trống hoàn toàn
     }
 
-    // 2. Cột Note (Cột I): Lấy nội dung từ ô nhập ở popup giỏ hàng (custAddress), không bắt buộc
-    const userNote = document.getElementById('orderNote')?.value || ""; 
+    // 2. Cột Note (Cột I): Lấy nội dung từ ô nhập ở popup giỏ hàng, không bắt buộc
+    const userNote = document.getElementById('orderNote')?.value || "";
 
     const payload = {
         sourceChannel: 'STORE_DRINK',
-        storeCode: chosenStore,        
-        fulfillmentType: chosenFulfillment, // Cột D: Loại hình nhận hàng
-        locationDetail: finalLocationDetail, // Cột E: Địa chỉ chi tiết (chỉ có khi Delivery, lấy từ popup 1)
+        storeCode: chosenStore,
+        fulfillmentType: chosenFulfillment,
+        locationDetail: finalLocationDetail,
         customerName: name,
         customerPhone: phone,
         orderDetails: itemsDetail,
-        notes: userNote,                    // Cột I: Ô note ở popup giỏ hàng, tùy chọn
+        notes: userNote,
         totalAmount: totalAmount,
         paymentMethod: "COD"
     };
 
-  const submitBtn = document.getElementById('submit-btn');
-  if (submitBtn) { 
-    submitBtn.disabled = true; 
-    submitBtn.innerText = "ĐANG GỬI ĐƠN..."; 
-  }
-
-  try {
-    // Sử dụng trực tiếp biến SCRIPT_URL sẵn có trong file của anh
-    await fetch(SCRIPT_URL, { 
-      method: 'POST', 
-      mode: 'no-cors', 
-      headers: { 'Content-Type': 'application/json' }, 
-      body: JSON.stringify(payload) 
-    });
-
-    alert(`Gửi đơn hàng thành công cho khách hàng ${name} (${phone})!`);
-    cart = [];
-    saveCart();
-    closeModal('cartModal');
-    if (typeof updateCartUI === 'function') updateCartUI();
-  } catch (err) {
-    alert("Có lỗi xảy ra khi gửi đơn. Vui lòng thử lại!");
-  } finally {
-    if (submitBtn) { 
-      submitBtn.disabled = false; 
-      submitBtn.innerText = "XÁC NHẬN ĐẶT HÀNG"; 
+    const submitBtn = document.getElementById('submit-btn');
+    if (submitBtn) {
+        submitBtn.disabled = true;
+        submitBtn.innerText = "DANG GỬI ĐƠN...";
     }
-  }
+
+    try {
+        await fetch(SCRIPT_URL, {
+            method: 'POST',
+            mode: 'no-cors',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(payload)
+        });
+
+        alert(`Gửi đơn hàng thành công cho khách hàng ${name} (${phone})!`);
+        cart = [];
+        saveCart();
+        closeModal('cartModal');
+        if (typeof updateCartUI === 'function') updateCartUI();
+    } catch (err) {
+        alert('Có lỗi xảy ra khi gửi đơn. Vui lòng thử lại!');
+    } finally {
+        if (submitBtn) {
+            submitBtn.disabled = false;
+            submitBtn.innerText = "XÁC NHẬN ĐẶT HÀNG";
+        }
+    }
 }
-    // Khởi chạy tải dữ liệu khi trang vừa mở
-    fetchMenuProducts();
-    fetchAddonsData();
+
+// Khởi chạy tải dữ liệu khi trang vừa mở
+fetchMenuProducts();
+fetchAddonsData();
 </script>
 </body>
 </html>
