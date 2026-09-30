@@ -278,9 +278,20 @@ let STORES = [
     { id: 'TD', code: 'TD', name: 'Oriberry TD', address: '11B Tong Dan, Hoan Kiem' },
     { id: 'DTD', code: 'DTD', name: 'Oriberry DTD', address: '23-25 Dang Tien Dong, Dong Da' }
 ];
-// Biến toàn cục lưu trữ danh sách Add-ons
-let windowAllAddons = [];
 
+// Hàm tải danh sách Add-ons / Toppings từ Google Sheets
+let windowAllAddons = [];
+async function fetchAddonsData() {
+    try {
+        const res = await fetch(SCRIPT_URL + '?action=getAddonsData');
+        const result = await res.json();
+        windowAllAddons = Array.isArray(result) ? result : (result.data || []);
+    } catch (err) {
+        console.error("Lỗi tải danh sách add-ons:", err);
+        windowAllAddons = [];
+    }
+}
+        
 // Hàm fetchStoresData bây giờ chỉ cần gọi renderStores luôn cho chắc cú
 function fetchStoresData() {
     renderStores();
@@ -386,18 +397,7 @@ async function fetchMenuProducts() {
 
             if (sortVal === 'low-to-high') filtered.sort((a, b) => Number(a.price) - Number(b.price));
             else if (sortVal === 'high-to-low') filtered.sort((a, b) => Number(b.price) - Number(a.price));
-// Hàm tải danh sách Add-ons / Toppings từ Google Sheets
-let windowAllAddons = [];
-async function fetchAddonsData() {
-    try {
-        const res = await fetch(SCRIPT_URL + '?action=getAddonsData');
-        const result = await res.json();
-        windowAllAddons = Array.isArray(result) ? result : (result.data || []);
-    } catch (err) {
-        console.error("Lỗi tải danh sách add-ons:", err);
-        windowAllAddons = [];
-    }
-}
+
             const container = document.getElementById('menuContentContainer');
             let htmlContent = '';
 
