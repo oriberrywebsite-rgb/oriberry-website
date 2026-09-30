@@ -285,7 +285,17 @@ async function fetchAddonsData() {
     try {
         const res = await fetch(SCRIPT_URL + '?action=getAddonsData');
         const result = await res.json();
-        windowAllAddons = Array.isArray(result) ? result : (result.data || []);
+        console.log("Dữ liệu Addons tải về từ Google Sheets:", result);
+        
+        if (Array.isArray(result)) {
+            windowAllAddons = result;
+        } else if (result && Array.isArray(result.data)) {
+            windowAllAddons = result.data;
+        } else if (result && Array.isArray(result.addons)) {
+            windowAllAddons = result.addons;
+        } else {
+            windowAllAddons = [];
+        }
     } catch (err) {
         console.error("Lỗi tải danh sách add-ons:", err);
         windowAllAddons = [];
