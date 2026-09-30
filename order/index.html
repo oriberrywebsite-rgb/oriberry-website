@@ -741,8 +741,9 @@ async function submitOrder(e) {
   // Gói dữ liệu có gắn "tem" phân định STORE_DRINK
 const payload = {
     sourceChannel: 'STORE_DRINK', 
-    storeCode: document.getElementById('fulfillmentValue')?.innerText || "Oriberry Quảng An",
-    fulfillmentType: document.getElementById('fulfillmentValue')?.innerText || "Uống tại quán",
+    storeCode: selectedStoreOrLocation || "Oriberry Quảng An", 
+    fulfillmentType: fulfillmentType || "Uống tại quán",       
+    
     locationDetail: address,
     customerName: name,
     customerPhone: phone,
