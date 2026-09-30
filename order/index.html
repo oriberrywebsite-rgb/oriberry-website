@@ -738,20 +738,33 @@ async function submitOrder(e) {
   const itemsDetail = cart.map(i => `${i.name} x${i.qty} (${(i.price * i.qty).toLocaleString('vi-VN')}đ)`).join(' | ');
   const totalAmount = cart.reduce((sum, item) => sum + (item.price * item.qty), 0);
 
-  // Gói dữ liệu có gắn "tem" phân định STORE_DRINK
+// Gói dữ liệu có gắn "tem" phân định STORE_DRINK
+const chosenStore = (typeof selectedStoreOrLocation !== 'undefined' && selectedStoreOrLocation) ? selectedStoreOrLocation : "Oriberry Quảng An";
+const chosenFulfillment = (typeof currentFulfillment !== 'undefined' && currentFulfillment) ? currentFulfillment : "Uống tại quán";
+
+// Nếu là Delivery thì lấy địa chỉ chi tiết, còn Pickup / Dine-in thì cột Location_Detail để trống
+let finalLocationDetail = "";
+if (chosenFulfillment === 'DELIVERY' || chosenFulfillment === 'Giao hàng') {
+    finalLocationDetail = (typeof currentDeliveryAddress !== 'undefined' && currentDeliveryAddress) ? currentDeliveryAddress : (document.getElementById('custAddress')?.value || "");
+} else {
+    finalLocationDetail = ""; // Nhận tại quán không cần rườm rà địa chỉ chi tiết ở cột E
+}
+
+// Lấy nội dung ghi chú riêng của khách ở popup giỏ hàng để bắn thẳng vào cột note (Cột I)
+const userNote = document.getElementById('custAddress')?.value || "";
+
 const payload = {
-    sourceChannel: 'STORE_DRINK', 
-    storeCode: (typeof selectedStoreOrLocation !== 'undefined' && selectedStoreOrLocation) ? selectedStoreOrLocation : "Oriberry Quảng An",
-    fulfillmentType: (typeof currentFulfillment !== 'undefined' && currentFulfillment) ? currentFulfillment : "Uống tại quán",
-    
-    locationDetail: address,
+    sourceChannel: 'STORE_DRINK',
+    storeCode: chosenStore,             // Cột C: Lưu đúng tên cửa hàng (cho Pickup/Dine-in) hoặc store map theo khu vực (cho Delivery)
+    fulfillmentType: chosenFulfillment, // Cột D: Loại hình nhận hàng
+    locationDetail: finalLocationDetail, // Cột E: Chỉ chứa địa chỉ giao hàng nếu là Delivery, ngược lại để trống
     customerName: name,
     customerPhone: phone,
     orderDetails: itemsDetail,
-    notes: "", 
+    notes: userNote,                    // Cột I (note): Ghi chú riêng cho đơn hàng nhập từ popup giỏ hàng
     totalAmount: totalAmount,
     paymentMethod: "COD"
-  };
+};
 
   const submitBtn = document.getElementById('submit-btn');
   if (submitBtn) { 
