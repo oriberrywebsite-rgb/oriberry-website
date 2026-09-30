@@ -525,11 +525,12 @@ function openProductModal(id) {
         `;
     }
 
-    // 3. Lọc và hiển thị danh sách Add-ons theo category sản phẩm
-    const productCategory = String(activeProductForModal.category || '').toLowerCase();
-    const availableAddons = (windowAllAddons || []).filter(addon => 
-        !addon.category || addon.category.toLowerCase() === productCategory
-    );
+// 3. Lọc và hiển thị danh sách Add-ons chuẩn theo category sản phẩm
+        const productCategory = String(activeProductForModal.category || '').toLowerCase();
+        const availableAddons = (windowAllAddons || []).filter(addon => {
+            const addonCat = String(addon.category || '').toLowerCase();
+            return addonCat === productCategory || addonCat === 'all' || addonCat === 'topping' || addonCat === 'chung';
+        });
 
     let addonHtml = '';
     if (availableAddons.length > 0) {
@@ -555,18 +556,24 @@ function openProductModal(id) {
     // Cập nhật lại giá tiền ban đầu
     updateModalPrices();
 
-    // 4. GIỮ NGUYÊN HOÀN TOÀN PHẦN GỢI Ý KÈM (Cross-selling) CỦA ANH
-    const crossSells = PRODUCTS.filter(p => String(p.id) !== String(id)).slice(0, 4);
-    const crossSellContainer = document.getElementById('crossSellContainer');
-    if (crossSellContainer) {
-        crossSellContainer.innerHTML = crossSells.length > 0 ? crossSells.map(cs => `
-            <div onclick="openProductModal('${cs.id}')" class="w-32 flex-shrink-0 border border-stone-200 rounded-2xl p-2 bg-stone-50 flex flex-col justify-between cursor-pointer hover:border-amber-300 transition">
-                <img src="${cs.img1 || cs.image || 'https://images.unsplash.com/photo-1550566199-641a8ac3b55e-300'}" class="w-full h-16 object-cover rounded-xl mb-1">
-                <div class="text-[11px] font-bold text-stone-900 truncate">${cs.name}</div>
-                <div class="text-[10px] text-amber-900 font-bold">${Number(cs.price || cs.normal_price || 0).toLocaleString('vi-VN')}₫</div>
-            </div>
-        `).join('') : '<div class="text-xs text-stone-400">Không có sản phẩm gợi ý.</div>';
-    }
+// 4. Gợi ý món dùng kèm chính xác từ cột side_dish1, side_dish2, side_dish3
+        const sideDishIds = [
+            activeProductForModal.side_dish1, 
+            activeProductForModal.side_dish2, 
+            activeProductForModal.side_dish3
+        ].filter(Boolean).map(sid => String(sid).trim());
+
+        const crossSells = PRODUCTS.filter(p => sideDishIds.includes(String(p.id).trim()));
+
+        if (crossSellContainer) {
+            crossSellContainer.innerHTML = crossSells.length > 0 ? crossSells.map(cs => `
+                <div onclick="openProductModal('${cs.id}')" class="w-32 flex-shrink-0 border border-stone-200 rounded-2xl p-2 bg-stone-50 flex flex-col justify-between cursor-pointer hover:border-amber-300 transition">
+                    <img src="${cs.img1 || cs.image || 'https://images.unsplash.com/photo-1550566199-641a8ac3b55e-300'}" class="w-full h-16 object-cover rounded-xl mb-1">
+                    <div class="text-[11px] font-bold text-stone-900 truncate">${cs.name}</div>
+                    <div class="text-[10px] text-amber-900 font-bold">${Number(cs.price || cs.normal_price || 0).toLocaleString('vi-VN')}₫</div>
+                </div>
+            `).join('') : '<div class="text-xs text-stone-400">Không có sản phẩm gợi ý.</div>';
+        }
 
     // Mở modal
     const modal = document.getElementById('productDetailModal');
