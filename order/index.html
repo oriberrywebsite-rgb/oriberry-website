@@ -487,20 +487,37 @@ async function fetchMenuProducts() {
             document.getElementById('custAddress').value = `${isDineIn ? 'Uống tại quán' : 'Đến lấy'} - ${storeObj.name} (${storeObj.address})`;
         }
 
-        function confirmDeliveryAddress() {
-            const ward = document.getElementById('wardSelect').value;
-            const detail = document.getElementById('deliveryAddressDetail').value;
-            if(!ward || !detail) {
-                alert('Vui lòng chọn phường và nhập địa chỉ chi tiết!');
-                return;
-            }
-            selectedStoreOrLocation = `${detail}, ${ward}`;
-            closeModal('deliveryModal');
-            document.getElementById('headerIcon').className = "fa-solid fa-motorcycle text-[10px]";
-            document.getElementById('fulfillmentLabel').innerText = "Giao hàng";
-            document.getElementById('fulfillmentValue').innerText = detail;
-            document.getElementById('custAddress').value = `Giao tận nơi: ${detail}, ${ward}`;
-        }
+    function confirmDeliveryAddress() {
+    const ward = document.getElementById('wardSelect').value;
+    const detail = document.getElementById('deliveryAddressDetail').value;
+    if (!ward || !detail) {
+        alert('Vui lòng chọn phường và nhập địa chỉ chi tiết!');
+        return;
+    }
+
+    // 1. Ánh xạ trực tiếp ward ra mã cửa hàng chuẩn xác
+    let assignedStore = "Oriberry Quảng An";
+    if (ward.includes('Hoàn Kiếm')) {
+        assignedStore = "Oriberry 1PSM";
+    } else if (ward.includes('Tây Hồ')) {
+        assignedStore = "Oriberry Quảng An";
+    } else if (ward.includes('Đống Đa')) {
+        assignedStore = "Oriberry DTD";
+    }
+    
+    // Lưu mã cửa hàng vào biến chính để lát đẩy vào Cột C (storeCode)
+    selectedStoreOrLocation = assignedStore; 
+
+    // 2. Lưu riêng địa chỉ chi tiết để đẩy vào Cột E (locationDetail)
+    window.currentDeliveryAddress = `${detail}, ${ward}`;
+
+    closeModal('deliveryModal');
+    document.getElementById('headerIcon').className = "fa-solid fa-motorcycle text-[10px]";
+    document.getElementById('fulfillmentLabel').innerText = "Giao hàng";
+    
+    // 3. Hiển thị tên cửa hàng phụ trách lên nút góc trên bên phải thay vì chỉ hiện tên phường
+    document.getElementById('fulfillmentText').innerText = assignedStore;
+}
 
         // Popup chi tiết món kèm Cross-selling & Note
 function openProductModal(id) {
@@ -738,25 +755,10 @@ async function submitOrder(e) {
   const itemsDetail = cart.map(i => `${i.name} x${i.qty} (${(i.price * i.qty).toLocaleString('vi-VN')}đ)`).join(' | ');
   const totalAmount = cart.reduce((sum, item) => sum + (item.price * item.qty), 0);
 
-// Gói dữ liệu có gắn "tem" phân định STORE_DRINK
-    const rawStoreOrArea = (typeof selectedStoreOrLocation !== 'undefined' && selectedStoreOrLocation) ? selectedStoreOrLocation : "Oriberry Quảng An";
+// Lấy thẳng tên cửa hàng đã được định hình chuẩn từ Popup 1
+    const chosenStore = (typeof selectedStoreOrLocation !== 'undefined' && selectedStoreOrLocation) ? selectedStoreOrLocation : "Oriberry Quảng An";
     const chosenFulfillment = (typeof currentFulfillment !== 'undefined' && currentFulfillment) ? currentFulfillment : "Uống tại quán";
-
-    let chosenStore = "Oriberry Quảng An";
-    if (chosenFulfillment === 'DELIVERY' || chosenFulfillment === 'Giao hàng') {
-        if (rawStoreOrArea.includes('Hoàn Kiếm') || rawStoreOrArea.includes('1PSM')) {
-            chosenStore = "Oriberry 1PSM";
-        } else if (rawStoreOrArea.includes('Tây Hồ') || rawStoreOrArea.includes('Quảng An')) {
-            chosenStore = "Oriberry Quảng An";
-        } else if (rawStoreOrArea.includes('Đống Đa') || rawStoreOrArea.includes('DTD')) {
-            chosenStore = "Oriberry DTD";
-        } else {
-            chosenStore = rawStoreOrArea.length < 30 ? rawStoreOrArea : "Oriberry Quảng An";
-        }
-    } else {
-        chosenStore = rawStoreOrArea;
-    }
-
+    
     // 1. Cột Location_Detail (Cột E): Chỉ lấy địa chỉ chi tiết đã được khai báo sẵn từ Popup 1 nếu là Delivery
     let finalLocationDetail = "";
     if (chosenFulfillment === 'DELIVERY' || chosenFulfillment === 'Giao hàng') {
