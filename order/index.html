@@ -739,8 +739,23 @@ async function submitOrder(e) {
   const totalAmount = cart.reduce((sum, item) => sum + (item.price * item.qty), 0);
 
 // Gói dữ liệu có gắn "tem" phân định STORE_DRINK
-    const chosenStore = (typeof selectedStoreOrLocation !== 'undefined' && selectedStoreOrLocation) ? selectedStoreOrLocation : "Oriberry Quảng An";
+    const rawStoreOrArea = (typeof selectedStoreOrLocation !== 'undefined' && selectedStoreOrLocation) ? selectedStoreOrLocation : "Oriberry Quảng An";
     const chosenFulfillment = (typeof currentFulfillment !== 'undefined' && currentFulfillment) ? currentFulfillment : "Uống tại quán";
+
+    let chosenStore = "Oriberry Quảng An";
+    if (chosenFulfillment === 'DELIVERY' || chosenFulfillment === 'Giao hàng') {
+        if (rawStoreOrArea.includes('Hoàn Kiếm') || rawStoreOrArea.includes('1PSM')) {
+            chosenStore = "Oriberry 1PSM";
+        } else if (rawStoreOrArea.includes('Tây Hồ') || rawStoreOrArea.includes('Quảng An')) {
+            chosenStore = "Oriberry Quảng An";
+        } else if (rawStoreOrArea.includes('Đống Đa') || rawStoreOrArea.includes('DTD')) {
+            chosenStore = "Oriberry DTD";
+        } else {
+            chosenStore = rawStoreOrArea.length < 30 ? rawStoreOrArea : "Oriberry Quảng An";
+        }
+    } else {
+        chosenStore = rawStoreOrArea;
+    }
 
     // 1. Cột Location_Detail (Cột E): Chỉ lấy địa chỉ chi tiết đã được khai báo sẵn từ Popup 1 nếu là Delivery
     let finalLocationDetail = "";
@@ -755,7 +770,7 @@ async function submitOrder(e) {
 
     const payload = {
         sourceChannel: 'STORE_DRINK',
-        storeCode: chosenStore,             // Cột C: Tên quán chọn ở popup 1 hoặc map theo khu vực
+        storeCode: finalStoreCode,        
         fulfillmentType: chosenFulfillment, // Cột D: Loại hình nhận hàng
         locationDetail: finalLocationDetail, // Cột E: Địa chỉ chi tiết (chỉ có khi Delivery, lấy từ popup 1)
         customerName: name,
