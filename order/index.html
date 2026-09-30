@@ -544,7 +544,7 @@ function openProductModal(id) {
         const productCategory = String(activeProductForModal.category || '').toLowerCase();
         const availableAddons = (windowAllAddons || []).filter(addon => {
             const addonCat = String(addon.category || '').toLowerCase();
-            return addonCat === productCategory || addonCat === 'all' || addonCat === 'topping' || addonCat === 'chung' || addonCat === '';
+            return addonCat === productCategory || addonCat === 'all' || addonCat === 'topping' || addonCat === 'chung';
         });
 
     let addonHtml = '';
