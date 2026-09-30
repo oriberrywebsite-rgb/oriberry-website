@@ -248,7 +248,7 @@
                     <form id="checkoutForm" onsubmit="submitOrder(event)" class="space-y-2.5 pt-1">
                         <input type="text" id="custName" placeholder="Họ tên của bạn *" required class="w-full text-xs border border-stone-300 rounded-xl p-2.5 focus:outline-none focus:border-amber-700">
                         <input type="tel" id="custPhone" placeholder="Số điện thoại *" required class="w-full text-xs border border-stone-300 rounded-xl p-2.5 focus:outline-none focus:border-amber-700">
-                        <textarea id="custAddress" placeholder="Địa chỉ giao hàng / Số bàn..." rows="2" required class="w-full text-xs border border-stone-300 rounded-xl p-2.5 focus:outline-none focus:border-amber-700"></textarea>
+                        <textarea id="orderNote" placeholder="Ghi chú thêm cho đơn hàng (Không bắt buộc)..." rows="2" class="w-full text-xs border border-stone-300 rounded-xl p-2.5 focus:outline-none focus:border-amber-700"></textarea>
                         <button type="submit" id="submitBtn" class="w-full bg-neutral-900 hover:bg-amber-950 text-white font-bold py-3 rounded-xl text-xs transition uppercase tracking-wider shadow-md cursor-pointer">XÁC NHẬN ĐẶT HÀNG</button>
                     </form>
                 </div>
@@ -739,32 +739,32 @@ async function submitOrder(e) {
   const totalAmount = cart.reduce((sum, item) => sum + (item.price * item.qty), 0);
 
 // Gói dữ liệu có gắn "tem" phân định STORE_DRINK
-const chosenStore = (typeof selectedStoreOrLocation !== 'undefined' && selectedStoreOrLocation) ? selectedStoreOrLocation : "Oriberry Quảng An";
-const chosenFulfillment = (typeof currentFulfillment !== 'undefined' && currentFulfillment) ? currentFulfillment : "Uống tại quán";
+    const chosenStore = (typeof selectedStoreOrLocation !== 'undefined' && selectedStoreOrLocation) ? selectedStoreOrLocation : "Oriberry Quảng An";
+    const chosenFulfillment = (typeof currentFulfillment !== 'undefined' && currentFulfillment) ? currentFulfillment : "Uống tại quán";
 
-// Nếu là Delivery thì lấy địa chỉ chi tiết, còn Pickup / Dine-in thì cột Location_Detail để trống
-let finalLocationDetail = "";
-if (chosenFulfillment === 'DELIVERY' || chosenFulfillment === 'Giao hàng') {
-    finalLocationDetail = (typeof currentDeliveryAddress !== 'undefined' && currentDeliveryAddress) ? currentDeliveryAddress : (document.getElementById('custAddress')?.value || "");
-} else {
-    finalLocationDetail = ""; // Nhận tại quán không cần rườm rà địa chỉ chi tiết ở cột E
-}
+    // 1. Cột Location_Detail (Cột E): Chỉ lấy địa chỉ chi tiết đã được khai báo sẵn từ Popup 1 nếu là Delivery
+    let finalLocationDetail = "";
+    if (chosenFulfillment === 'DELIVERY' || chosenFulfillment === 'Giao hàng') {
+        finalLocationDetail = (typeof currentDeliveryAddress !== 'undefined' && currentDeliveryAddress) ? currentDeliveryAddress : "";
+    } else {
+        finalLocationDetail = ""; // Pickup / Dine-in thì cột E để trống hoàn toàn
+    }
 
-// Lấy nội dung ghi chú riêng của khách ở popup giỏ hàng để bắn thẳng vào cột note (Cột I)
-const userNote = document.getElementById('custAddress')?.value || "";
+    // 2. Cột Note (Cột I): Lấy nội dung từ ô nhập ở popup giỏ hàng (custAddress), không bắt buộc
+    const userNote = document.getElementById('orderNote')?.value || ""; 
 
-const payload = {
-    sourceChannel: 'STORE_DRINK',
-    storeCode: chosenStore,             // Cột C: Lưu đúng tên cửa hàng (cho Pickup/Dine-in) hoặc store map theo khu vực (cho Delivery)
-    fulfillmentType: chosenFulfillment, // Cột D: Loại hình nhận hàng
-    locationDetail: finalLocationDetail, // Cột E: Chỉ chứa địa chỉ giao hàng nếu là Delivery, ngược lại để trống
-    customerName: name,
-    customerPhone: phone,
-    orderDetails: itemsDetail,
-    notes: userNote,                    // Cột I (note): Ghi chú riêng cho đơn hàng nhập từ popup giỏ hàng
-    totalAmount: totalAmount,
-    paymentMethod: "COD"
-};
+    const payload = {
+        sourceChannel: 'STORE_DRINK',
+        storeCode: chosenStore,             // Cột C: Tên quán chọn ở popup 1 hoặc map theo khu vực
+        fulfillmentType: chosenFulfillment, // Cột D: Loại hình nhận hàng
+        locationDetail: finalLocationDetail, // Cột E: Địa chỉ chi tiết (chỉ có khi Delivery, lấy từ popup 1)
+        customerName: name,
+        customerPhone: phone,
+        orderDetails: itemsDetail,
+        notes: userNote,                    // Cột I: Ô note ở popup giỏ hàng, tùy chọn
+        totalAmount: totalAmount,
+        paymentMethod: "COD"
+    };
 
   const submitBtn = document.getElementById('submit-btn');
   if (submitBtn) { 
