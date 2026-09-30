@@ -296,6 +296,7 @@ let cart = JSON.parse(localStorage.getItem('oriberry_order_cart')) || [];
             renderSidebarCategories();
             fetchStoresData();
             fetchMenuProducts();
+            fetchAddonsData();
             updateCartUI();
             checkUrlTableParam();
         });
