@@ -297,11 +297,9 @@ async function fetchAddonsData() {
         } else if (result && Array.isArray(result.addons)) {
             windowAllAddons = result.addons;
         } else {
-            // Nếu nó nằm trong một key khác, thử lấy giá trị mảng đầu tiên tìm thấy trong object
-            const firstArrayKey = Object.values(result).find(val => Array.isArray(val));
-            windowAllAddons = firstArrayKey || [];
-        }
-    } catch (err) {
+            // Không quét bừa bãi nữa, gán thẳng mảng rỗng để tránh nhận nhầm mảng sản phẩm
+            windowAllAddons = [];
+        }    } catch (err) {
         console.error("Lỗi tải danh sách add-ons:", err);
         windowAllAddons = [];
     }
