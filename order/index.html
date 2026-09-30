@@ -174,7 +174,7 @@
         </div>
     </div>
 
-    <!-- MODAL 4: CHI TIẾT MÓN, CROSS-SELLING & NOTE FOR ORIBERRY -->
+<!-- MODAL 4: CHI TIẾT MÓN, CROSS-SELLING & NOTE FOR ORIBERRY -->
     <div id="productDetailModal" class="fixed inset-0 bg-black/50 z-50 flex items-end sm:items-center justify-center hidden">
         <div class="bg-white w-full max-w-lg rounded-t-3xl sm:rounded-2xl max-h-[90vh] overflow-y-auto flex flex-col shadow-2xl">
             <div class="relative w-full h-56 bg-stone-100">
@@ -189,6 +189,18 @@
                 </div>
                 <p id="modalProdDesc" class="text-xs text-stone-600 leading-relaxed"></p>
                 
+                <!-- CHỌN SIZE -->
+                <div>
+                    <label class="block text-xs font-bold text-stone-700 uppercase tracking-wider mb-1">Chọn Size:</label>
+                    <div id="modalSizeContainer" class="flex gap-4 text-xs text-stone-800"></div>
+                </div>
+
+                <!-- CHỌN TOPPING / ADD-ONS -->
+                <div>
+                    <label class="block text-xs font-bold text-stone-700 uppercase tracking-wider mb-1">Topping / Dùng kèm:</label>
+                    <div id="modalAddonContainer" class="space-y-1"></div>
+                </div>
+
                 <!-- NOTE FOR ORIBERRY -->
                 <div>
                     <label class="block text-xs font-bold text-stone-700 uppercase tracking-wider mb-1">Note for Oriberry (Ghi chú cho món):</label>
@@ -204,9 +216,9 @@
                 <!-- SỐ LƯỢNG & NÚT THÊM VÀO GIỎ -->
                 <div class="pt-3 border-t border-stone-100 flex items-center justify-between gap-4">
                     <div class="flex items-center border border-stone-300 rounded-xl overflow-hidden">
-                        <button onclick="adjustModalQty(-1)" class="px-3 py-2 bg-stone-100 hover:bg-stone-200 font-bold text-stone-700"><i class="fa-solid fa-minus text-xs"></i></button>
+                        <button onclick="adjustModalQty(-1)" class="px-3 py-2 bg-stone-100 hover:bg-stone-200 font-bold text-stone-700 cursor-pointer"><i class="fa-solid fa-minus text-xs"></i></button>
                         <span id="modalQty" class="px-4 font-bold text-sm text-stone-800">1</span>
-                        <button onclick="adjustModalQty(1)" class="px-3 py-2 bg-stone-100 hover:bg-stone-200 font-bold text-stone-700"><i class="fa-solid fa-plus text-xs"></i></button>
+                        <button onclick="adjustModalQty(1)" class="px-3 py-2 bg-stone-100 hover:bg-stone-200 font-bold text-stone-700 cursor-pointer"><i class="fa-solid fa-plus text-xs"></i></button>
                     </div>
                     <button onclick="addToCartFromModal()" id="modalAddBtn" class="flex-1 bg-amber-950 hover:bg-neutral-900 text-white py-3 rounded-xl font-bold text-xs uppercase tracking-wider shadow transition cursor-pointer">
                         Thêm vào giỏ - 0đ
