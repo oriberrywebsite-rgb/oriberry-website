@@ -203,25 +203,30 @@
             document.getElementById('count-confirmed').innerText = confirmedCount;
         }
 
-        // Hàm gửi yêu cầu xác nhận đơn hàng lên backend
-        async function confirmOrder(orderId) {
-            if (!confirm(`Bạn có chắc chắn muốn xác nhận đơn hàng ${orderId}?`)) return;
+    async function confirmOrder(orderId) {
+    if (!confirm(`Bạn có chắc chắn muốn xác nhận đơn hàng ${orderId}?`)) return;
 
-            try {
-                await fetch(SCRIPT_URL, {
-                    method: 'POST',
-                    mode: 'no-cors',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ action: 'confirmOrder', orderId: orderId })
-                });
-                
-                alert(`Đã xác nhận đơn hàng ${orderId} thành công!`);
-                fetchStoreOrders(); // Tải lại bảng ngay lập tức
-            } catch (err) {
-                console.error("Lỗi khi xác nhận đơn:", err);
-                alert("Không thể kết nối đến máy chủ để cập nhật trạng thái!");
-            }
-        }
+    try {
+        const response = await fetch(SCRIPT_URL, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ 
+                sourceChannel: 'STORE_DRINK', // Thêm dòng này để code.gs định tuyến chuẩn xác sang store.gs
+                action: 'confirmOrder', 
+                orderId: orderId 
+            })
+        });
+        
+        // Nếu cần xử lý data trả về từ server, có thể parse JSON ở đây
+        // const data = await response.json();
+
+        alert(`Đã xác nhận đơn hàng ${orderId} thành công!`);
+        fetchStoreOrders(); 
+    } catch (err) {
+        console.error("Lỗi khi xác nhận đơn:", err);
+        alert("Không thể kết nối đến máy chủ để cập nhật trạng thái!");
+    }
+}
     </script>
 </body>
 </html>
