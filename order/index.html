@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Oriberry - Đặt Món Trực Tuyến</title>
+    <title>Oriberry - Order Online</title>
     
     <!-- Tailwind CSS & FontAwesome CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
@@ -765,7 +765,7 @@ async function submitOrder(e) {
 
     // 1. Cột Location_Detail (Cột E): Chỉ lấy địa chỉ chi tiết đã được khai báo sẵn từ Popup 1 nếu là Delivery
     let finalLocationDetail = "";
-    if (chosenFulfillment === 'DELIVERY' || chosenFulfillment === 'Giao hàng') {
+    if (chosenFulfillment === 'DELIVERY' || chosenFulfillment === 'Delivery') {
         finalLocationDetail = (typeof currentDeliveryAddress !== 'undefined' && currentDeliveryAddress) ? currentDeliveryAddress : "";
     } else {
         finalLocationDetail = ""; // Pickup / Dine-in thì cột E để trống hoàn toàn
@@ -790,7 +790,7 @@ async function submitOrder(e) {
     const submitBtn = document.getElementById('submit-btn');
     if (submitBtn) {
         submitBtn.disabled = true;
-        submitBtn.innerText = "DANG GỬI ĐƠN...";
+        submitBtn.innerText = "Placing order...";
     }
 
 try {
@@ -803,20 +803,20 @@ try {
         const result = await response.json();
         
         if (result.status === "success") {
-            alert(`Gửi đơn hàng thành công cho khách hàng ${name} (${phone})!`);
+            alert(`Order Submitted! ${name} (${phone})!`);
             cart = [];
             saveCart();
             closeModal('cartModal');
             if (typeof updateCartUI === 'function') updateCartUI();
         } else {
-            alert("Lỗi từ hệ thống: " + (result.message || "Không rõ nguyên nhân"));
+            alert("System Error " + (result.message || "An unexpected error occurred"));
         }
     } catch (err) {
-        alert('Có lỗi xảy ra khi gửi đơn. Vui lòng thử lại!');
+        alert('Failed to submit your order. Please try again!');
     } finally {
         if (submitBtn) {
             submitBtn.disabled = false;
-            submitBtn.innerText = "XÁC NHẬN ĐẶT HÀNG";
+            submitBtn.innerText = "CONFIRM ORDER";
         }
     }
 }
