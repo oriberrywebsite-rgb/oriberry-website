@@ -651,22 +651,38 @@ async function submitOrder(e) {
             const submitBtn = document.getElementById('submitBtn');
             if (submitBtn) { submitBtn.disabled = true; submitBtn.innerText = "ĐANG GỬI ĐƠN HÀNG..."; }
 
-            const payload = {
-                customerName: name, customerPhone: phone, customerAddress: address,
-                orderDetails: itemsDetail, itemsAmount: itemsAmount, shippingFee: shippingFee,
-                totalAmount: totalAmount, paymentMethod: "COD", notes: note
-            };
+        const payload = {
+        customerName: name, customerPhone: phone, customerAddress: address,
+        orderDetails: itemsDetail, itemsAmount: itemsAmount, shippingFee: shippingFee,
+        totalAmount: totalAmount, paymentMethod: "COD", notes: note
+      };
 
-            try {
-                await fetch(SCRIPT_URL, { method: 'POST', mode: 'no-cors', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
-                closeModal('cartModal');
-                document.getElementById('orderSuccessModal').classList.remove('hidden');
-                cart = []; saveCart(); document.getElementById('checkoutForm').reset();
-            } catch (err) {
-                alert("Có lỗi xảy ra khi gửi đơn hàng. Vui lòng thử lại!");
-            } finally {
-                if (submitBtn) { submitBtn.disabled = false; submitBtn.innerText = "PLACE ORDER"; }
-            }
+      try {
+        // Gửi dữ liệu bằng chuẩn text/plain để né lỗi CORS của Google và cho phép server chạy thông suốt
+        const response = await fetch(SCRIPT_URL, { 
+          method: 'POST', 
+          headers: { 'Content-Type': 'text/plain;charset=utf-8' }, 
+          body: JSON.stringify(payload) 
+        });
+
+        const result = await response.json();
+        
+        if (result.status === "success") {
+          closeModal('cartModal');
+          document.getElementById('orderSuccessModal').classList.remove('hidden');
+          cart = []; 
+          saveCart(); 
+          document.getElementById('checkoutForm').reset();
+        } else {
+          alert("Lỗi từ hệ thống: " + (result.message || "Không rõ nguyên nhân"));
+        }
+
+      } catch (err) {
+        console.error("Lỗi kết nối:", err);
+        alert("Có lỗi xảy ra khi gửi đơn hàng. Vui lòng thử lại!");
+      } finally {
+        if (submitBtn) { submitBtn.disabled = false; submitBtn.innerText = "PLACE ORDER"; }
+      }
         }
     </script>
 </body>
