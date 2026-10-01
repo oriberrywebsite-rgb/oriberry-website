@@ -221,7 +221,7 @@
                         <button onclick="adjustModalQty(1)" class="px-3 py-2 bg-stone-100 hover:bg-stone-200 font-bold text-stone-700 cursor-pointer"><i class="fa-solid fa-plus text-xs"></i></button>
                     </div>
                     <button onclick="addToCartFromModal()" id="modalAddBtn" class="flex-1 bg-amber-950 hover:bg-neutral-900 text-white py-3 rounded-xl font-bold text-xs uppercase tracking-wider shadow transition cursor-pointer">
-                        Thêm vào giỏ - 0đ
+                        Add to cart
                     </button>
                 </div>
             </div>
@@ -246,10 +246,10 @@
                         <span class="text-amber-900 text-base" id="cartTotalPrice">0đ</span>
                     </div>
                     <form id="checkoutForm" onsubmit="submitOrder(event)" class="space-y-2.5 pt-1">
-                        <input type="text" id="custName" placeholder="Họ tên của bạn *" required class="w-full text-xs border border-stone-300 rounded-xl p-2.5 focus:outline-none focus:border-amber-700">
-                        <input type="tel" id="custPhone" placeholder="Số điện thoại *" required class="w-full text-xs border border-stone-300 rounded-xl p-2.5 focus:outline-none focus:border-amber-700">
-                        <textarea id="orderNote" placeholder="Ghi chú thêm cho đơn hàng (Không bắt buộc)..." rows="2" class="w-full text-xs border border-stone-300 rounded-xl p-2.5 focus:outline-none focus:border-amber-700"></textarea>
-                        <button type="submit" id="submitBtn" class="w-full bg-neutral-900 hover:bg-amber-950 text-white font-bold py-3 rounded-xl text-xs transition uppercase tracking-wider shadow-md cursor-pointer">XÁC NHẬN ĐẶT HÀNG</button>
+                        <input type="text" id="custName" placeholder="Your Name *" required class="w-full text-xs border border-stone-300 rounded-xl p-2.5 focus:outline-none focus:border-amber-700">
+                        <input type="tel" id="custPhone" placeholder="Your Phone Number *" required class="w-full text-xs border border-stone-300 rounded-xl p-2.5 focus:outline-none focus:border-amber-700">
+                        <textarea id="orderNote" placeholder="• Special instructions (optional)" rows="2" class="w-full text-xs border border-stone-300 rounded-xl p-2.5 focus:outline-none focus:border-amber-700"></textarea>
+                        <button type="submit" id="submitBtn" class="w-full bg-neutral-900 hover:bg-amber-950 text-white font-bold py-3 rounded-xl text-xs transition uppercase tracking-wider shadow-md cursor-pointer">PLACE ORDER</button>
                     </form>
                 </div>
             </div>
