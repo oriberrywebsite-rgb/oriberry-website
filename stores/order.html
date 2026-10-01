@@ -1,1 +1,227 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quản lý Đơn hàng - Cửa hàng</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body class="bg-stone-50 text-stone-800 font-sans antialiased">
 
+    <!-- ================= PHẦN HEADER ================= -->
+    <header class="bg-amber-900 text-white shadow-md sticky top-0 z-40">
+        <div class="max-w-7xl mx-auto px-4 py-3 flex justify-between items-center">
+            <div class="flex items-center space-x-3">
+                <i class="fa-solid fa-store text-2xl text-amber-200"></i>
+                <div>
+                    <h1 id="store-header-title" class="text-lg font-bold tracking-wide">Quản lý Đơn - Cửa hàng</h1>
+                    <p id="store-code-indicator" class="text-xs text-amber-200">Đang kết nối dữ liệu...</p>
+                </div>
+            </div>
+            <div class="flex items-center space-x-3">
+                <span id="connection-status" class="bg-emerald-600 text-white text-xs px-2.5 py-1 rounded-full font-medium">Trực tuyến</span>
+                <button onclick="fetchStoreOrders()" class="bg-amber-800 hover:bg-amber-700 text-white px-3 py-1.5 rounded-lg text-xs font-semibold transition flex items-center space-x-1.5">
+                    <i class="fa-solid fa-rotate-right"></i>
+                    <span>Làm mới</span>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- ================= PHẦN THỐNG KÊ NHANH ================= -->
+    <main class="max-w-7xl mx-auto px-4 py-6">
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+            <div class="bg-white p-4 rounded-xl shadow-sm border border-stone-200 flex justify-between items-center">
+                <div>
+                    <p class="text-xs text-stone-500 font-medium">ĐƠN CHỜ XÁC NHẬN</p>
+                    <h3 id="count-pending" class="text-2xl font-bold text-amber-800">0</h3>
+                </div>
+                <div class="w-10 h-10 rounded-full bg-amber-100 flex items-center justify-center text-amber-800">
+                    <i class="fa-solid fa-clock"></i>
+                </div>
+            </div>
+            <div class="bg-white p-4 rounded-xl shadow-sm border border-stone-200 flex justify-between items-center">
+                <div>
+                    <p class="text-xs text-stone-500 font-medium">ĐÃ XÁC NHẬN HÔM NAY</p>
+                    <h3 id="count-confirmed" class="text-2xl font-bold text-emerald-700">0</h3>
+                </div>
+                <div class="w-10 h-10 rounded-full bg-emerald-100 flex items-center justify-center text-emerald-700">
+                    <i class="fa-solid fa-check"></i>
+                </div>
+            </div>
+            <div class="bg-white p-4 rounded-xl shadow-sm border border-stone-200 flex justify-between items-center">
+                <div>
+                    <p class="text-xs text-stone-500 font-medium">TỰ ĐỘNG CẬP NHẬT</p>
+                    <h3 class="text-sm font-bold text-stone-700 mt-1">Mỗi 10 giây</h3>
+                </div>
+                <div class="w-10 h-10 rounded-full bg-stone-100 flex items-center justify-center text-stone-600">
+                    <i class="fa-solid fa-rotate fa-spin"></i>
+                </div>
+            </div>
+        </div>
+
+        <!-- ================= PHẦN BẢNG DANH SÁCH ĐƠN HÀNG (9 CỘT) ================= -->
+        <div class="bg-white rounded-xl shadow-sm border border-stone-200 overflow-hidden">
+            <div class="p-4 border-b border-stone-200 flex justify-between items-center">
+                <h2 class="font-bold text-stone-800 text-base">Danh sách đơn hàng trực tuyến</h2>
+                <span class="text-xs text-stone-500" id="last-update-time">Chưa cập nhật</span>
+            </div>
+            
+            <div class="overflow-x-auto">
+                <table class="w-full text-left border-collapse text-sm">
+                    <thead>
+                        <tr class="bg-stone-100 text-stone-700 text-xs uppercase tracking-wider border-b border-stone-200">
+                            <th class="p-3">Thời gian / Mã đơn</th>
+                            <th class="p-3">Tên khách hàng (Số điện thoại)</th>
+                            <th class="p-3">Hình thức</th>
+                            <th class="p-3">Chi tiết món</th>
+                            <th class="p-3">Ghi chú món</th>
+                            <th class="p-3 text-right">Tổng tiền</th>
+                            <th class="p-3 text-center">Trạng thái</th>
+                            <th class="p-3 text-center">Thao tác</th>
+                        </tr>
+                    </thead>
+                    <tbody id="orders-table-body" class="divide-y divide-stone-200">
+                        <tr>
+                            <td colspan="8" class="text-center py-12 text-stone-500">
+                                <i class="fa-solid fa-spinner fa-spin text-2xl mb-2 text-amber-800"></i>
+                                <p class="text-sm">Đang tải dữ liệu đơn hàng từ hệ thống...</p>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </main>
+
+    <!-- ================= PHẦN SCRIPT XỬ LÝ LOGIC ================= -->
+    <script>
+        // Thay thế bằng URL Web App Google Apps Script backend thực tế của anh
+        const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbw3TaqdOmKthZ4I0fahSfQA6jdUYPzMXh2Fb1DPCSju38dFU-0mB4yKFuVt0FuAER_3/exec";
+
+        // Lấy mã cửa hàng từ tham số trên URL (Ví dụ: .../order.html?store=store_1)
+        const urlParams = new URLSearchParams(window.location.search);
+        const currentStoreCode = urlParams.get('store') || 'store_1';
+
+        document.addEventListener('DOMContentLoaded', () => {
+            document.getElementById('store-header-title').innerText = `Quản lý Đơn - Cửa hàng: ${currentStoreCode}`;
+            document.getElementById('store-code-indicator').innerText = `Mã định danh: ${currentStoreCode}`;
+            
+            // Tải dữ liệu lần đầu
+            fetchStoreOrders();
+
+            // Thiết lập tự động làm mới sau mỗi 10 giây
+            setInterval(fetchStoreOrders, 10000);
+        });
+
+        // Hàm gọi dữ liệu đơn hàng từ Google Sheet thông qua Apps Script
+        async function fetchStoreOrders() {
+            try {
+                const response = await fetch(`${SCRIPT_URL}?action=getStoreOrders&storeCode=${currentStoreCode}`);
+                const data = await response.json();
+        
+                if (data && data.orders) {
+                    renderOrders(data.orders);
+                    updateCounters(data.orders);
+                    document.getElementById('last-update-time').innerText = `Cập nhật lúc: ${new Date().toLocaleTimeString('vi-VN')}`;
+                }
+            } catch (err) {
+                console.error("Lỗi tải đơn hàng:", err);
+                document.getElementById('connection-status').className = "bg-red-600 text-white text-xs px-2.5 py-1 rounded-full font-medium";
+                document.getElementById('connection-status').innerText = "Mất kết nối!";
+            }
+        }
+
+        // Render danh sách đơn hàng ra bảng
+        function renderOrders(orders) {
+            const tbody = document.getElementById('orders-table-body');
+            
+            // Lọc đơn hàng theo đúng storeCode hiện tại
+            const storeOrders = orders.filter(order => order.storeCode === currentStoreCode);
+
+            if (storeOrders.length === 0) {
+                tbody.innerHTML = `
+                    <tr>
+                        <td colspan="8" class="text-center py-12 text-stone-400">
+                            <i class="fa-solid fa-box-open text-3xl mb-2"></i>
+                            <p>Không có đơn hàng nào cho cửa hàng này.</p>
+                        </td>
+                    </tr>`;
+                return;
+            }
+
+            tbody.innerHTML = storeOrders.map(order => `
+                <tr class="hover:bg-stone-50 transition">
+                    <td class="p-3">
+                        <div class="font-bold text-stone-800">${order.orderId || ''}</div>
+                        <div class="text-xs text-stone-500">${order.timestamp || ''}</div>
+                    </td>
+                    <td class="p-3">
+                        <div class="font-semibold text-stone-800">${order.customerName || ''}</div>
+                        <div class="text-xs text-stone-500">${order.customerPhone || ''}</div>
+                    </td>
+                    <td class="p-3">
+                        <span class="px-2 py-1 bg-stone-100 rounded text-xs font-medium text-stone-700">${order.fulfillmentType || ''}</span>
+                        <div class="text-xs text-stone-500 mt-0.5">${order.locationDetail || ''}</div>
+                    </td>
+                    <td class="p-3 text-stone-700 text-xs max-w-xs truncate" title="${order.itemsDetail || ''}">
+                        ${order.itemsDetail || ''}
+                    </td>
+                    <td class="p-3 text-amber-900 text-xs italic font-medium max-w-xs truncate" title="${order.note || ''}">
+                        ${order.note || '<span class="text-stone-300">Không có</span>'}
+                    </td>
+                    <td class="p-3 text-right font-bold text-amber-900">
+                        ${Number(order.totalAmount || 0).toLocaleString('vi-VN')}₫
+                    </td>
+                    <td class="p-3 text-center">
+                        <span class="px-2.5 py-1 rounded-full text-xs font-bold ${order.status === 'CONFIRMED' ? 'bg-emerald-100 text-emerald-700' : 'bg-amber-100 text-amber-800'}">
+                            ${order.status === 'CONFIRMED' ? 'ĐÃ XÁC NHẬN' : 'CHỜ XÁC NHẬN'}
+                        </span>
+                    </td>
+                    <td class="p-3 text-center">
+                        ${order.status !== 'CONFIRMED' ? `
+                            <button onclick="confirmOrder('${order.orderId}')" class="bg-amber-900 hover:bg-amber-800 text-white px-3 py-1.5 rounded text-xs font-semibold transition">
+                                Xác nhận
+                            </button>
+                        ` : `
+                            <span class="text-xs text-stone-400 font-medium">Hoàn tất</span>
+                        `}
+                    </td>
+                </tr>
+            `).join('');
+        }
+
+        // Tính toán số liệu thống kê nhanh
+        function updateCounters(orders) {
+            const storeOrders = orders.filter(order => order.storeCode === currentStoreCode);
+            const pendingCount = storeOrders.filter(o => o.status !== 'CONFIRMED').length;
+            const confirmedCount = storeOrders.filter(o => o.status === 'CONFIRMED').length;
+
+            document.getElementById('count-pending').innerText = pendingCount;
+            document.getElementById('count-confirmed').innerText = confirmedCount;
+        }
+
+        // Hàm gửi yêu cầu xác nhận đơn hàng lên backend
+        async function confirmOrder(orderId) {
+            if (!confirm(`Bạn có chắc chắn muốn xác nhận đơn hàng ${orderId}?`)) return;
+
+            try {
+                await fetch(SCRIPT_URL, {
+                    method: 'POST',
+                    mode: 'no-cors',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ action: 'confirmOrder', orderId: orderId })
+                });
+                
+                alert(`Đã xác nhận đơn hàng ${orderId} thành công!`);
+                fetchStoreOrders(); // Tải lại bảng ngay lập tức
+            } catch (err) {
+                console.error("Lỗi khi xác nhận đơn:", err);
+                alert("Không thể kết nối đến máy chủ để cập nhật trạng thái!");
+            }
+        }
+    </script>
+</body>
+</html>
