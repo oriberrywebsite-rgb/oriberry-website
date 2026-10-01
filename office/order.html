@@ -288,8 +288,8 @@ function showModal(order) {
     document.getElementById('modalTime').innerText = order.date || '';
 
     // Lấy chuẩn xác Tiền Hàng và Phí Ship từ dữ liệu gửi về
-    document.getElementById('modalSubTotal').innerText = order.tienHang || '0đ';
-    document.getElementById('modalShippingFee').innerText = order.phiShip || '0đ';
+    document.getElementById('modalSubTotal').innerText = Number(order.tienHang || 0).toLocaleString('vi-VN') + 'đ';
+    document.getElementById('modalShippingFee').innerText = Number(order.phiShip || 0).toLocaleString('vi-VN') + 'đ';
     document.getElementById('orderModal').classList.remove('hidden');
 }
 
@@ -344,9 +344,9 @@ function renderTable(orders) {
             </td>
             <td class="p-3 text-xs text-slate-600 max-w-xs">${o.address || ''}</td>
             <td class="p-3 text-xs text-slate-700">${formatItemsToHTML(o.items)}</td>
-            <td class="p-3 text-right font-medium text-slate-700 whitespace-nowrap">${o.tienHang || '0đ'}</td>
-            <td class="p-3 text-right font-medium text-slate-600 whitespace-nowrap">${o.phiShip || '0đ'}</td>
-            <td class="p-3 text-right font-bold text-amber-900 whitespace-nowrap">${o.total || o.tongThanhToan || '0đ'}</td>
+            <td class="p-3 text-right font-medium text-slate-700 whitespace-nowrap">${Number(o.tienHang || 0).toLocaleString('vi-VN')}đ</td>
+            <td class="p-3 text-right font-medium text-slate-600 whitespace-nowrap">${Number(o.phiShip || 0).toLocaleString('vi-VN')}đ</td>
+            <td class="p-3 text-right font-bold text-amber-900 whitespace-nowrap">${Number(o.total || o.tongThanhToan || 0).toLocaleString('vi-VN')}đ</td>
             <td class="p-3 whitespace-nowrap">
                 <span class="px-2.5 py-1 rounded-full text-xs font-bold ${o.status === 'CONFIRMED' ? 'bg-emerald-100 text-emerald-700' : 'bg-amber-100 text-amber-700'}">
                     ${o.status === 'CONFIRMED' ? 'Đã Xác Nhận' : 'Chờ Xử Lý'}
