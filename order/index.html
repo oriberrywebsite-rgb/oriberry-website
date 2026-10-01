@@ -44,10 +44,10 @@
                 </div>
                 <div>
                     <div class="text-[9px] text-stone-500 flex items-center gap-1">
-                        <span id="fulfillmentLabel">Hình thức</span> 
+                        <span id="fulfillmentLabel">Type of</span> 
                         <i class="fa-solid fa-chevron-down text-[7px]"></i>
                     </div>
-                    <div class="font-bold text-xs text-stone-900 truncate max-w-[140px]" id="fulfillmentValue">Nhận hàng</div>
+                    <div class="font-bold text-xs text-stone-900 truncate max-w-[140px]" id="fulfillmentValue">Orders</div>
                 </div>
             </div>
         </div>
@@ -102,29 +102,29 @@
     <div id="fulfillmentModal" class="fixed inset-0 bg-black/50 z-50 flex items-end sm:items-center justify-center hidden">
         <div class="bg-white w-full max-w-lg rounded-t-3xl sm:rounded-2xl p-5 max-h-[90vh] overflow-y-auto">
             <div class="flex justify-between items-center mb-4">
-                <h3 class="font-bold text-lg text-stone-900">Chọn phương thức nhận hàng</h3>
+                <h3 class="font-bold text-lg text-stone-900">Select Receiving Method</h3>
                 <button onclick="closeModal('fulfillmentModal')" class="text-stone-400 hover:text-stone-600 p-1 cursor-pointer"><i class="fa-solid fa-xmark text-xl"></i></button>
             </div>
             <div class="space-y-3">
                 <div onclick="selectFulfillment('DELIVERY')" class="border border-stone-200 p-4 rounded-xl cursor-pointer hover:border-amber-900 hover:bg-amber-900/5 transition flex items-start gap-3">
                     <i class="fa-solid fa-motorcycle text-xl text-amber-900 mt-1"></i>
                     <div>
-                        <div class="font-bold text-stone-900">Giao hàng tận nơi (Delivery)</div>
-                        <div class="text-xs text-stone-500 mt-0.5">Chọn phường giao hàng, tính phí ship tạm tính & xác nhận trước khi giao.</div>
+                        <div class="font-bold text-stone-900">Delivery</div>
+                        <div class="text-xs text-stone-500 mt-0.5">Select your location.</div>
                     </div>
                 </div>
                 <div onclick="selectFulfillment('PICKUP')" class="border border-stone-200 p-4 rounded-xl cursor-pointer hover:border-amber-900 hover:bg-amber-900/5 transition flex items-start gap-3">
                     <i class="fa-solid fa-bag-shopping text-xl text-amber-900 mt-1"></i>
                     <div>
-                        <div class="font-bold text-stone-900">Đến lấy mang đi (Pickup)</div>
-                        <div class="text-xs text-stone-500 mt-0.5">Chọn cơ sở gần nhất để ghé lấy đồ uống nhanh chóng.</div>
+                        <div class="font-bold text-stone-900">Pickup</div>
+                        <div class="text-xs text-stone-500 mt-0.5">Select Nearest Store</div>
                     </div>
                 </div>
                 <div onclick="selectFulfillment('DINE_IN')" class="border border-stone-200 p-4 rounded-xl cursor-pointer hover:border-amber-900 hover:bg-amber-900/5 transition flex items-start gap-3">
                     <i class="fa-solid fa-utensils text-xl text-amber-900 mt-1"></i>
                     <div>
-                        <div class="font-bold text-stone-900">Uống tại quán (Dine-in tại bàn)</div>
-                        <div class="text-xs text-stone-500 mt-0.5">Chọn cơ sở và mã bàn ngồi của bạn.</div>
+                        <div class="font-bold text-stone-900">Dine-in</div>
+                        <div class="text-xs text-stone-500 mt-0.5">Select Dine-in Store.</div>
                     </div>
                 </div>
             </div>
@@ -135,7 +135,7 @@
     <div id="storeModal" class="fixed inset-0 bg-black/50 z-50 flex items-end sm:items-center justify-center hidden">
         <div class="bg-white w-full max-w-lg rounded-t-3xl sm:rounded-2xl p-5 max-h-[90vh] overflow-y-auto">
             <div class="flex justify-between items-center mb-4">
-                <button onclick="backToFulfillmentModal()" class="text-stone-600 text-sm font-medium cursor-pointer"><i class="fa-solid fa-arrow-left"></i> Quay lại</button>
+                <button onclick="backToFulfillmentModal()" class="text-stone-600 text-sm font-medium cursor-pointer"><i class="fa-solid fa-arrow-left"></i> Back</button>
                 <h3 class="font-bold text-lg text-stone-900">Chọn cửa hàng Oriberry</h3>
                 <button onclick="closeModal('storeModal')" class="text-stone-400 cursor-pointer"><i class="fa-solid fa-xmark text-xl"></i></button>
             </div>
@@ -147,29 +147,29 @@
     <div id="deliveryModal" class="fixed inset-0 bg-black/50 z-50 flex items-end sm:items-center justify-center hidden">
         <div class="bg-white w-full max-w-lg rounded-t-3xl sm:rounded-2xl p-5 max-h-[90vh] overflow-y-auto">
             <div class="flex justify-between items-center mb-4">
-                <button onclick="backToFulfillmentModal()" class="text-stone-600 text-sm font-medium cursor-pointer"><i class="fa-solid fa-arrow-left"></i> Quay lại</button>
-                <h3 class="font-bold text-lg text-stone-900">Địa chỉ giao hàng</h3>
+                <button onclick="backToFulfillmentModal()" class="text-stone-600 text-sm font-medium cursor-pointer"><i class="fa-solid fa-arrow-left"></i> Back</button>
+                <h3 class="font-bold text-lg text-stone-900">Delivery Address</h3>
                 <button onclick="closeModal('deliveryModal')" class="text-stone-400 cursor-pointer"><i class="fa-solid fa-xmark text-xl"></i></button>
             </div>
             <div class="space-y-3">
                 <div>
-<label class="block text-xs font-bold text-stone-800 mb-1">Chọn khu vực nhận hàng</label>
+<label class="block text-xs font-bold text-stone-800 mb-1">Select Delivery Area</label>
 <select id="wardSelect" class="w-full p-2.5 border border-stone-300 rounded-lg text-xs bg-white focus:outline-none focus:border-amber-700">
-    <option value="">-- Chọn khu vực nhận hàng --</option>
-    <option value="Khu vực Hoàn Kiếm">Khu vực Hoàn Kiếm</option>
-    <option value="Khu vực Tây Hồ">Khu vực Tây Hồ</option>
-    <option value="Khu vực Đống Đa">Khu vực Đống Đa</option>
-    <option value="Khu vực khác">Khu vực khác</option>
+    <option value="">-- Delivery Area --</option>
+    <option value="Khu vực Hoàn Kiếm">Hoàn Kiếm</option>
+    <option value="Khu vực Tây Hồ">Tây Hồ</option>
+    <option value="Khu vực Đống Đa">Đống Đa</option>
+    <option value="Khu vực khác">Other</option>
 </select>
                 </div>
                 <div>
-                    <label class="block text-xs font-bold text-stone-600 mb-1">Số nhà, tên đường cụ thể / Số bàn (nếu có):</label>
-                    <input type="text" id="deliveryAddressDetail" placeholder="Ví dụ: Số 12 ngõ..." class="w-full p-2.5 border border-stone-300 rounded-xl text-xs focus:outline-none focus:border-amber-700">
+                    <label class="block text-xs font-bold text-stone-600 mb-1">Street number, street name, ward.</label>
+                    <input type="text" id="deliveryAddressDetail" placeholder="e.g., No. 12, Alley..." class="w-full p-2.5 border border-stone-300 rounded-xl text-xs focus:outline-none focus:border-amber-700">
                 </div>
                 <div class="bg-amber-50 p-3 rounded-xl text-xs text-amber-900">
-                    <i class="fa-solid fa-circle-info"></i> Phí ship tạm tính sẽ hiển thị và nhân viên sẽ liên hệ xác nhận trước khi giao.
+                    <i class="fa-solid fa-circle-info"></i>We will contact you before delivery to confirm time and shipping fee.
                 </div>
-                <button onclick="confirmDeliveryAddress()" class="w-full bg-amber-950 hover:bg-neutral-900 text-white py-3 rounded-xl font-bold text-xs uppercase tracking-wider shadow transition cursor-pointer">Xác nhận địa chỉ giao hàng</button>
+                <button onclick="confirmDeliveryAddress()" class="w-full bg-amber-950 hover:bg-neutral-900 text-white py-3 rounded-xl font-bold text-xs uppercase tracking-wider shadow transition cursor-pointer">Confirm Delivery Address</button>
             </div>
         </div>
     </div>
@@ -203,13 +203,13 @@
 
                 <!-- NOTE FOR ORIBERRY -->
                 <div>
-                    <label class="block text-xs font-bold text-stone-700 uppercase tracking-wider mb-1">Note for Oriberry (Ghi chú cho món):</label>
-                    <input type="text" id="modalItemNote" placeholder="Ví dụ: Ít đá, nhiều sữa, không đường..." class="w-full p-2.5 border border-stone-300 rounded-xl text-xs focus:outline-none focus:border-amber-700">
+                    <label class="block text-xs font-bold text-stone-700 uppercase tracking-wider mb-1">Note for Oriberry (Special Instructions)</label>
+                    <input type="text" id="modalItemNote" placeholder="e.g., less ice, extra milk, no sugar.." class="w-full p-2.5 border border-stone-300 rounded-xl text-xs focus:outline-none focus:border-amber-700">
                 </div>
 
                 <!-- GỢI Ý DÙNG KÈM (CROSS-SELLING) -->
                 <div>
-                    <div class="text-xs font-bold text-stone-500 uppercase tracking-wider mb-2">Gợi ý dùng kèm</div>
+                    <div class="text-xs font-bold text-stone-500 uppercase tracking-wider mb-2">Pairs Well With</div>
                     <div class="flex gap-3 overflow-x-auto no-scrollbar pb-2" id="crossSellContainer"></div>
                 </div>
 
@@ -235,14 +235,14 @@
             <div class="w-screen max-w-md bg-white shadow-2xl flex flex-col justify-between p-5 overflow-y-auto">
                 <div>
                     <div class="flex items-center justify-between pb-3 border-b border-stone-200">
-                        <h3 class="text-base font-bold text-stone-900 flex items-center gap-2"><i class="fa-solid fa-bag-shopping text-amber-900"></i> Giỏ hàng của bạn</h3>
+                        <h3 class="text-base font-bold text-stone-900 flex items-center gap-2"><i class="fa-solid fa-bag-shopping text-amber-900"></i> Your Cart</h3>
                         <button onclick="closeModal('cartModal')" class="text-stone-400 hover:text-stone-800 text-xl font-bold cursor-pointer"><i class="fa-solid fa-xmark"></i></button>
                     </div>
                     <div id="cartItemsContainer" class="py-3 space-y-3 max-h-[40vh] overflow-y-auto no-scrollbar"></div>
                 </div>
                 <div class="border-t border-stone-200 pt-3 space-y-3">
                     <div class="flex justify-between text-sm font-bold text-stone-900 pt-2">
-                        <span>TỔNG CỘNG:</span>
+                        <span>TOTAL:</span>
                         <span class="text-amber-900 text-base" id="cartTotalPrice">0đ</span>
                     </div>
                     <form id="checkoutForm" onsubmit="submitOrder(event)" class="space-y-2.5 pt-1">
@@ -349,15 +349,15 @@ let cart = JSON.parse(localStorage.getItem('oriberry_order_cart')) || [];
         function checkUrlTableParam() {
             const urlParams = new URLSearchParams(window.location.search);
             const table = urlParams.get('table');
-            const store = urlParams.get('store') || 'AU_TRIEU';
+            const store = urlParams.get('store') || 'QUANG_AN';
             if (table) {
                 currentFulfillment = 'DINE_IN';
                 const storeObj = STORES.find(s => s.code === store) || STORES[0];
-                selectedStoreOrLocation = `${storeObj.name} - Bàn ${table}`;
+                selectedStoreOrLocation = `${storeObj.name} - Table ${table}`;
                 document.getElementById('headerIcon').className = "fa-solid fa-utensils text-[10px]";
-                document.getElementById('fulfillmentLabel').innerText = "Uống tại quán";
-                document.getElementById('fulfillmentValue').innerText = `Bàn: ${table}`;
-                document.getElementById('custAddress').value = `Uống tại bàn ${table} (${storeObj.name})`;
+                document.getElementById('fulfillmentLabel').innerText = "Dine-in";
+                document.getElementById('fulfillmentValue').innerText = `Table: ${table}`;
+                document.getElementById('custAddress').value = `Dine-in at ${table} (${storeObj.name})`;
             } else {
                 openFulfillmentModal();
             }
@@ -482,11 +482,11 @@ async function fetchMenuProducts() {
             
             const isDineIn = (currentFulfillment === 'DINE_IN');
             document.getElementById('headerIcon').className = isDineIn ? "fa-solid fa-utensils text-[10px]" : "fa-solid fa-bag-shopping text-[10px]";
-            document.getElementById('fulfillmentLabel').innerText = isDineIn ? "Uống tại quán" : "Đến lấy mang đi";
+            document.getElementById('fulfillmentLabel').innerText = isDineIn ? "Uống tại quán" : "Pick-up";
             document.getElementById('fulfillmentValue').innerText = storeObj.name;
             const custAddrInput = document.getElementById('custAddress');
             if (custAddrInput) {
-            custAddrInput.value = `${isDineIn ? 'Uống tại quán' : 'Đến lấy mang đi'} - ${storeObj.name} (${storeObj.address})`;
+            custAddrInput.value = `${isDineIn ? 'Uống tại quán' : 'Pick-up'} - ${storeObj.name} (${storeObj.address})`;
            }
     }
 
@@ -606,7 +606,7 @@ function openProductModal(id) {
                     <div class="text-[11px] font-bold text-stone-900 truncate">${cs.name}</div>
                     <div class="text-[10px] text-amber-900 font-bold">${Number(cs.price || cs.normal_price || 0).toLocaleString('vi-VN')}₫</div>
                 </div>
-            `).join('') : '<div class="text-xs text-stone-400">Không có sản phẩm gợi ý.</div>';
+            `).join('') : '<div class="text-xs text-stone-400">No recommendations available</div>';
         }
 
     // Mở modal
@@ -648,7 +648,7 @@ function updateModalPrices() {
 
         function updateModalAddBtn() {
             const total = Number(activeProductForModal.price || 0) * currentModalQty;
-            document.getElementById('modalAddBtn').innerText = `THÊM VÀO GIỎ - ${total.toLocaleString('vi-VN')}đ`;
+            document.getElementById('modalAddBtn').innerText = `ADD TO CART - ${total.toLocaleString('vi-VN')}đ`;
         }
 
 function addToCartFromModal() {
@@ -761,7 +761,7 @@ async function submitOrder(e) {
 
     // Lấy thẳng tên cửa hàng đã được định chuẩn từ Popup 1
     const chosenStore = (typeof selectedStoreOrLocation !== 'undefined' && selectedStoreOrLocation) ? selectedStoreOrLocation : "Oriberry Quảng An";
-    const chosenFulfillment = (typeof currentFulfillment !== 'undefined' && currentFulfillment) ? currentFulfillment : "Uống tại quán";
+    const chosenFulfillment = (typeof currentFulfillment !== 'undefined' && currentFulfillment) ? currentFulfillment : "Dine-in";
 
     // 1. Cột Location_Detail (Cột E): Chỉ lấy địa chỉ chi tiết đã được khai báo sẵn từ Popup 1 nếu là Delivery
     let finalLocationDetail = "";
