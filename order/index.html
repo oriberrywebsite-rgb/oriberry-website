@@ -482,11 +482,11 @@ async function fetchMenuProducts() {
             
             const isDineIn = (currentFulfillment === 'DINE_IN');
             document.getElementById('headerIcon').className = isDineIn ? "fa-solid fa-utensils text-[10px]" : "fa-solid fa-bag-shopping text-[10px]";
-            document.getElementById('fulfillmentLabel').innerText = isDineIn ? "Uống tại quán" : "Pick-up";
+            document.getElementById('fulfillmentLabel').innerText = isDineIn ? "Dine-in" : "Pick-up";
             document.getElementById('fulfillmentValue').innerText = storeObj.name;
             const custAddrInput = document.getElementById('custAddress');
             if (custAddrInput) {
-            custAddrInput.value = `${isDineIn ? 'Uống tại quán' : 'Pick-up'} - ${storeObj.name} (${storeObj.address})`;
+            custAddrInput.value = `${isDineIn ? 'Dine-in' : 'Pick-up'} - ${storeObj.name} (${storeObj.address})`;
            }
     }
 
@@ -494,7 +494,7 @@ async function fetchMenuProducts() {
     const ward = document.getElementById('wardSelect').value;
     const detail = document.getElementById('deliveryAddressDetail').value;
     if (!ward || !detail) {
-        alert('Vui lòng chọn phường và nhập địa chỉ chi tiết!');
+        alert('Please choose your area and enter your full address');
         return;
     }
 
@@ -516,7 +516,7 @@ async function fetchMenuProducts() {
 
     closeModal('deliveryModal');
     document.getElementById('headerIcon').className = "fa-solid fa-motorcycle text-[10px]";
-    document.getElementById('fulfillmentLabel').innerText = "Giao hàng";
+    document.getElementById('fulfillmentLabel').innerText = "Delivery";
     
     // 3. Hiển thị tên cửa hàng phụ trách lên nút góc trên bên phải thay vì chỉ hiện tên phường
     const fulfillmentEl = document.getElementById('fulfillmentText');
