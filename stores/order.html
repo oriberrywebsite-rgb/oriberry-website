@@ -208,7 +208,8 @@
     try {
         const response = await fetch(SCRIPT_URL, {
             method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
+            // [SỬA] Apps Script Web App dùng text/plain để tránh CORS preflight.
+            headers: { 'Content-Type': 'text/plain;charset=utf-8' },
             body: JSON.stringify({ 
                 sourceChannel: 'STORE_DRINK', // Thêm dòng này để code.gs định tuyến chuẩn xác sang store.gs
                 action: 'confirmOrder', 

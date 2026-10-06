@@ -283,7 +283,7 @@ let STORES = [
 let windowAllAddons = [];
 async function fetchAddonsData() {
     try {
-        const res = await fetch("https://script.google.com/macros/s/AKfycbw3TaqdOmKthZ4I0fahSfQA6jdUYPzMXh2Fb1DPCSju38dFU-0mB4yKFuVt0FuAER_3/exec?action=getAddons");
+        const res = await fetch(`${SCRIPT_URL}?action=getAddons`);
         const result = await res.json();
         
         // In chi tiết kiểu dữ liệu và nội dung ra để soi
@@ -392,14 +392,25 @@ let cart = JSON.parse(localStorage.getItem('oriberry_order_cart')) || [];
             if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
         }
 
+// [SỬA] Trang /order/ phải lấy menu đồ ăn/uống từ Food_Drinks_Menu.
+// Trước đây chỉ gọi SCRIPT_URL nên backend trả dữ liệu mặc định không đúng menu Store.
 async function fetchMenuProducts() {
     try {
-        const res = await fetch(SCRIPT_URL);
+        const res = await fetch(`${SCRIPT_URL}?action=getFoodMenu`);
         const result = await res.json();
-        PRODUCTS = Array.isArray(result) ? result : (result.data || []);
+
+        PRODUCTS = Array.isArray(result)
+            ? result
+            : (Array.isArray(result.data) ? result.data : []);
+
+        console.log("Food menu loaded:", PRODUCTS);
+
         renderMenuProducts();
     } catch (err) {
         console.error("Lỗi tải menu:", err);
+
+        PRODUCTS = [];
+        renderMenuProducts();
     }
 }
         function renderMenuProducts() {
@@ -787,8 +798,8 @@ async function submitOrder(e) {
         paymentMethod: "COD"
     };
 
-    const submitBtn = document.getElementById('submit-btn');
-    if (submitBtn) {
+// [SỬA] Đồng bộ đúng ID với button trong HTML.
+        const submitBtn = document.getElementById('submitBtn');    if (submitBtn) {
         submitBtn.disabled = true;
         submitBtn.innerText = "Placing order...";
     }
@@ -822,8 +833,9 @@ try {
 }
 
 // Khởi chạy tải dữ liệu khi trang vừa mở
-fetchMenuProducts();
-fetchAddonsData();
+// [SỬA] Đã gọi trong DOMContentLoaded ở phía trên, không gọi lại lần hai.
+// fetchMenuProducts();
+// fetchAddonsData();
 </script>
 </body>
 </html>
