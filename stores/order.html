@@ -99,8 +99,7 @@
     <!-- ================= PHẦN SCRIPT XỬ LÝ LOGIC ================= -->
     <script>
         // Thay thế bằng URL Web App Google Apps Script backend thực tế của anh
-        const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbw3TaqdOmKthZ4I0fahSfQA6jdUYPzMXh2Fb1DPCSju38dFU-0mB4yKFuVt0FuAER_3/exec";
-
+        const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwTGgcCwSmzcBJHSgJjEMKy_xKhJS2FyfLRc7rUpDDQpI6T_5T_SWGiIcQtR1NkZybs/exec"
         // Lấy mã cửa hàng từ tham số trên URL (Ví dụ: .../order.html?store=store_1)
         const urlParams = new URLSearchParams(window.location.search);
         const currentStoreCode = urlParams.get('store') || 'store_1';
