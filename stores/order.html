@@ -103,6 +103,16 @@
         // Lấy mã cửa hàng từ tham số trên URL (Ví dụ: .../order.html?store=store_1)
         const urlParams = new URLSearchParams(window.location.search);
         const currentStoreCode = urlParams.get('store') || 'store_1';
+        // [SỬA] API hiện trả Store_Code bằng tên cũ, còn URL dùng store_1; đối chiếu cả ID và tên để đơn đúng cửa hàng không bị ẩn.
+        const STORE_NAMES = {
+            store_1: 'Oriberry QA', store_2: 'Oriberry TNV', store_3: 'Oriberry 1PSM',
+            store_4: 'Oriberry 6APSM', store_5: 'Oriberry TD', store_6: 'Oriberry DTD'
+        };
+        function isCurrentStore(order) {
+            const code = String(order.storeCode || '').trim().toLowerCase();
+            return code === currentStoreCode.toLowerCase() ||
+                code === String(STORE_NAMES[currentStoreCode] || '').toLowerCase();
+        }
 
         document.addEventListener('DOMContentLoaded', () => {
             document.getElementById('store-header-title').innerText = `Quản lý Đơn - Cửa hàng: ${currentStoreCode}`;
@@ -138,7 +148,7 @@
             const tbody = document.getElementById('orders-table-body');
             
             // Lọc đơn hàng theo đúng storeCode hiện tại
-            const storeOrders = orders.filter(order => order.storeCode === currentStoreCode);
+            const storeOrders = orders.filter(isCurrentStore);
 
             if (storeOrders.length === 0) {
                 tbody.innerHTML = `
@@ -181,7 +191,7 @@
                     </td>
                     <td class="p-3 text-center">
                         ${order.status !== 'CONFIRMED' ? `
-                            <button onclick="confirmOrder('${order.orderId}')" class="bg-amber-900 hover:bg-amber-800 text-white px-3 py-1.5 rounded text-xs font-semibold transition">
+                            <button type="button" onclick="confirmOrder('${order.orderId}')" class="bg-amber-900 hover:bg-amber-800 text-white px-3 py-1.5 rounded text-xs font-semibold transition">
                                 Xác nhận
                             </button>
                         ` : `
@@ -194,7 +204,7 @@
 
         // Tính toán số liệu thống kê nhanh
         function updateCounters(orders) {
-            const storeOrders = orders.filter(order => order.storeCode === currentStoreCode);
+            const storeOrders = orders.filter(isCurrentStore);
             const pendingCount = storeOrders.filter(o => o.status !== 'CONFIRMED').length;
             const confirmedCount = storeOrders.filter(o => o.status === 'CONFIRMED').length;
 
@@ -210,15 +220,18 @@
             method: 'POST',
             // [SỬA] Apps Script Web App dùng text/plain để tránh CORS preflight.
             headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+            // [SỬA] Xác nhận Store trước đây mang sourceChannel tạo đơn nên backend có thể append nhầm; chỉ gửi action confirmOrder để cập nhật trạng thái.
             body: JSON.stringify({ 
-                sourceChannel: 'STORE_DRINK', // Thêm dòng này để code.gs định tuyến chuẩn xác sang store.gs
                 action: 'confirmOrder', 
                 orderId: orderId 
             })
         });
         
-        // Nếu cần xử lý data trả về từ server, có thể parse JSON ở đây
-        // const data = await response.json();
+        // [SỬA] Trước đây hiển thị thành công dù API trả lỗi; kiểm tra phản hồi trước khi báo đã xác nhận.
+        const result = await response.json();
+        if (!response.ok || result.status === 'error' || result.success === false) {
+            throw new Error(result.message || 'Không cập nhật được trạng thái đơn hàng');
+        }
 
         alert(`Đã xác nhận đơn hàng ${orderId} thành công!`);
         fetchStoreOrders(); 

@@ -651,7 +651,9 @@ async function submitOrder(e) {
             const submitBtn = document.getElementById('submitBtn');
             if (submitBtn) { submitBtn.disabled = true; submitBtn.innerText = "ĐANG GỬI ĐƠN HÀNG..."; }
 
+        // [SỬA] Đơn Shop trước đây thiếu sourceChannel nên backend có thể ghi nhầm sang Store; khai báo SHOP để định tuyến đúng sheet.
         const payload = {
+        sourceChannel: "SHOP",
         customerName: name, customerPhone: phone, customerAddress: address,
         orderDetails: itemsDetail, itemsAmount: itemsAmount, shippingFee: shippingFee,
         totalAmount: totalAmount, paymentMethod: "COD", notes: note

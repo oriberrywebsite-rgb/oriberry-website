@@ -39,13 +39,14 @@
       <p class="text-xs text-amber-200">Hệ thống nhận đơn Cà phê gói (/shop)</p>
     </div>
     <div class="flex items-center gap-2 md:gap-3">
-      <button id="audioToggleBtn" onclick="toggleAudio()" class="px-3 py-1.5 bg-emerald-700 hover:bg-emerald-600 rounded-lg text-xs font-semibold transition flex items-center gap-1.5">
+      <!-- [SỬA] Các nút UI trước đây chưa khai báo type; đặt type=button để tránh submit ngầm nếu bố cục form thay đổi. -->
+      <button type="button" id="audioToggleBtn" onclick="toggleAudio()" class="px-3 py-1.5 bg-emerald-700 hover:bg-emerald-600 rounded-lg text-xs font-semibold transition flex items-center gap-1.5">
         🔊 Âm Thanh Bật
       </button>
-      <button onclick="changePinPrompt()" class="px-3 py-1.5 bg-amber-800 hover:bg-amber-700 rounded-lg text-xs font-semibold transition">
+      <button type="button" onclick="changePinPrompt()" class="px-3 py-1.5 bg-amber-800 hover:bg-amber-700 rounded-lg text-xs font-semibold transition">
         🔑 Đổi PIN
       </button>
-      <button onclick="lockSystem()" class="px-3 py-1.5 bg-red-800 hover:bg-red-700 rounded-lg text-xs font-semibold transition">
+      <button type="button" onclick="lockSystem()" class="px-3 py-1.5 bg-red-800 hover:bg-red-700 rounded-lg text-xs font-semibold transition">
         🔒 Thoát
       </button>
     </div>
@@ -55,7 +56,7 @@
   <main class="max-w-6xl mx-auto p-4 md:p-6">
     <div class="flex justify-between items-center mb-6">
       <h2 class="text-lg font-bold text-slate-700">Danh Sách Đơn Hàng Mới Nhất</h2>
-      <button onclick="fetchOrders()" class="text-sm font-semibold text-amber-900 hover:underline">↻ Tải lại</button>
+      <button type="button" onclick="fetchOrders()" class="text-sm font-semibold text-amber-900 hover:underline">↻ Tải lại</button>
     </div>
 
     <!-- Order List Table -->
@@ -127,10 +128,10 @@
 
       <!-- Nút Thao tác -->
       <div class="mt-6 grid grid-cols-2 gap-3">
-        <button onclick="confirmOrder()" class="bg-amber-900 hover:bg-amber-800 text-white font-bold py-3 rounded-xl shadow-lg transition text-center flex items-center justify-center gap-1">
+        <button type="button" onclick="confirmOrder()" class="bg-amber-900 hover:bg-amber-800 text-white font-bold py-3 rounded-xl shadow-lg transition text-center flex items-center justify-center gap-1">
           ✓ Xác nhận
         </button>
-        <button onclick="closeModalPending()" class="bg-slate-200 hover:bg-slate-300 text-slate-700 font-bold py-3 rounded-xl transition text-center flex items-center justify-center gap-1">
+        <button type="button" onclick="closeModalPending()" class="bg-slate-200 hover:bg-slate-300 text-slate-700 font-bold py-3 rounded-xl transition text-center flex items-center justify-center gap-1">
           ⏳ Chờ xử lý
         </button>
       </div>
@@ -299,20 +300,26 @@ async function confirmOrder() {
   
   stopBell();
   document.getElementById('orderModal').classList.add('hidden');
-  knownOrders.add(currentProcessingOrder.orderId);
-
   try {
-    await fetch(SCRIPT_URL, {
+    // [SỬA] POST cập nhật trạng thái trước đây không kiểm tra kết quả, có thể báo đã xác nhận dù backend tạo lỗi; gửi action rõ ràng và chỉ đánh dấu sau khi thành công.
+    const response = await fetch(SCRIPT_URL, {
       method: 'POST',
+      headers: { 'Content-Type': 'text/plain;charset=utf-8' },
       body: JSON.stringify({ 
         action: 'updateStatus', 
         orderId: currentProcessingOrder.orderId, 
         status: 'CONFIRMED' 
       })
     });
+    const result = await response.json();
+    if (!response.ok || result.status === 'error' || result.success === false) {
+      throw new Error(result.message || 'Không cập nhật được trạng thái đơn hàng');
+    }
+    knownOrders.add(currentProcessingOrder.orderId);
     fetchOrders();
   } catch (e) {
     console.error("Lỗi cập nhật đơn:", e);
+    alert("Không thể xác nhận đơn hàng. Vui lòng thử lại!");
   }
 }
 
@@ -354,7 +361,7 @@ function renderTable(orders) {
             </td>
             <td class="p-3 text-center whitespace-nowrap">
                 ${o.status !== 'CONFIRMED' ? `
-                    <button onclick="handleProcessClick(${index}); playBell();" class="px-3 py-1 bg-amber-900 text-white rounded-lg text-xs font-bold hover:bg-amber-800">
+                    <button type="button" onclick="handleProcessClick(${index}); playBell();" class="px-3 py-1 bg-amber-900 text-white rounded-lg text-xs font-bold hover:bg-amber-800">
                         Xử lý
                     </button>
                 ` : '<span class="text-xs text-slate-400">Hoàn tất</span>'}
