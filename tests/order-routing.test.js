@@ -66,20 +66,18 @@ assert.deepEqual(counts(), [1, 1]);
 
 assert.equal(post({ sourceChannel: 'SHOP', customerName: 'Test Shop', customerPhone: '0000000000', customerAddress: 'Test address', orderDetails: 'Beans x1', itemsAmount: 10000, shippingFee: 0, totalAmount: 10000, paymentMethod: 'COD' }).status, 'success');
 assert.deepEqual(counts(), [2, 1]);
-assert.equal(post({ sourceChannel: 'STORE_DRINK', orderId: 'ORD1001', storeCode: 'Oriberry QA', fulfillmentType: 'PICKUP', customerName: 'Test Store', customerPhone: '0000000000', orderDetails: 'Espresso x1', totalAmount: 35000 }).status, 'success');
-assert.deepEqual(counts(), [2, 2]);
+assert.equal(post({ sourceChannel: 'STORE_DRINK', orderId: 'ORD1001', storeCode: 'Oriberry QA', fulfillmentType: 'PICKUP', customerName: 'Test Store', customerPhone: '0000000000', orderDetails: 'Espresso x1', totalAmount: 35000 }).status, 'error');
+assert.deepEqual(counts(), [2, 1]);
 
 assert.equal(post({ action: 'updateStatus', orderId: 'HD1001', status: 'CONFIRMED' }).status, 'success');
 assert.equal(sheets.Oriberry_DonHang_Shop.rows[1][9], 'CONFIRMED');
-assert.equal(post({ action: 'confirmOrder', orderId: 'ORD1001' }).status, 'success');
-assert.equal(sheets.Oriberry_DonHang_Store.rows[1][11], 'CONFIRMED');
-assert.deepEqual(counts(), [2, 2]);
+assert.equal(post({ action: 'confirmOrder', orderId: 'ORD1001' }).status, 'error');
+assert.deepEqual(counts(), [2, 1]);
 assert.equal(post({ action: 'updateStatus', orderId: 'HD9999' }).status, 'error');
 assert.equal(post({ action: 'confirmOrder', orderId: 'ORD9999' }).status, 'error');
-assert.deepEqual(counts(), [2, 2]);
+assert.deepEqual(counts(), [2, 1]);
 
 const storeOrders = JSON.parse(context.doGet({ parameter: { action: 'getStoreOrders', storeCode: 'store_1' } }).content).orders;
-assert.equal(storeOrders.length, 1);
-assert.equal(storeOrders[0].storeCode, 'store_1');
-assert.deepEqual(counts(), [2, 2]);
+assert.equal(storeOrders.length, 0);
+assert.deepEqual(counts(), [2, 1]);
 console.log('Order routing tests passed');

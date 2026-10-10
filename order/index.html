@@ -270,13 +270,14 @@
         ];
 
 // Khai báo chết 6 cửa hàng chuẩn của anh, không fetch lung tung nữa để tránh lỗi
+// [SỬA] Dùng đúng Store ID cố định đã đối chiếu với bảng Stores thực tế.
 let STORES = [
-    { id: 'QA', code: 'QA', name: 'Oriberry QA', address: '28 Quang An, Tay Ho' },
-    { id: 'TNV', code: 'TNV', name: 'Oriberry TNV', address: '24A To Ngoc Van, Tay Ho' },
-    { id: '1PSM', code: '1PSM', name: 'Oriberry 1PSM', address: '1 Pham Su Manh, Hoan Kiem' },
-    { id: '6APSM', code: '6APSM', name: 'Oriberry 6APSM', address: '6A Pham Su Manh, Hoan Kiem' },
-    { id: 'TD', code: 'TD', name: 'Oriberry TD', address: '11B Tong Dan, Hoan Kiem' },
-    { id: 'DTD', code: 'DTD', name: 'Oriberry DTD', address: '23-25 Dang Tien Dong, Dong Da' }
+    { id: 'store_1', code: 'store_1', name: 'Oriberry QA', address: '28 Quang An, Tay Ho' },
+    { id: 'store_2', code: 'store_2', name: 'Oriberry TNV', address: '24A To Ngoc Van, Tay Ho' },
+    { id: 'store_3', code: 'store_3', name: 'Oriberry 1PSM', address: '1 Pham Su Manh, Hoan Kiem' },
+    { id: 'store_4', code: 'store_4', name: 'Oriberry 6APSM', address: '6A Pham Su Manh, Hoan Kiem' },
+    { id: 'store_5', code: 'store_5', name: 'Oriberry TD', address: '11B Tong Dan, Hoan Kiem' },
+    { id: 'store_6', code: 'store_6', name: 'Oriberry DTD', address: '23-25 Dang Tien Dong, Dong Da' }
 ];
 
 // Hàm tải danh sách Add-ons / Toppings từ Google Sheets
@@ -312,17 +313,18 @@ function fetchStoresData() {
 
 let PRODUCTS = [];
 let currentFulfillment = 'DINE_IN';
-let selectedStoreOrLocation = 'Oriberry QA';
+let selectedStoreId = '';
+let selectedStoreOrLocation = '';
 let activeProductForModal = null;
 let currentModalQty = 1;
 let cart = JSON.parse(localStorage.getItem('oriberry_order_cart')) || [];
+let menuRequestNumber = 0;
         document.addEventListener('DOMContentLoaded', () => {
             renderSidebarCategories();
             fetchStoresData();
-            fetchMenuProducts();
             fetchAddonsData();
             updateCartUI();
-            checkUrlTableParam();
+            initializeStoreFromUrl();
         });
 
         // Xử lý bật/tắt Sidebar ẩn/hiện
@@ -346,21 +348,40 @@ let cart = JSON.parse(localStorage.getItem('oriberry_order_cart')) || [];
             if (!sidebar.classList.contains('-translate-x-full')) hideSidebar();
         }
 
-        function checkUrlTableParam() {
-            const urlParams = new URLSearchParams(window.location.search);
-            const table = urlParams.get('table');
-            const store = urlParams.get('store') || 'QUANG_AN';
-            if (table) {
-                currentFulfillment = 'DINE_IN';
-                const storeObj = STORES.find(s => s.code === store) || STORES[0];
-                selectedStoreOrLocation = `${storeObj.name} - Table ${table}`;
-                document.getElementById('headerIcon').className = "fa-solid fa-utensils text-[10px]";
-                document.getElementById('fulfillmentLabel').innerText = "Dine-in";
-                document.getElementById('fulfillmentValue').innerText = `Table: ${table}`;
-                document.getElementById('custAddress').value = `Dine-in at ${table} (${storeObj.name})`;
-            } else {
-                openFulfillmentModal();
+        // [SỬA] Chỉ tải menu sau khi Store ID hợp lệ được chọn hoặc nhận từ URL/QR.
+        function initializeStoreFromUrl() {
+            const params = new URLSearchParams(window.location.search);
+            const storeId = String(params.get('store') || '').trim().toLowerCase();
+            const table = String(params.get('table') || '').trim();
+            if (storeId) {
+                if (!STORES.some(store => store.id === storeId)) {
+                    showMenuMessage('Link cửa hàng không hợp lệ. Vui lòng chọn cửa hàng để xem menu.');
+                    openFulfillmentModal();
+                    return;
+                }
+                if (!selectStore(storeId)) {
+                    selectedStoreId = '';
+                    selectedStoreOrLocation = '';
+                    openFulfillmentModal();
+                    showMenuMessage('Giỏ hàng đang gắn với cửa hàng khác. Hãy xác nhận đổi cửa hàng để tiếp tục.');
+                    return;
+                }
+                if (table) {
+                    currentFulfillment = 'DINE_IN';
+                    selectedStoreOrLocation = `${getStoreById(storeId).name} - Table ${table}`;
+                    document.getElementById('headerIcon').className = "fa-solid fa-utensils text-[10px]";
+                    document.getElementById('fulfillmentLabel').innerText = "Dine-in";
+                    document.getElementById('fulfillmentValue').innerText = `Table: ${table}`;
+                    document.getElementById('custAddress').value = `Dine-in at ${table} (${getStoreById(storeId).name})`;
+                } else {
+                    openFulfillmentModal();
+                }
+                fetchMenuProducts();
+                return;
             }
+            // Giữ QR cũ an toàn: thiếu store= thì chưa gửi request menu và yêu cầu chọn cửa hàng.
+            showMenuMessage('Vui lòng chọn cửa hàng để xem thực đơn.');
+            openFulfillmentModal();
         }
 
         function renderSidebarCategories() {
@@ -392,25 +413,68 @@ let cart = JSON.parse(localStorage.getItem('oriberry_order_cart')) || [];
             if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
         }
 
-// [SỬA] Trang /order/ phải lấy menu đồ ăn/uống từ Food_Drinks_Menu.
-// Trước đây chỉ gọi SCRIPT_URL nên backend trả dữ liệu mặc định không đúng menu Store.
+function showMenuMessage(message) {
+    const container = document.getElementById('menuContentContainer');
+    if (container) container.innerHTML = `<div class="text-center py-12 text-stone-500 text-sm">${message}</div>`;
+}
+
+function getStoreById(storeId) {
+    return STORES.find(store => store.id === storeId) || null;
+}
+
+function selectStore(storeId) {
+    const store = getStoreById(storeId);
+    if (!store) return false;
+    const cartStoreId = localStorage.getItem('oriberry_order_cart_store') || '';
+    const previousStoreId = selectedStoreId || cartStoreId;
+    const storeChanged = previousStoreId !== storeId;
+    if (cart.length && storeChanged) {
+        const confirmed = window.confirm('Đổi cửa hàng sẽ xóa giỏ hàng hiện tại vì menu và giá có thể khác. Bạn có muốn tiếp tục?');
+        if (!confirmed) return false;
+        cart = [];
+        localStorage.setItem('oriberry_order_cart_store', storeId);
+        saveCart();
+    }
+    if (storeChanged) {
+        localStorage.removeItem('oriberry_pending_store_order_id');
+        localStorage.removeItem('oriberry_pending_store_order_signature');
+    }
+    selectedStoreId = storeId;
+    selectedStoreOrLocation = store.name;
+    localStorage.setItem('oriberry_order_cart_store', storeId);
+    return true;
+}
+
+function productPrice(product, size) {
+    if (size === 'large') return Number(product.large_price ?? product.largePrice ?? 0);
+    return Number(product.normal_price ?? product.normalPrice ?? product.price ?? 0);
+}
+
+// [SỬA] Gắn Store ID vào đúng một request menu; response cũ không được ghi đè lựa chọn mới.
 async function fetchMenuProducts() {
-    try {
-        const res = await fetch(`${SCRIPT_URL}?action=getFoodMenu`);
-        const result = await res.json();
-
-        PRODUCTS = Array.isArray(result)
-            ? result
-            : (Array.isArray(result.data) ? result.data : []);
-
-        console.log("Food menu loaded:", PRODUCTS);
-
-        renderMenuProducts();
-    } catch (err) {
-        console.error("Lỗi tải menu:", err);
-
+    if (!selectedStoreId || !getStoreById(selectedStoreId)) {
         PRODUCTS = [];
+        showMenuMessage('Vui lòng chọn cửa hàng để xem thực đơn.');
+        return;
+    }
+    const requestNumber = ++menuRequestNumber;
+    const requestedStore = selectedStoreId;
+    showMenuMessage(`Đang tải menu ${getStoreById(requestedStore).name}…`);
+    try {
+        const res = await fetch(`${SCRIPT_URL}?action=getFoodMenu&store=${encodeURIComponent(requestedStore)}`);
+        const result = await res.json();
+        if (requestNumber !== menuRequestNumber || requestedStore !== selectedStoreId) return;
+        if (!res.ok || !Array.isArray(result)) {
+            throw new Error(result.message || 'Không tải được menu cửa hàng.');
+        }
+        PRODUCTS = result;
         renderMenuProducts();
+        if (!PRODUCTS.length) showMenuMessage('Cửa hàng hiện chưa có món nào được bật bán.');
+    } catch (err) {
+        if (requestNumber !== menuRequestNumber || requestedStore !== selectedStoreId) return;
+        console.error('Lỗi tải menu:', err);
+        PRODUCTS = [];
+        showMenuMessage(err.message || 'Không tải được thực đơn. Vui lòng thử lại.');
     }
 }
         function renderMenuProducts() {
@@ -419,8 +483,8 @@ async function fetchMenuProducts() {
 
             let filtered = PRODUCTS.filter(p => (p.name || '').toLowerCase().includes(searchKeyword));
 
-            if (sortVal === 'low-to-high') filtered.sort((a, b) => Number(a.price) - Number(b.price));
-            else if (sortVal === 'high-to-low') filtered.sort((a, b) => Number(b.price) - Number(a.price));
+            if (sortVal === 'low-to-high') filtered.sort((a, b) => productPrice(a, 'normal') - productPrice(b, 'normal'));
+            else if (sortVal === 'high-to-low') filtered.sort((a, b) => productPrice(b, 'normal') - productPrice(a, 'normal'));
 
             const container = document.getElementById('menuContentContainer');
             let htmlContent = '';
@@ -434,7 +498,7 @@ async function fetchMenuProducts() {
                             <div class="flex-1 min-w-0">
                                 <h3 class="text-sm font-bold text-stone-900 truncate">${p.name}</h3>
                                 <p class="text-[11px] text-stone-500 line-clamp-2 mt-0.5">${p.shortDesc || ''}</p>
-                                <span class="text-xs font-bold text-amber-900 mt-1 inline-block">${Number(p.price || 0).toLocaleString('vi-VN')}đ</span>
+                                <span class="text-xs font-bold text-amber-900 mt-1 inline-block">Normal ${productPrice(p, 'normal').toLocaleString('vi-VN')}đ${p.hasLargeSize ? ` · Large ${productPrice(p, 'large').toLocaleString('vi-VN')}đ` : ''}</span>
                             </div>
                             <div class="w-8 h-8 rounded-full bg-amber-900/10 text-amber-900 flex items-center justify-center hover:bg-amber-950 hover:text-white transition flex-shrink-0 shadow-sm">
                                 <i class="fa-solid fa-plus text-xs"></i>
@@ -487,8 +551,9 @@ async function fetchMenuProducts() {
         }
 
         function chooseStore(code) {
-            const storeObj = STORES.find(s => s.code === code);
-            selectedStoreOrLocation = storeObj.name;
+            const storeObj = getStoreById(code);
+            const storeChanged = selectedStoreId !== code;
+            if (!storeObj || !selectStore(code)) return;
             closeModal('storeModal');
             
             const isDineIn = (currentFulfillment === 'DINE_IN');
@@ -499,6 +564,13 @@ async function fetchMenuProducts() {
             if (custAddrInput) {
             custAddrInput.value = `${isDineIn ? 'Dine-in' : 'Pick-up'} - ${storeObj.name} (${storeObj.address})`;
            }
+            const table = new URLSearchParams(window.location.search).get('table');
+            if (table && isDineIn) {
+                selectedStoreOrLocation = `${storeObj.name} - Table ${table}`;
+                document.getElementById('fulfillmentValue').innerText = `Table: ${table}`;
+                if (custAddrInput) custAddrInput.value = `Dine-in at ${table} (${storeObj.name})`;
+            }
+            if (storeChanged || !PRODUCTS.length) fetchMenuProducts();
     }
 
     function confirmDeliveryAddress() {
@@ -510,17 +582,17 @@ async function fetchMenuProducts() {
     }
 
     // 1. Ánh xạ trực tiếp ward ra mã cửa hàng chuẩn xác
-    let assignedStore = "Oriberry Quảng An";
+    let assignedStore = "store_1";
     if (ward.includes('Hoàn Kiếm')) {
-        assignedStore = "Oriberry 1PSM";
+        assignedStore = "store_3";
     } else if (ward.includes('Tây Hồ')) {
-        assignedStore = "Oriberry Quảng An";
+        assignedStore = "store_1";
     } else if (ward.includes('Đống Đa')) {
-        assignedStore = "Oriberry DTD";
+        assignedStore = "store_6";
     }
     
     // Lưu mã cửa hàng vào biến chính để lát đẩy vào Cột C (storeCode)
-    selectedStoreOrLocation = assignedStore; 
+    if (!selectStore(assignedStore)) return;
 
     // 2. Lưu riêng địa chỉ chi tiết để đẩy vào Cột E (locationDetail)
     window.currentDeliveryAddress = `${detail}, ${ward}`;
@@ -532,8 +604,9 @@ async function fetchMenuProducts() {
     // 3. Hiển thị tên cửa hàng phụ trách lên nút góc trên bên phải thay vì chỉ hiện tên phường
     const fulfillmentEl = document.getElementById('fulfillmentText');
     if (fulfillmentEl) {
-    fulfillmentEl.innerText = assignedStore;
+    fulfillmentEl.innerText = getStoreById(assignedStore).name;
         }
+    fetchMenuProducts();
     }
         // Popup chi tiết món kèm Cross-selling & Note
 function openProductModal(id) {
@@ -550,11 +623,11 @@ function openProductModal(id) {
     document.getElementById('modalQty').innerText = currentModalQty;
 
     // 2. Xử lý phần Chọn Size (Normal / Large)
-    const normalPrice = Number(activeProductForModal.normal_price || activeProductForModal.price || 0);
-    const largePrice = Number(activeProductForModal.large_price || 0);
+    const normalPrice = productPrice(activeProductForModal, 'normal');
+    const largePrice = productPrice(activeProductForModal, 'large');
 
     let sizeHtml = '';
-    if (normalPrice > 0) {
+    if (Number.isFinite(normalPrice)) {
         sizeHtml += `
             <label style="cursor: pointer; margin-right: 20px;">
                 <input type="radio" name="productSize" value="normal" checked onchange="updateModalPrices()">
@@ -562,7 +635,7 @@ function openProductModal(id) {
             </label>
         `;
     }
-    if (largePrice > 0) {
+    if (activeProductForModal.hasLargeSize) {
         sizeHtml += `
             <label style="cursor: pointer;">
                 <input type="radio" name="productSize" value="large" onchange="updateModalPrices()">
@@ -582,7 +655,7 @@ function openProductModal(id) {
         addonHtml = availableAddons.map(addon => `
             <div style="margin-bottom: 4px;">
                 <label style="cursor: pointer; font-size: 13px;">
-                    <input type="checkbox" class="addon-checkbox" value="${addon.name}" data-price="${addon.price || 0}" onchange="updateModalPrices()">
+                    <input type="checkbox" class="addon-checkbox" value="${addon.id}" data-addon-id="${addon.id}" data-price="${addon.price ?? 0}" onchange="updateModalPrices()">
                     ${addon.name} (+${Number(addon.price || 0).toLocaleString('vi-VN')}₫)
                 </label>
             </div>
@@ -610,12 +683,13 @@ function openProductModal(id) {
 
         const crossSells = PRODUCTS.filter(p => sideDishIds.includes(String(p.id).trim()));
 
+        const crossSellContainer = document.getElementById('crossSellContainer');
         if (crossSellContainer) {
             crossSellContainer.innerHTML = crossSells.length > 0 ? crossSells.map(cs => `
                 <div onclick="openProductModal('${cs.id}')" class="w-32 flex-shrink-0 border border-stone-200 rounded-2xl p-2 bg-stone-50 flex flex-col justify-between cursor-pointer hover:border-amber-300 transition">
                     <img src="${cs.img1 || cs.image || 'https://images.unsplash.com/photo-1550566199-641a8ac3b55e-300'}" class="w-full h-16 object-cover rounded-xl mb-1">
                     <div class="text-[11px] font-bold text-stone-900 truncate">${cs.name}</div>
-                    <div class="text-[10px] text-amber-900 font-bold">${Number(cs.price || cs.normal_price || 0).toLocaleString('vi-VN')}₫</div>
+                    <div class="text-[10px] text-amber-900 font-bold">${productPrice(cs, 'normal').toLocaleString('vi-VN')}₫</div>
                 </div>
             `).join('') : '<div class="text-xs text-stone-400">No recommendations available</div>';
         }
@@ -632,10 +706,7 @@ function updateModalPrices() {
     const sizeRadio = document.querySelector('input[name="productSize"]:checked');
     const selectedSize = sizeRadio ? sizeRadio.value : 'normal';
     
-    let basePrice = Number(activeProductForModal.normal_price || activeProductForModal.price || 0);
-    if (selectedSize === 'large' && activeProductForModal.large_price) {
-        basePrice = Number(activeProductForModal.large_price);
-    }
+    const basePrice = productPrice(activeProductForModal, selectedSize);
 
     let addonTotal = 0;
     document.querySelectorAll('.addon-checkbox:checked').forEach(cb => {
@@ -649,6 +720,8 @@ function updateModalPrices() {
     if (priceEl) {
         priceEl.innerText = finalPrice.toLocaleString('vi-VN') + 'đ';
     }
+    const addButton = document.getElementById('modalAddBtn');
+    if (addButton) addButton.innerText = `ADD TO CART - ${finalPrice.toLocaleString('vi-VN')}đ`;
 }
         function adjustModalQty(change) {
             currentModalQty += change;
@@ -658,27 +731,25 @@ function updateModalPrices() {
         }
 
         function updateModalAddBtn() {
-            const total = Number(activeProductForModal.price || 0) * currentModalQty;
-            document.getElementById('modalAddBtn').innerText = `ADD TO CART - ${total.toLocaleString('vi-VN')}đ`;
+            updateModalPrices();
         }
 
 function addToCartFromModal() {
     if (!activeProductForModal) return;
+    if (!selectedStoreId) return alert('Vui lòng chọn cửa hàng trước khi thêm món.');
 
     // 1. Lấy thông tin Size đã chọn
     const sizeRadio = document.querySelector('input[name="productSize"]:checked');
     const selectedSize = sizeRadio ? sizeRadio.value : 'normal';
     
-    let unitPrice = Number(activeProductForModal.normal_price || activeProductForModal.price || 0);
-    if (selectedSize === 'large' && activeProductForModal.large_price) {
-        unitPrice = Number(activeProductForModal.large_price);
-    }
+    let unitPrice = productPrice(activeProductForModal, selectedSize);
 
     // 2. Lấy danh sách các Add-ons được chọn
     let selectedAddons = [];
     let addonTotal = 0;
     document.querySelectorAll('.addon-checkbox:checked').forEach(cb => {
-        selectedAddons.push(cb.value);
+        const addon = windowAllAddons.find(item => String(item.id) === String(cb.dataset.addonId));
+        if (addon) selectedAddons.push({ id: String(addon.id), name: addon.name, price: Number(addon.price || 0) });
         addonTotal += Number(cb.dataset.price || 0);
     });
 
@@ -687,7 +758,8 @@ function addToCartFromModal() {
 
     // 3. Tạo key định danh và tên món kèm Size + Topping
     const noteText = document.getElementById('modalItemNote') ? document.getElementById('modalItemNote').value.trim() : '';
-    const cartKey = `${activeProductForModal.id}-${selectedSize}-${selectedAddons.join('_')}-${noteText}`;
+    const addonIds = selectedAddons.map(addon => addon.id);
+    const cartKey = `${activeProductForModal.id}-${selectedSize}-${addonIds.join('_')}-${noteText}`;
     
     const existing = cart.find(i => i.key === cartKey);
     if (existing) {
@@ -696,9 +768,13 @@ function addToCartFromModal() {
         cart.push({
             key: cartKey,
             id: activeProductForModal.id,
+            productId: String(activeProductForModal.id),
+            size: selectedSize,
+            addonIds: addonIds,
+            addons: selectedAddons,
             name: activeProductForModal.name + 
                   (selectedSize === 'large' ? ' (Size Large)' : ' (Size Normal)') + 
-                  (selectedAddons.length > 0 ? ' [+ ' + selectedAddons.join(', ') + ']' : ''),
+                  (selectedAddons.length > 0 ? ' [+ ' + selectedAddons.map(addon => addon.name).join(', ') + ']' : ''),
             price: finalUnitPrice,
             note: noteText,
             qty: qty,
@@ -707,6 +783,8 @@ function addToCartFromModal() {
     }
 
     // 4. Lưu giỏ hàng và cập nhật giao diện
+    localStorage.setItem('oriberry_order_cart_store', selectedStoreId);
+    invalidatePendingOrderForCartChange();
     saveCart();
     closeModal('productDetailModal');
     openCartModal();
@@ -717,6 +795,7 @@ function addToCartFromModal() {
             if (idx > -1) {
                 cart[idx].qty += delta;
                 if (cart[idx].qty <= 0) cart.splice(idx, 1);
+                invalidatePendingOrderForCartChange();
             }
             saveCart();
         }
@@ -724,6 +803,12 @@ function addToCartFromModal() {
         function saveCart() {
             localStorage.setItem('oriberry_order_cart', JSON.stringify(cart));
             updateCartUI();
+        }
+
+        function invalidatePendingOrderForCartChange() {
+            // [SỬA] Chỉ giữ mã retry nếu nội dung đơn chưa đổi sau lỗi mạng chưa rõ trạng thái.
+            localStorage.removeItem('oriberry_pending_store_order_id');
+            localStorage.removeItem('oriberry_pending_store_order_signature');
         }
 
         function updateCartUI() {
@@ -759,75 +844,117 @@ function addToCartFromModal() {
 
         function openCartModal() { document.getElementById('cartModal').classList.remove('hidden'); }
 
+function getPendingStoreOrderId(payload) {
+    const signature = JSON.stringify(payload);
+    let orderId = localStorage.getItem('oriberry_pending_store_order_id');
+    if (!orderId || localStorage.getItem('oriberry_pending_store_order_signature') !== signature) {
+        const token = window.crypto && crypto.randomUUID
+            ? crypto.randomUUID().replace(/-/g, '')
+            : `${Date.now().toString(36)}${Math.random().toString(36).slice(2, 12)}`;
+        orderId = `ORD${token}`;
+        localStorage.setItem('oriberry_pending_store_order_id', orderId);
+        localStorage.setItem('oriberry_pending_store_order_signature', signature);
+    }
+    return orderId;
+}
+
+async function refreshCartPrices() {
+    await Promise.all([fetchMenuProducts(), fetchAddonsData()]);
+    for (const item of cart) {
+        const product = PRODUCTS.find(candidate => String(candidate.id) === String(item.productId || item.id));
+        if (!product || (item.size === 'large' && !product.hasLargeSize)) return false;
+        // [SỬA] Chuyển topping từ giỏ cũ (tên hiển thị) về Addon_ID trước khi tính lại.
+        if (!Array.isArray(item.addonIds) || !item.addonIds.length) {
+            const legacyNames = String(item.name || '').match(/\[\+\s*(.*?)\]/);
+            if (legacyNames) {
+                const names = legacyNames[1].split(',').map(name => name.trim());
+                const matched = names.map(name => windowAllAddons.find(addon => addon.name === name));
+                if (matched.some(addon => !addon)) return false;
+                item.addons = matched.map(addon => ({ id: String(addon.id), name: addon.name, price: Number(addon.price || 0) }));
+                item.addonIds = matched.map(addon => String(addon.id));
+            } else {
+                item.addonIds = [];
+                item.addons = [];
+            }
+        }
+        let unitPrice = productPrice(product, item.size || 'normal');
+        for (const addonId of item.addonIds || []) {
+            const addon = windowAllAddons.find(candidate => String(candidate.id) === String(addonId) && String(candidate.status).toLowerCase() === 'active');
+            if (!addon) return false;
+            unitPrice += Number(addon.price || 0);
+        }
+        item.productId = String(product.id);
+        item.price = unitPrice;
+        item.name = `${product.name} (Size ${item.size === 'large' ? 'Large' : 'Normal'})${(item.addons || []).length ? ` [+ ${(item.addons || []).map(addon => addon.name).join(', ')}]` : ''}`;
+    }
+    saveCart();
+    return true;
+}
+
+// [SỬA] POST chỉ gửi ID món/size/số lượng và giá báo để backend đối chiếu; giá chính thức do Apps Script tính.
 async function submitOrder(e) {
     e.preventDefault();
-    if (cart.length === 0) return alert("Giỏ hàng trống!");
+    if (!selectedStoreId || !getStoreById(selectedStoreId)) return alert('Vui lòng chọn cửa hàng trước khi đặt món.');
+    if (!cart.length) return alert('Giỏ hàng trống!');
+    if (cart.some(item => !item.productId && !item.id)) return alert('Giỏ hàng cũ thiếu mã món. Hãy xóa giỏ hàng và chọn món lại.');
 
-    const name = document.getElementById('custName')?.value || "";
-    const phone = document.getElementById('custPhone')?.value || "";
-    
-    // Gom chi tiết giỏ hàng đồ uống
-    const itemsDetail = cart.map(i => `${i.name} x${i.qty} (${(i.price * i.qty).toLocaleString('vi-VN')}đ)`).join(' | ');
-    const totalAmount = cart.reduce((sum, item) => sum + (item.price * item.qty), 0);
-
-    // Lấy thẳng tên cửa hàng đã được định chuẩn từ Popup 1
-    const chosenStore = (typeof selectedStoreOrLocation !== 'undefined' && selectedStoreOrLocation) ? selectedStoreOrLocation : "Oriberry Quảng An";
-    const chosenFulfillment = (typeof currentFulfillment !== 'undefined' && currentFulfillment) ? currentFulfillment : "Dine-in";
-
-    // 1. Cột Location_Detail (Cột E): Chỉ lấy địa chỉ chi tiết đã được khai báo sẵn từ Popup 1 nếu là Delivery
-    let finalLocationDetail = "";
-    if (chosenFulfillment === 'DELIVERY' || chosenFulfillment === 'Delivery') {
-        finalLocationDetail = (typeof currentDeliveryAddress !== 'undefined' && currentDeliveryAddress) ? currentDeliveryAddress : "";
-    } else {
-        finalLocationDetail = ""; // Pickup / Dine-in thì cột E để trống hoàn toàn
-    }
-
-    // 2. Cột Note (Cột I): Lấy nội dung từ ô nhập ở popup giỏ hàng, không bắt buộc
-    const userNote = document.getElementById('orderNote')?.value || "";
-
+    const name = document.getElementById('custName')?.value.trim() || '';
+    const phone = document.getElementById('custPhone')?.value.trim() || '';
+    if (!name || !phone) return alert('Vui lòng nhập tên và số điện thoại.');
+    const quotedTotal = cart.reduce((sum, item) => sum + (Number(item.price) * Number(item.qty)), 0);
     const payload = {
         sourceChannel: 'STORE_DRINK',
-        storeCode: chosenStore,
-        fulfillmentType: chosenFulfillment,
-        locationDetail: finalLocationDetail,
+        storeCode: selectedStoreId,
+        fulfillmentType: currentFulfillment,
+        locationDetail: currentFulfillment === 'DELIVERY' ? (window.currentDeliveryAddress || '') : '',
         customerName: name,
         customerPhone: phone,
-        orderDetails: itemsDetail,
-        notes: userNote,
-        totalAmount: totalAmount,
-        paymentMethod: "COD"
+        items: cart.map(item => ({
+            productId: String(item.productId || item.id),
+            size: item.size || 'normal',
+            qty: Number(item.qty),
+            addonIds: Array.isArray(item.addonIds) ? item.addonIds : [],
+            quotedUnitPrice: Number(item.price)
+        })),
+        quotedTotal: quotedTotal,
+        notes: document.getElementById('orderNote')?.value || '',
+        paymentMethod: 'COD'
     };
+    payload.orderId = getPendingStoreOrderId(payload);
 
-// [SỬA] Đồng bộ đúng ID với button trong HTML.
-        const submitBtn = document.getElementById('submitBtn');    if (submitBtn) {
+    const submitBtn = document.getElementById('submitBtn');
+    if (submitBtn) {
         submitBtn.disabled = true;
-        submitBtn.innerText = "Placing order...";
+        submitBtn.innerText = 'Placing order...';
     }
-
-try {
+    try {
         const response = await fetch(SCRIPT_URL, {
             method: 'POST',
             headers: { 'Content-Type': 'text/plain;charset=utf-8' },
             body: JSON.stringify(payload)
         });
-
         const result = await response.json();
-        
-        if (result.status === "success") {
+        if (result.status === 'success') {
             alert(`Order Submitted! ${name} (${phone})!`);
+            localStorage.removeItem('oriberry_pending_store_order_id');
+            localStorage.removeItem('oriberry_pending_store_order_signature');
             cart = [];
             saveCart();
             closeModal('cartModal');
-            if (typeof updateCartUI === 'function') updateCartUI();
+        } else if (result.code === 'PRICE_CHANGED') {
+            const refreshed = await refreshCartPrices();
+            alert(refreshed
+                ? 'Giá hoặc menu vừa thay đổi. Giỏ hàng đã được cập nhật; vui lòng kiểm tra và bấm xác nhận lại.'
+                : 'Menu đã thay đổi. Có món hoặc topping không còn bán; vui lòng kiểm tra lại giỏ hàng.');
         } else {
-            alert("System Error " + (result.message || "An unexpected error occurred"));
+            alert(`Không thể đặt đơn: ${result.message || 'Vui lòng thử lại.'}`);
         }
     } catch (err) {
-        alert('Failed to submit your order. Please try again!');
+        alert('Không nhận được phản hồi từ hệ thống. Mã đơn được giữ lại để tránh tạo trùng khi bạn thử lại.');
     } finally {
         if (submitBtn) {
             submitBtn.disabled = false;
-            submitBtn.innerText = "CONFIRM ORDER";
+            submitBtn.innerText = 'CONFIRM ORDER';
         }
     }
 }
