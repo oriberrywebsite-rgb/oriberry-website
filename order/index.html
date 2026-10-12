@@ -256,6 +256,21 @@
         </div>
     </div>
 
+    <div id="orderSuccessModal" class="fixed inset-0 z-[70] hidden items-end sm:items-center justify-center bg-black/60 p-0 sm:p-4" role="dialog" aria-modal="true" aria-labelledby="orderSuccessTitle">
+        <div class="w-full max-w-md rounded-t-3xl sm:rounded-2xl bg-white p-6 shadow-2xl">
+            <div class="mx-auto mb-3 flex h-12 w-12 items-center justify-center rounded-full bg-green-100 text-green-700"><i class="fa-solid fa-check text-xl"></i></div>
+            <h2 id="orderSuccessTitle" class="text-center text-lg font-bold text-stone-900">Đặt hàng thành công</h2>
+            <p class="mt-1 text-center text-xs text-stone-500">Cửa hàng sẽ sớm xác nhận đơn của bạn.</p>
+            <div class="mt-4 space-y-2 rounded-xl bg-stone-50 p-4 text-sm">
+                <div class="flex justify-between gap-3"><span class="text-stone-500">Mã đơn</span><strong id="successOrderId" class="break-all text-right"></strong></div>
+                <div class="flex justify-between gap-3"><span class="text-stone-500">Cửa hàng</span><strong id="successStore" class="text-right"></strong></div>
+                <div class="border-t border-stone-200 pt-2"><div class="mb-1 text-xs font-bold uppercase text-stone-500">Món đã đặt</div><div id="successOrderItems" class="space-y-1 text-xs"></div></div>
+                <div class="flex justify-between border-t border-stone-200 pt-2 font-bold"><span>Tổng tiền</span><span id="successOrderTotal" class="text-amber-900"></span></div>
+            </div>
+            <button type="button" onclick="closeOrderSuccess()" class="mt-4 w-full rounded-xl bg-amber-950 py-3 text-sm font-bold text-white">Đóng</button>
+        </div>
+    </div>
+
     <!-- SCRIPTS LOGIC -->
     <script>
         const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbx6HqvTfvToQnn61_8d2dtIIf57SlKvL_-XCi32O-HVWWCIwlQ6f9kvbas04guhiGt-/exec"
@@ -319,12 +334,17 @@ let activeProductForModal = null;
 let currentModalQty = 1;
 let cart = JSON.parse(localStorage.getItem('oriberry_order_cart')) || [];
 let menuRequestNumber = 0;
+let MENU_CATALOG = [];
+let menuDataVerified = false;
+const MENU_CACHE_KEY = 'oriberry_shared_menu_cache_v2';
+const MENU_CACHE_MAX_AGE = 5 * 60 * 1000;
         document.addEventListener('DOMContentLoaded', () => {
             renderSidebarCategories();
             fetchStoresData();
             fetchAddonsData();
             updateCartUI();
             initializeStoreFromUrl();
+            fetchMenuProducts();
         });
 
         // Xử lý bật/tắt Sidebar ẩn/hiện
@@ -348,7 +368,7 @@ let menuRequestNumber = 0;
             if (!sidebar.classList.contains('-translate-x-full')) hideSidebar();
         }
 
-        // [SỬA] Chỉ tải menu sau khi Store ID hợp lệ được chọn hoặc nhận từ URL/QR.
+// Mở trang là tải danh mục chung; cửa hàng chỉ ảnh hưởng phép chiếu dữ liệu ở frontend.
         function initializeStoreFromUrl() {
             const params = new URLSearchParams(window.location.search);
             const storeId = String(params.get('store') || '').trim().toLowerCase();
@@ -376,12 +396,9 @@ let menuRequestNumber = 0;
                 } else {
                     openFulfillmentModal();
                 }
-                fetchMenuProducts();
                 return;
             }
-            // Giữ QR cũ an toàn: thiếu store= thì chưa gửi request menu và yêu cầu chọn cửa hàng.
-            showMenuMessage('Vui lòng chọn cửa hàng để xem thực đơn.');
-            openFulfillmentModal();
+            projectMenuForSelectedStore();
         }
 
         function renderSidebarCategories() {
@@ -442,6 +459,7 @@ function selectStore(storeId) {
     selectedStoreId = storeId;
     selectedStoreOrLocation = store.name;
     localStorage.setItem('oriberry_order_cart_store', storeId);
+    projectMenuForSelectedStore();
     return true;
 }
 
@@ -450,31 +468,72 @@ function productPrice(product, size) {
     return Number(product.normal_price ?? product.normalPrice ?? product.price ?? 0);
 }
 
-// [SỬA] Gắn Store ID vào đúng một request menu; response cũ không được ghi đè lựa chọn mới.
-async function fetchMenuProducts() {
-    if (!selectedStoreId || !getStoreById(selectedStoreId)) {
-        PRODUCTS = [];
-        showMenuMessage('Vui lòng chọn cửa hàng để xem thực đơn.');
+function projectMenuForSelectedStore() {
+    const code = selectedStoreId;
+    PRODUCTS = (MENU_CATALOG || []).filter(product => !code || product.availableByStore?.[code] === true).map(product => {
+        const copy = { ...product };
+        const price = code ? product.priceByStore?.[code] : null;
+        if (price) {
+            copy.price = copy.normal_price = copy.normalPrice = Number(price.normal);
+            copy.large_price = copy.largePrice = price.large == null ? null : Number(price.large);
+            copy.hasLargeSize = price.hasLargeSize === true;
+        } else {
+            copy.price = copy.normal_price = copy.normalPrice = Number(product.normal_price ?? product.price);
+            copy.large_price = copy.largePrice = product.large_price == null ? null : Number(product.large_price);
+            copy.hasLargeSize = product.hasLargeSize === true;
+        }
+        copy.referencePrice = !code;
+        return copy;
+    }).filter(product => Number.isFinite(productPrice(product, 'normal')));
+    const notice = selectedStoreId
+        ? (menuDataVerified ? '' : '<div class="rounded-xl bg-amber-50 border border-amber-200 p-3 text-xs text-amber-900">Đang xem menu đã lưu ngoại tuyến. Cần xác minh kết nối trước khi đặt hàng.</div>')
+        : '<div class="rounded-xl bg-amber-50 border border-amber-200 p-3 text-xs text-amber-900">Giá đang hiển thị là giá tham khảo chung. Vui lòng chọn cửa hàng để xem giá áp dụng và đặt món.</div>';
+    const container = document.getElementById('menuContentContainer');
+    if (!MENU_CATALOG.length && !menuDataVerified) {
+        showMenuMessage('Không tải được thực đơn. Hãy thử tải lại trang khi có kết nối mạng.');
         return;
     }
+    renderMenuProducts();
+    if (container && notice) container.insertAdjacentHTML('afterbegin', notice);
+    if (selectedStoreId && !PRODUCTS.length) showMenuMessage('Cửa hàng hiện chưa có món nào được bật bán.');
+}
+
+function isValidMenuCatalog(value) {
+    return !!value && value.schemaVersion === 2 && Array.isArray(value.products) && value.products.every(p =>
+        p && p.id != null && typeof p.availableByStore === 'object' && typeof p.priceByStore === 'object');
+}
+
+// Tải catalog không gắn store; cache hiện ngay, sau đó refresh và chống response cũ.
+async function fetchMenuProducts() {
     const requestNumber = ++menuRequestNumber;
-    const requestedStore = selectedStoreId;
-    showMenuMessage(`Đang tải menu ${getStoreById(requestedStore).name}…`);
     try {
-        const res = await fetch(`${SCRIPT_URL}?action=getFoodMenu&store=${encodeURIComponent(requestedStore)}`);
+        const cached = JSON.parse(localStorage.getItem(MENU_CACHE_KEY) || 'null');
+        if (isValidMenuCatalog(cached?.catalog)) {
+            MENU_CATALOG = cached.catalog.products;
+            menuDataVerified = Date.now() - Number(cached.savedAt || 0) <= MENU_CACHE_MAX_AGE;
+            projectMenuForSelectedStore();
+        }
+    } catch (error) {
+        localStorage.removeItem(MENU_CACHE_KEY);
+        MENU_CATALOG = [];
+        menuDataVerified = false;
+    }
+    try {
+        const res = await fetch(`${SCRIPT_URL}?action=getFoodMenu`);
         const result = await res.json();
-        if (requestNumber !== menuRequestNumber || requestedStore !== selectedStoreId) return;
-        if (!res.ok || !Array.isArray(result)) {
+        if (requestNumber !== menuRequestNumber) return;
+        if (!res.ok || !isValidMenuCatalog(result) || result.status !== 'success') {
             throw new Error(result.message || 'Không tải được menu cửa hàng.');
         }
-        PRODUCTS = result;
-        renderMenuProducts();
-        if (!PRODUCTS.length) showMenuMessage('Cửa hàng hiện chưa có món nào được bật bán.');
+        MENU_CATALOG = result.products;
+        menuDataVerified = true;
+        localStorage.setItem(MENU_CACHE_KEY, JSON.stringify({ catalog: result, savedAt: Date.now() }));
+        projectMenuForSelectedStore();
     } catch (err) {
-        if (requestNumber !== menuRequestNumber || requestedStore !== selectedStoreId) return;
+        if (requestNumber !== menuRequestNumber) return;
         console.error('Lỗi tải menu:', err);
-        PRODUCTS = [];
-        showMenuMessage(err.message || 'Không tải được thực đơn. Vui lòng thử lại.');
+        menuDataVerified = false;
+        projectMenuForSelectedStore();
     }
 }
         function renderMenuProducts() {
@@ -498,7 +557,7 @@ async function fetchMenuProducts() {
                             <div class="flex-1 min-w-0">
                                 <h3 class="text-sm font-bold text-stone-900 truncate">${p.name}</h3>
                                 <p class="text-[11px] text-stone-500 line-clamp-2 mt-0.5">${p.shortDesc || ''}</p>
-                                <span class="text-xs font-bold text-amber-900 mt-1 inline-block">Normal ${productPrice(p, 'normal').toLocaleString('vi-VN')}đ${p.hasLargeSize ? ` · Large ${productPrice(p, 'large').toLocaleString('vi-VN')}đ` : ''}</span>
+                                <span class="text-xs font-bold text-amber-900 mt-1 inline-block">${p.referencePrice ? 'Giá tham khảo · ' : ''}Normal ${productPrice(p, 'normal').toLocaleString('vi-VN')}đ${p.hasLargeSize ? ` · Large ${productPrice(p, 'large').toLocaleString('vi-VN')}đ` : ''}</span>
                             </div>
                             <div class="w-8 h-8 rounded-full bg-amber-900/10 text-amber-900 flex items-center justify-center hover:bg-amber-950 hover:text-white transition flex-shrink-0 shadow-sm">
                                 <i class="fa-solid fa-plus text-xs"></i>
@@ -570,7 +629,7 @@ async function fetchMenuProducts() {
                 document.getElementById('fulfillmentValue').innerText = `Table: ${table}`;
                 if (custAddrInput) custAddrInput.value = `Dine-in at ${table} (${storeObj.name})`;
             }
-            if (storeChanged || !PRODUCTS.length) fetchMenuProducts();
+            projectMenuForSelectedStore();
     }
 
     function confirmDeliveryAddress() {
@@ -606,7 +665,7 @@ async function fetchMenuProducts() {
     if (fulfillmentEl) {
     fulfillmentEl.innerText = getStoreById(assignedStore).name;
         }
-    fetchMenuProducts();
+    projectMenuForSelectedStore();
     }
         // Popup chi tiết món kèm Cross-selling & Note
 function openProductModal(id) {
@@ -737,6 +796,7 @@ function updateModalPrices() {
 function addToCartFromModal() {
     if (!activeProductForModal) return;
     if (!selectedStoreId) return alert('Vui lòng chọn cửa hàng trước khi thêm món.');
+    if (!menuDataVerified) return alert('Chưa xác minh được menu mới nhất. Hãy kết nối mạng và tải lại trang trước khi đặt món.');
 
     // 1. Lấy thông tin Size đã chọn
     const sizeRadio = document.querySelector('input[name="productSize"]:checked');
@@ -849,9 +909,10 @@ function getPendingStoreOrderId(payload) {
     let orderId = localStorage.getItem('oriberry_pending_store_order_id');
     if (!orderId || localStorage.getItem('oriberry_pending_store_order_signature') !== signature) {
         const token = window.crypto && crypto.randomUUID
-            ? crypto.randomUUID().replace(/-/g, '')
-            : `${Date.now().toString(36)}${Math.random().toString(36).slice(2, 12)}`;
-        orderId = `ORD${token}`;
+            ? crypto.randomUUID().replace(/-/g, '').slice(0, 12).toUpperCase()
+            : `${Math.random().toString(36).slice(2, 8)}${Date.now().toString(36).slice(-6)}`.toUpperCase();
+        const date = new Date().toISOString().slice(0, 10).replace(/-/g, '');
+        orderId = `ORD${date}-${token}`;
         localStorage.setItem('oriberry_pending_store_order_id', orderId);
         localStorage.setItem('oriberry_pending_store_order_signature', signature);
     }
@@ -895,6 +956,7 @@ async function refreshCartPrices() {
 async function submitOrder(e) {
     e.preventDefault();
     if (!selectedStoreId || !getStoreById(selectedStoreId)) return alert('Vui lòng chọn cửa hàng trước khi đặt món.');
+    if (!menuDataVerified) return alert('Chưa xác minh được menu mới nhất. Hãy kết nối mạng và tải lại trang trước khi đặt món.');
     if (!cart.length) return alert('Giỏ hàng trống!');
     if (cart.some(item => !item.productId && !item.id)) return alert('Giỏ hàng cũ thiếu mã món. Hãy xóa giỏ hàng và chọn món lại.');
 
@@ -934,13 +996,20 @@ async function submitOrder(e) {
             body: JSON.stringify(payload)
         });
         const result = await response.json();
-        if (result.status === 'success') {
-            alert(`Order Submitted! ${name} (${phone})!`);
+        if (result.status === 'success' && String(result.orderId || '') === String(payload.orderId)) {
+            const confirmedTotal = Number.isFinite(Number(result.totalAmount)) ? Number(result.totalAmount) : quotedTotal;
+            document.getElementById('successOrderId').textContent = result.orderId;
+            document.getElementById('successStore').textContent = getStoreById(selectedStoreId)?.name || selectedStoreId;
+            document.getElementById('successOrderItems').innerHTML = cart.map(item => `<div class="flex justify-between gap-3"><span>${item.qty} × ${item.name}</span><span class="shrink-0">${(Number(item.price) * Number(item.qty)).toLocaleString('vi-VN')}đ</span></div>`).join('');
+            document.getElementById('successOrderTotal').textContent = `${confirmedTotal.toLocaleString('vi-VN')}đ`;
             localStorage.removeItem('oriberry_pending_store_order_id');
             localStorage.removeItem('oriberry_pending_store_order_signature');
             cart = [];
             saveCart();
             closeModal('cartModal');
+            const success = document.getElementById('orderSuccessModal');
+            success.classList.remove('hidden');
+            success.classList.add('flex');
         } else if (result.code === 'PRICE_CHANGED') {
             const refreshed = await refreshCartPrices();
             alert(refreshed
@@ -957,6 +1026,13 @@ async function submitOrder(e) {
             submitBtn.innerText = 'CONFIRM ORDER';
         }
     }
+}
+
+function closeOrderSuccess() {
+    const modal = document.getElementById('orderSuccessModal');
+    if (!modal) return;
+    modal.classList.add('hidden');
+    modal.classList.remove('flex');
 }
 
 // Khởi chạy tải dữ liệu khi trang vừa mở

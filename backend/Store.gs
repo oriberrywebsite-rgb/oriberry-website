@@ -58,13 +58,13 @@ function handleStoreGet(e) {
 
 // =========================================================================
 
-var STORE_MENU_SHEETS = {
-  store_1: "Menu_store_1_QA",
-  store_2: "Menu_store_2_TNV",
-  store_3: "Menu_store_3_1PSM",
-  store_4: "Menu_store_4_6APSM",
-  store_5: "Menu_store_5_TD",
-  store_6: "Menu_store_6_DTD"
+var STORE_MENU_CONFIG = {
+  store_1: { availability: "QA_Avb", normalPrice: "QA_Price", largePrice: "QA_LargePrice" },
+  store_2: { availability: "TNV_Avb", normalPrice: "TNV_Price", largePrice: "TNV_LargePrice" },
+  store_3: { availability: "1PSM_Avb", normalPrice: "1PSM_Price", largePrice: "1PSM_LargePrice" },
+  store_4: { availability: "6APSM_Avb", normalPrice: "6APSM_Price", largePrice: "6APSM_LargePrice" },
+  store_5: { availability: "TD_Avb", normalPrice: "TD_Price", largePrice: "TD_LargePrice" },
+  store_6: { availability: "DTD_Avb", normalPrice: "DTD_Price", largePrice: "DTD_LargePrice" }
 };
 
 function menuHeaderIndex(headers, name) {
@@ -80,113 +80,80 @@ function parseMenuPrice(value) {
   return { empty: false, value: amount };
 }
 
-// [SỬA] Ghép danh mục gốc với một menu cửa hàng bằng Product_ID; thiếu Store ID không được trả menu chung.
+// Shared catalog: base prices are defaults; populated per-store cells override them.
 function getFoodMenuData(storeCode) {
-  var ss = SpreadsheetApp.getActiveSpreadsheet();
   var requestedStore = String(storeCode || "").trim().toLowerCase();
-  var configName = STORE_MENU_SHEETS[requestedStore];
-  if (!configName) return { status: "error", code: "INVALID_STORE", message: "Store ID không hợp lệ." };
-
-  var stores = ss.getSheetByName("Stores");
-  if (!stores || stores.getLastRow() < 2) return { status: "error", code: "STORE_UNAVAILABLE", message: "Không đọc được danh sách cửa hàng." };
-  var storeRows = stores.getDataRange().getValues();
-  var storeHeaders = storeRows[0].map(function(h) { return h ? h.toString().trim().toLowerCase() : ""; });
-  var storeIdCol = storeHeaders.indexOf("id");
-  var storeStatusCol = storeHeaders.indexOf("status");
-  if (storeIdCol < 0 || storeStatusCol < 0) return { status: "error", code: "STORE_SCHEMA_INVALID", message: "Cấu trúc sheet Stores không đúng." };
-  var activeStore = false;
-  for (var s = 1; s < storeRows.length; s++) {
-    if (String(storeRows[s][storeIdCol] || "").trim().toLowerCase() === requestedStore &&
-        String(storeRows[s][storeStatusCol] || "").trim().toLowerCase() === "active") activeStore = true;
+  if (requestedStore && !STORE_MENU_CONFIG[requestedStore]) return { status: "error", code: "INVALID_STORE", message: "Store ID không hợp lệ." };
+  var cache = typeof CacheService !== "undefined" ? CacheService.getScriptCache() : { get: function() { return null; }, put: function() {} };
+  var cached = cache.get("oriberry_shared_menu_v2");
+  var catalog;
+  if (cached) {
+    try { catalog = JSON.parse(cached); } catch (ignore) { catalog = null; }
   }
-  if (!activeStore) return { status: "error", code: "STORE_UNAVAILABLE", message: "Cửa hàng không hoạt động." };
-
-  var sourceSheet = ss.getSheetByName("Food_Drinks_Menu");
-  var menuSheet = ss.getSheetByName(configName);
-  if (!sourceSheet || !menuSheet) return { status: "error", code: "MENU_NOT_CONFIGURED", message: "Menu cửa hàng chưa được khởi tạo." };
-  var sourceRows = sourceSheet.getDataRange().getValues();
-  var configRows = menuSheet.getDataRange().getValues();
-  if (sourceRows.length < 2 || configRows.length < 2) return [];
-
-  var sourceHeaders = sourceRows[0].map(function(h) { return h ? h.toString().trim().toLowerCase().replace(/\s+/g, "") : ""; });
-  var configHeaders = configRows[0].map(function(h) { return h ? h.toString().trim().toLowerCase().replace(/\s+/g, "") : ""; });
-  var productCols = {
-    id: menuHeaderIndex(sourceHeaders, "id"), name: menuHeaderIndex(sourceHeaders, "name"),
-    category: menuHeaderIndex(sourceHeaders, "category"), price: menuHeaderIndex(sourceHeaders, "price"),
-    shortDesc: menuHeaderIndex(sourceHeaders, "shortDesc"), longDesc: menuHeaderIndex(sourceHeaders, "longDesc"),
-    img1: menuHeaderIndex(sourceHeaders, "img1"), status: menuHeaderIndex(sourceHeaders, "status"),
-    normal: menuHeaderIndex(sourceHeaders, "normal_price"), large: menuHeaderIndex(sourceHeaders, "large_price"),
-    side1: menuHeaderIndex(sourceHeaders, "side_dish1"), side2: menuHeaderIndex(sourceHeaders, "side_dish2"),
-    side3: menuHeaderIndex(sourceHeaders, "side_dish3")
-  };
-  var configCols = {
-    id: menuHeaderIndex(configHeaders, "Product_ID"), available: menuHeaderIndex(configHeaders, "Available"),
-    normal: menuHeaderIndex(configHeaders, "Normal_Price"), large: menuHeaderIndex(configHeaders, "Large_Price")
-  };
-  if (productCols.id < 0 || productCols.status < 0 || configCols.id < 0 || configCols.available < 0 || configCols.normal < 0 || configCols.large < 0) {
-    return { status: "error", code: "MENU_SCHEMA_INVALID", message: "Cấu trúc sheet menu không đúng." };
-  }
-
-  var productsById = {};
-  var duplicateSourceIds = {};
-  for (var p = 1; p < sourceRows.length; p++) {
-    var productId = String(sourceRows[p][productCols.id] || "").trim();
-    if (!productId) continue;
-    if (productsById[productId]) duplicateSourceIds[productId] = true;
-    else productsById[productId] = sourceRows[p];
-  }
-
-  var configById = {};
-  var duplicateConfigIds = {};
-  for (var c = 1; c < configRows.length; c++) {
-    var configuredId = String(configRows[c][configCols.id] || "").trim();
-    if (!configuredId) continue;
-    if (configById[configuredId]) duplicateConfigIds[configuredId] = true;
-    else configById[configuredId] = configRows[c];
-  }
-
-  var foods = [];
-  for (var id in configById) {
-    if (!Object.prototype.hasOwnProperty.call(configById, id) || duplicateConfigIds[id] || duplicateSourceIds[id]) continue;
-    var source = productsById[id];
-    if (!source || String(source[productCols.status] || "").trim().toLowerCase() !== "active") continue;
-    var config = configById[id];
-    if (config[configCols.available] !== true) continue;
-
-    var baseNormal = parseMenuPrice(productCols.normal > -1 ? source[productCols.normal] : "");
-    if (baseNormal.empty) baseNormal = parseMenuPrice(productCols.price > -1 ? source[productCols.price] : "");
-    var baseLarge = parseMenuPrice(productCols.large > -1 ? source[productCols.large] : "");
-    var storeNormal = parseMenuPrice(config[configCols.normal]);
-    var storeLarge = parseMenuPrice(config[configCols.large]);
-    if (baseNormal.invalid || baseNormal.empty || storeNormal.invalid || baseLarge.invalid || storeLarge.invalid) {
-      Logger.log("Invalid menu price; omitted product " + id + " for " + requestedStore);
-      continue;
+  if (!catalog) {
+    var ss = SpreadsheetApp.getActiveSpreadsheet();
+    var sourceSheet = ss.getSheetByName("Food_Drinks_Menu");
+    if (!sourceSheet || sourceSheet.getLastRow() < 1) return { status: "error", code: "MENU_UNAVAILABLE", message: "Không đọc được menu." };
+    var sourceRows = sourceSheet.getDataRange().getValues();
+    var headers = sourceRows[0].map(function(h) { return h ? h.toString().trim().toLowerCase().replace(/\s+/g, "") : ""; });
+    var col = function(name) { return headers.indexOf(String(name).toLowerCase().replace(/\s+/g, "")); };
+    var c = { id: col("id"), name: col("name"), category: col("category"), price: col("price"),
+      shortDesc: col("shortDesc"), longDesc: col("longDesc"), img1: col("img1"), status: col("status"),
+      normal: col("normal_price"), large: col("large_price"), side1: col("side_dish1"), side2: col("side_dish2"), side3: col("side_dish3") };
+    if (c.id < 0 || c.name < 0 || c.status < 0) return { status: "error", code: "MENU_SCHEMA_INVALID", message: "Thiếu cột id, name hoặc status." };
+    var products = [];
+    var seen = {};
+    for (var r = 1; r < sourceRows.length; r++) {
+      var row = sourceRows[r];
+      var id = String(row[c.id] || "").trim();
+      if (!id || seen[id] || String(row[c.status] || "").trim().toLowerCase() !== "active") continue;
+      seen[id] = true;
+      var baseNormal = parseMenuPrice(c.normal > -1 ? row[c.normal] : "");
+      if (baseNormal.empty) baseNormal = parseMenuPrice(c.price > -1 ? row[c.price] : "");
+      var baseLarge = parseMenuPrice(c.large > -1 ? row[c.large] : "");
+      if (baseNormal.empty || baseNormal.invalid || baseLarge.invalid) continue;
+      var item = { id: id, productId: id, name: row[c.name] || "", category: c.category > -1 ? row[c.category] || "" : "",
+        price: baseNormal.value, normal_price: baseNormal.value, normalPrice: baseNormal.value,
+        large_price: baseLarge.empty ? null : baseLarge.value, largePrice: baseLarge.empty ? null : baseLarge.value,
+        hasLargeSize: !baseLarge.empty, shortDesc: c.shortDesc > -1 ? row[c.shortDesc] || "" : "",
+        longDesc: c.longDesc > -1 ? row[c.longDesc] || "" : "", img1: c.img1 > -1 ? row[c.img1] || "" : "",
+        side_dish1: c.side1 > -1 ? row[c.side1] || "" : "", side_dish2: c.side2 > -1 ? row[c.side2] || "" : "", side_dish3: c.side3 > -1 ? row[c.side3] || "" : "",
+        availableByStore: {}, priceByStore: {} };
+      item.sideDish1 = item.side_dish1; item.sideDish2 = item.side_dish2; item.sideDish3 = item.side_dish3;
+      Object.keys(STORE_MENU_CONFIG).forEach(function(storeId) {
+        var cfg = STORE_MENU_CONFIG[storeId];
+        var availabilityCol = col(cfg.availability), normalCol = col(cfg.normalPrice), largeCol = col(cfg.largePrice);
+        var available = availabilityCol > -1 ? row[availabilityCol] === true : false;
+        var normalOverride = parseMenuPrice(normalCol > -1 ? row[normalCol] : "");
+        var largeOverride = parseMenuPrice(largeCol > -1 ? row[largeCol] : "");
+        var normalPrice = normalOverride.empty ? baseNormal.value : (normalOverride.invalid ? null : normalOverride.value);
+        var hasLarge = !baseLarge.empty;
+        var largePrice = hasLarge ? (largeOverride.empty ? baseLarge.value : (largeOverride.invalid ? null : largeOverride.value)) : null;
+        item.availableByStore[storeId] = available && !normalOverride.invalid && (baseLarge.empty || !largeOverride.invalid);
+        item.priceByStore[storeId] = { normal: normalPrice, large: largePrice, hasLargeSize: hasLarge };
+      });
+      products.push(item);
     }
-    if (!baseLarge.empty && storeLarge.invalid) {
-      Logger.log("Invalid large price; omitted product " + id + " for " + requestedStore);
-      continue;
-    }
-
-    var normalPrice = storeNormal.empty ? baseNormal.value : storeNormal.value;
-    var hasLarge = !baseLarge.empty;
-    var largePrice = hasLarge ? (storeLarge.empty ? baseLarge.value : storeLarge.value) : null;
-    var item = {
-      id: id, productId: id, name: source[productCols.name] || "", category: source[productCols.category] || "",
-      price: normalPrice, normal_price: normalPrice, normalPrice: normalPrice,
-      large_price: largePrice, largePrice: largePrice, hasLargeSize: hasLarge,
-      shortDesc: productCols.shortDesc > -1 ? source[productCols.shortDesc] || "" : "",
-      longDesc: productCols.longDesc > -1 ? source[productCols.longDesc] || "" : "",
-      img1: productCols.img1 > -1 ? source[productCols.img1] || "" : "",
-      side_dish1: productCols.side1 > -1 ? source[productCols.side1] || "" : "",
-      side_dish2: productCols.side2 > -1 ? source[productCols.side2] || "" : "",
-      side_dish3: productCols.side3 > -1 ? source[productCols.side3] || "" : ""
-    };
-    item.sideDish1 = item.side_dish1;
-    item.sideDish2 = item.side_dish2;
-    item.sideDish3 = item.side_dish3;
-    foods.push(item);
+    catalog = { status: "success", schemaVersion: 2, version: String(sourceSheet.getLastUpdated ? sourceSheet.getLastUpdated().getTime() : Date.now()),
+      fetchedAt: new Date().toISOString(), products: products };
+    try { cache.put("oriberry_shared_menu_v2", JSON.stringify(catalog), 60); } catch (ignoreCache) {}
   }
-  return foods;
+  if (!requestedStore) return catalog;
+  var storeSheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName("Stores");
+  if (!storeSheet || storeSheet.getLastRow() < 2) return { status: "error", code: "STORE_UNAVAILABLE", message: "Không đọc được danh sách cửa hàng." };
+  var storeRows = storeSheet.getDataRange().getValues();
+  var storeHeaders = storeRows[0].map(function(h) { return String(h || "").trim().toLowerCase(); });
+  var idCol = storeHeaders.indexOf("id"), statusCol = storeHeaders.indexOf("status"), active = false;
+  for (var s = 1; s < storeRows.length; s++) if (String(storeRows[s][idCol] || "").trim().toLowerCase() === requestedStore && String(storeRows[s][statusCol] || "").trim().toLowerCase() === "active") active = true;
+  if (!active) return { status: "error", code: "STORE_UNAVAILABLE", message: "Cửa hàng không hoạt động." };
+  return catalog.products.filter(function(item) { return item.availableByStore[requestedStore] === true; }).map(function(item) {
+    var projected = JSON.parse(JSON.stringify(item));
+    var prices = projected.priceByStore[requestedStore];
+    projected.price = projected.normal_price = projected.normalPrice = prices.normal;
+    projected.large_price = projected.largePrice = prices.large;
+    projected.hasLargeSize = prices.hasLargeSize;
+    return projected;
+  });
 }
 // =========================================================================
 
@@ -543,7 +510,7 @@ function getStoreNotificationEmail(storeCode) {
   if (idCol < 0 || statusCol < 0) return { code: "STORE_CONFIG_INVALID" };
 
   var requestedId = String(storeCode || "").trim().toLowerCase();
-  if (!STORE_MENU_SHEETS[requestedId]) return { code: "INVALID_STORE" };
+  if (!STORE_MENU_CONFIG[requestedId]) return { code: "INVALID_STORE" };
   var activeStores = {};
   for (var r = 1; r < rows.length; r++) {
     var id = String(rows[r][idCol] || "").trim().toLowerCase();
@@ -553,8 +520,8 @@ function getStoreNotificationEmail(storeCode) {
   if (emailCol < 0) return { code: "EMAIL_ROUTING_NOT_READY" };
 
   var recipients = {};
-  for (var expectedId in STORE_MENU_SHEETS) {
-    if (!Object.prototype.hasOwnProperty.call(STORE_MENU_SHEETS, expectedId)) continue;
+  for (var expectedId in STORE_MENU_CONFIG) {
+    if (!Object.prototype.hasOwnProperty.call(STORE_MENU_CONFIG, expectedId)) continue;
     var storeRow = activeStores[expectedId];
     if (!storeRow) return { code: "EMAIL_ROUTING_NOT_READY" };
     var recipient = String(storeRow[emailCol] || "").trim();

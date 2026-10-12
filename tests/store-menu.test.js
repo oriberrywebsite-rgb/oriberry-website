@@ -12,12 +12,14 @@ function makeSheet(initialRows) {
   return {
     rows,
     getLastRow() { return rows.length; },
+    getLastColumn() { return Math.max(0, ...rows.map(row => row.length)); },
     getDataRange() { return { getValues: () => rows.map(row => [...row]) }; },
     appendRow(row) { rows.push([...row]); },
     getFilter() { return filter; },
     setFrozenRows() {}, setColumnWidth() {},
     getRange(row, column, rowCount = 1, columnCount = 1) {
       return {
+        getValues() { return Array.from({length: rowCount}, (_, r) => Array.from({length: columnCount}, (_, c) => rows[row + r - 1]?.[column + c - 1] ?? '')); },
         setValues(values) {
           values.forEach((valueRow, r) => valueRow.forEach((value, c) => {
             ensure(row + r, column + c);
@@ -35,45 +37,43 @@ function makeSheet(initialRows) {
   };
 }
 
-const rootHeaders = ['id','name','category','price','shortDesc','longDesc','img1','status','normal_price','large_price','side_dish1','side_dish2','side_dish3'];
+const baseHeaders = ['id','name','category','price','shortDesc','longDesc','img1','status','normal_price','large_price','side_dish1','side_dish2','side_dish3'];
+const sharedHeaders = ['QA_Avb','TNV_Avb','1PSM_Avb','6APSM_Avb','TD_Avb','DTD_Avb','QA_Price','QA_LargePrice','TNV_Price','TNV_LargePrice','1PSM_Price','1PSM_LargePrice','6APSM_Price','6APSM_LargePrice','TD_Price','TD_LargePrice','DTD_Price','DTD_LargePrice'];
+const rootHeaders = [...baseHeaders, ...sharedHeaders];
 const productRows = [
   ['ES','Espresso','Coffee',35000,'short','long','espresso.jpg','active',35000,50000,'','',''],
   ['CAP','Cappuccino','Coffee',50000,'short','long','cap.jpg','active',50000,'','','',''],
   ['TEA','Tea','Tea',30000,'short','long','tea.jpg','active',30000,'','','',''],
   ['OLD','Old drink','Tea',20000,'short','long','old.jpg','inactive',20000,'','','','']
 ];
-const menuHeaders = ['Product_ID','Product_Name','Available','Normal_Price','Large_Price','Updated_At'];
+productRows.forEach((row, index) => {
+  const available = index < 3;
+  row.push(...Array(6).fill(available), ...Array(12).fill(''));
+});
+productRows[1][13] = false;
+productRows[1][18] = true;
+productRows[1][29] = 60000;
+productRows[2][13] = false;
+productRows[2][18] = true;
+productRows[0][19] = 0;
+productRows[0][20] = 75000;
 const storeNames = [
   ['store_1','Oriberry QA'], ['store_2','Oriberry TNV'], ['store_3','Oriberry 1PSM'],
   ['store_4','Oriberry 6APSM'], ['store_5','Oriberry TD'], ['store_6','Oriberry DTD']
 ];
 
-function createContext(withStoreMenus = true) {
+function createContext(includeSharedSchema = true) {
+  const foodRows = includeSharedSchema ? [rootHeaders, ...productRows] : [baseHeaders, ...productRows.map(row => row.slice(0, baseHeaders.length))];
   const sheets = {
-    Food_Drinks_Menu: makeSheet([rootHeaders, ...productRows]),
+    Food_Drinks_Menu: makeSheet(foodRows),
     Stores: makeSheet([['id','name','status','notification_email'], ...storeNames.map(([id,name], index) => [id,name,'Active', `store${index + 1}@example.test`])]),
     Addons_Menu: makeSheet([['id','name','category','price','status'], ['SUG','Sugar','coffee',0,'active'], ['SYR','Caramel','coffee',5000,'active'], ['OFF','Hidden','coffee',1000,'inactive']]),
     Oriberry_DonHang_Store: makeSheet([['Timestamp','Order_ID','Store_Code','Fulfillment_Type','Location_Detail','Customer_Name','Customer_Phone','Items_Detail','Note','Total_Amount','Payment_Method','Status']]),
     Oriberry_DonHang_Shop: makeSheet([['NgayDat','TenKhachHang','SoDienThoai','DiaChiGiaoHang','ChiTietDonHang','TienHang','PhiShip','TongThanhToan','PhuongThucThanhToan','TrangThai','GhiChu']])
   };
-  if (withStoreMenus) {
-    const store1 = makeSheet([menuHeaders,
-      ['ES','',true,0,75000,''],
-      ['CAP','',false,'','', ''],
-      ['GHOST','',true,1000,'','']]);
-    const store6 = makeSheet([menuHeaders,
-      ['ES','',true,'','',''],
-      ['CAP','',true,60000,'',''],
-      ['TEA','',true,'','','']]);
-    sheets.Menu_store_1_QA = store1;
-    sheets.Menu_store_6_DTD = store6;
-    for (const id of ['store_2','store_3','store_4','store_5']) {
-      const suffix = {store_2:'TNV',store_3:'1PSM',store_4:'6APSM',store_5:'TD'}[id];
-      sheets[`Menu_${id}_${suffix}`] = makeSheet([menuHeaders]);
-    }
-  }
   const spreadsheet = {
     getSheetByName(name) { return sheets[name] || null; },
+    getId() { return 'test-sheet-id'; },
     insertSheet(name) { return (sheets[name] = makeSheet([])); }
   };
   const sentEmails = [];
@@ -98,11 +98,12 @@ function post(context, payload) {
   return JSON.parse(context.doPost({ postData: { contents: JSON.stringify(payload) } }).content);
 }
 
-// Store-scoped menu join, explicit zero prices, default prices, Large availability and invalid IDs.
+// Shared catalog and store projection, explicit zero prices, defaults, availability and schema.
 {
   const { context } = createContext();
   const qa = context.getFoodMenuData('store_1');
   const dtd = context.getFoodMenuData('store_6');
+  const catalog = context.getFoodMenuData('');
   assert.ok(Array.isArray(qa));
   assert.ok(Array.isArray(dtd));
   assert.deepEqual(Array.from(qa, item => item.id), ['ES']);
@@ -114,7 +115,9 @@ function post(context, payload) {
   assert.equal(dtd[0].large_price, 50000, 'blank override falls back to source Large price');
   assert.equal(dtd[1].hasLargeSize, false, 'no source Large price means no Large size');
   assert.equal(context.getFoodMenuData('store_7').code, 'INVALID_STORE');
-  assert.equal(context.getFoodMenuData('').code, 'INVALID_STORE');
+  assert.equal(catalog.status, 'success');
+  assert.equal(catalog.schemaVersion, 2);
+  assert.equal(catalog.products.length, 3);
   assert.equal(context.parseMenuPrice('35,000').invalid, true, 'formatted text is not accepted as a numeric price');
   assert.equal(context.parseMenuPrice(-1).invalid, true);
 }
@@ -186,31 +189,15 @@ function post(context, payload) {
   assert.deepEqual([sheets.Oriberry_DonHang_Shop.rows.length, sheets.Oriberry_DonHang_Store.rows.length], [2,3]);
 }
 
-// Dry-run and repeated migration preserve existing menu values and add each active ID only once.
+// Shared-sheet migration is a safe dry-run and identifies the complete append-only schema.
 {
-  const { context, sheets } = createContext(false);
-  const plan = context.previewStoreMenuMigration();
+  const { context } = createContext(false);
+  const plan = context.previewSharedMenuMigration();
   assert.equal(plan.dryRun, true);
   assert.deepEqual(Array.from(plan.errors), []);
-  assert.equal(plan.stores.length, 6);
-  assert.equal(plan.sourceActiveProductCount, 3);
-  assert.ok(plan.stores.every(store => store.action === 'create' && store.missingCount === 3));
-  assert.equal(Object.keys(sheets).filter(name => name.startsWith('Menu_')).length, 0, 'dry-run creates no sheets');
-
-  const first = context.applyStoreMenuMigration();
-  assert.ok(Array.from(first.stores).every(store => store.rowsAdded === 3));
-  const qa = sheets.Menu_store_1_QA;
-  assert.equal(qa.rows.length, 4);
-  assert.equal(qa.rows[1][2], true);
-  assert.equal(qa.rows[1][3], '');
-  assert.match(qa.rows[1][1], /VLOOKUP/);
-  qa.rows[1][2] = false;
-  qa.rows[1][3] = 0;
-  const second = context.applyStoreMenuMigration();
-  assert.ok(Array.from(second.stores).every(store => store.rowsAdded === 0));
-  assert.equal(qa.rows.length, 4);
-  assert.equal(qa.rows[1][2], false, 'rerun preserves managed availability');
-  assert.equal(qa.rows[1][3], 0, 'rerun preserves a zero override');
+  assert.equal(plan.activeProducts, 3);
+  assert.deepEqual(Array.from(plan.headersToAppend), sharedHeaders);
+  assert.equal(plan.oldSheetsWillBeDeleted, false);
 }
 
 console.log('Store menu tests passed');
