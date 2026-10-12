@@ -256,18 +256,20 @@
         </div>
     </div>
 
-    <div id="orderSuccessModal" class="fixed inset-0 z-[70] hidden items-end sm:items-center justify-center bg-black/60 p-0 sm:p-4" role="dialog" aria-modal="true" aria-labelledby="orderSuccessTitle">
-        <div class="w-full max-w-md rounded-t-3xl sm:rounded-2xl bg-white p-6 shadow-2xl">
-            <div class="mx-auto mb-3 flex h-12 w-12 items-center justify-center rounded-full bg-green-100 text-green-700"><i class="fa-solid fa-check text-xl"></i></div>
-            <h2 id="orderSuccessTitle" class="text-center text-lg font-bold text-stone-900">Đặt hàng thành công</h2>
-            <p class="mt-1 text-center text-xs text-stone-500">Cửa hàng sẽ sớm xác nhận đơn của bạn.</p>
-            <div class="mt-4 space-y-2 rounded-xl bg-stone-50 p-4 text-sm">
-                <div class="flex justify-between gap-3"><span class="text-stone-500">Mã đơn</span><strong id="successOrderId" class="break-all text-right"></strong></div>
-                <div class="flex justify-between gap-3"><span class="text-stone-500">Cửa hàng</span><strong id="successStore" class="text-right"></strong></div>
-                <div class="border-t border-stone-200 pt-2"><div class="mb-1 text-xs font-bold uppercase text-stone-500">Món đã đặt</div><div id="successOrderItems" class="space-y-1 text-xs"></div></div>
-                <div class="flex justify-between border-t border-stone-200 pt-2 font-bold"><span>Tổng tiền</span><span id="successOrderTotal" class="text-amber-900"></span></div>
-            </div>
-            <button type="button" onclick="closeOrderSuccess()" class="mt-4 w-full rounded-xl bg-amber-950 py-3 text-sm font-bold text-white">Đóng</button>
+    <!-- [SỬA] Cùng phong cách popup Shop; chỉ mở sau phản hồi nhận đơn hợp lệ. -->
+    <div id="orderSuccessModal" class="fixed inset-0 z-[70] hidden items-center justify-center p-4" role="dialog" aria-modal="true" aria-labelledby="orderSuccessTitle" aria-describedby="orderSuccessMessage">
+        <div class="fixed inset-0 bg-black/60 backdrop-blur-sm" onclick="closeOrderSuccess()"></div>
+        <div class="relative z-10 w-full max-w-sm max-h-[90dvh] overflow-y-auto rounded-2xl bg-white p-6 text-center shadow-2xl space-y-4">
+            <div class="mx-auto flex h-14 w-14 items-center justify-center rounded-full bg-emerald-100 text-2xl font-bold text-emerald-700" aria-hidden="true">✓</div>
+            <h2 id="orderSuccessTitle" class="text-lg font-bold text-gray-900">Đã nhận đơn của bạn!</h2>
+            <p id="orderSuccessMessage" class="text-xs leading-relaxed text-gray-600">Cảm ơn bạn đã đặt món tại Oriberry. Đơn hàng đã được gửi tới cửa hàng và đang chờ nhân viên xác nhận.</p>
+            <div class="text-xs text-gray-600"><strong id="successOrderId" class="text-gray-900"></strong><span aria-hidden="true"> · </span><span id="successStore"></span></div>
+            <details id="successOrderDetails" class="text-left text-xs text-gray-600">
+                <summary class="cursor-pointer text-center underline underline-offset-4">Xem chi tiết đơn hàng</summary>
+                <div id="successOrderItems" class="mt-3 space-y-2"></div>
+                <div class="mt-3 flex justify-between border-t border-stone-200 pt-3 font-bold"><span>Tổng tiền</span><span id="successOrderTotal" class="text-gray-900"></span></div>
+            </details>
+            <button id="successContinueBtn" type="button" onclick="closeOrderSuccess()" class="w-full cursor-pointer rounded-xl bg-neutral-900 py-3 text-xs font-bold text-white transition hover:bg-amber-950 focus:outline-none focus:ring-2 focus:ring-emerald-700 focus:ring-offset-2">Tiếp tục xem menu</button>
         </div>
     </div>
 
@@ -392,7 +394,8 @@ const MENU_CACHE_MAX_AGE = 5 * 60 * 1000;
                     document.getElementById('headerIcon').className = "fa-solid fa-utensils text-[10px]";
                     document.getElementById('fulfillmentLabel').innerText = "Dine-in";
                     document.getElementById('fulfillmentValue').innerText = `Table: ${table}`;
-                    document.getElementById('custAddress').value = `Dine-in at ${table} (${getStoreById(storeId).name})`;
+                    // [SỬA] Form hiện tại không có custAddress; giữ vị trí bàn trong payload.
+                    window.currentDineInTable = table;
                 } else {
                     openFulfillmentModal();
                 }
@@ -905,6 +908,7 @@ function addToCartFromModal() {
         function openCartModal() { document.getElementById('cartModal').classList.remove('hidden'); }
 
 function getPendingStoreOrderId(payload) {
+    // Đây là khóa retry nội bộ; Order_ID hiển thị do backend cấp dưới ScriptLock.
     const signature = JSON.stringify(payload);
     let orderId = localStorage.getItem('oriberry_pending_store_order_id');
     if (!orderId || localStorage.getItem('oriberry_pending_store_order_signature') !== signature) {
@@ -955,6 +959,7 @@ async function refreshCartPrices() {
 // [SỬA] POST chỉ gửi ID món/size/số lượng và giá báo để backend đối chiếu; giá chính thức do Apps Script tính.
 async function submitOrder(e) {
     e.preventDefault();
+    if (document.getElementById('submitBtn')?.disabled) return;
     if (!selectedStoreId || !getStoreById(selectedStoreId)) return alert('Vui lòng chọn cửa hàng trước khi đặt món.');
     if (!menuDataVerified) return alert('Chưa xác minh được menu mới nhất. Hãy kết nối mạng và tải lại trang trước khi đặt món.');
     if (!cart.length) return alert('Giỏ hàng trống!');
@@ -968,7 +973,7 @@ async function submitOrder(e) {
         sourceChannel: 'STORE_DRINK',
         storeCode: selectedStoreId,
         fulfillmentType: currentFulfillment,
-        locationDetail: currentFulfillment === 'DELIVERY' ? (window.currentDeliveryAddress || '') : '',
+        locationDetail: currentFulfillment === 'DELIVERY' ? (window.currentDeliveryAddress || '') : (currentFulfillment === 'DINE_IN' ? (window.currentDineInTable || '') : ''),
         customerName: name,
         customerPhone: phone,
         items: cart.map(item => ({
@@ -983,6 +988,7 @@ async function submitOrder(e) {
         paymentMethod: 'COD'
     };
     payload.orderId = getPendingStoreOrderId(payload);
+    payload.requestId = payload.orderId; // Tương thích backend cũ trong lúc triển khai.
 
     const submitBtn = document.getElementById('submitBtn');
     if (submitBtn) {
@@ -996,12 +1002,14 @@ async function submitOrder(e) {
             body: JSON.stringify(payload)
         });
         const result = await response.json();
-        if (result.status === 'success' && String(result.orderId || '') === String(payload.orderId)) {
+        const matchesRequest = String(result.requestId || result.orderId || '') === payload.requestId;
+        if (response.ok && result.status === 'success' && matchesRequest && result.orderId) {
             const confirmedTotal = Number.isFinite(Number(result.totalAmount)) ? Number(result.totalAmount) : quotedTotal;
-            document.getElementById('successOrderId').textContent = result.orderId;
+            document.getElementById('successOrderId').textContent = result.displayOrderId || result.orderId;
             document.getElementById('successStore').textContent = getStoreById(selectedStoreId)?.name || selectedStoreId;
             document.getElementById('successOrderItems').innerHTML = cart.map(item => `<div class="flex justify-between gap-3"><span>${item.qty} × ${item.name}</span><span class="shrink-0">${(Number(item.price) * Number(item.qty)).toLocaleString('vi-VN')}đ</span></div>`).join('');
             document.getElementById('successOrderTotal').textContent = `${confirmedTotal.toLocaleString('vi-VN')}đ`;
+            document.getElementById('successOrderDetails').open = false;
             localStorage.removeItem('oriberry_pending_store_order_id');
             localStorage.removeItem('oriberry_pending_store_order_signature');
             cart = [];
@@ -1010,6 +1018,7 @@ async function submitOrder(e) {
             const success = document.getElementById('orderSuccessModal');
             success.classList.remove('hidden');
             success.classList.add('flex');
+            document.getElementById('successContinueBtn').focus();
         } else if (result.code === 'PRICE_CHANGED') {
             const refreshed = await refreshCartPrices();
             alert(refreshed
@@ -1019,7 +1028,7 @@ async function submitOrder(e) {
             alert(`Không thể đặt đơn: ${result.message || 'Vui lòng thử lại.'}`);
         }
     } catch (err) {
-        alert('Không nhận được phản hồi từ hệ thống. Mã đơn được giữ lại để tránh tạo trùng khi bạn thử lại.');
+        alert('Không nhận được phản hồi từ hệ thống. Thông tin lần gửi được giữ lại để tránh tạo trùng khi bạn thử lại.');
     } finally {
         if (submitBtn) {
             submitBtn.disabled = false;

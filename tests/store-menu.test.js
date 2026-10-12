@@ -150,6 +150,11 @@ function post(context, payload) {
   assert.equal(sentEmails[0].to, 'store1@example.test', 'Store order email uses the configured recipient for store_1');
   assert.equal(sheets.Oriberry_DonHang_Store.rows[1][2], 'store_1');
   assert.equal(sheets.Oriberry_DonHang_Store.rows[1][9], 160000);
+  assert.equal(sheets.Oriberry_DonHang_Store.rows[1][1], 'ORD0001', 'sheet stores a short server-issued ID');
+  assert.equal(sheets.Oriberry_DonHang_Store.rows[1][12], valid.orderId, 'request key is persisted separately in the same row');
+  assert.equal(placed.orderId, valid.orderId, 'old frontend can still validate the echoed request ID');
+  assert.equal(placed.displayOrderId, 'ORD0001');
+  assert.match(sentEmails[0].subject, /ORD0001$/);
   assert.match(sheets.Oriberry_DonHang_Store.rows[1][7], /Caramel/);
   assert.equal(post(context, valid).duplicate, true);
   assert.equal(sentEmails.length, 1, 'retry with the same order ID does not send a second email');
@@ -161,6 +166,7 @@ function post(context, payload) {
     quotedTotal: 60000
   });
   assert.equal(dtdOrder.status, 'success');
+  assert.equal(dtdOrder.displayOrderId, 'ORD0002', 'sequence is shared across stores');
   assert.equal(sentEmails.length, 2);
   assert.equal(sentEmails[1].to, 'store6@example.test', 'store_6 order email uses its own recipient');
 
@@ -187,6 +193,39 @@ function post(context, payload) {
   assert.equal(sentEmails.length, 4);
   assert.equal(sentEmails[3].to, 'daotranphuong@gmail.com', 'Shop email recipient remains unchanged');
   assert.deepEqual([sheets.Oriberry_DonHang_Shop.rows.length, sheets.Oriberry_DonHang_Store.rows.length], [2,3]);
+}
+
+// Old tabs, new receipts, lost responses, existing UUID rows and confirmation all use one durable identity.
+{
+  const { context, sheets, sentEmails } = createContext();
+  const orders = sheets.Oriberry_DonHang_Store.rows;
+  const uuid = 'ORDb1f4fcc4014b4553953791c31314d131';
+  orders.push(['old', 'ORD9386', 'store_1']);
+  orders.push(['old', uuid, 'store_1', '', '', '', '', '', '', 75000]);
+  const data = {
+    sourceChannel: 'STORE_DRINK', orderId: 'ORD2026retry001', requestId: 'ORD2026retry001',
+    storeCode: 'store_1', fulfillmentType: 'PICKUP', customerName: 'Test', customerPhone: '0000000000',
+    items: [{ productId: 'ES', size: 'large', qty: 1, addonIds: [], quotedUnitPrice: 75000 }], quotedTotal: 75000
+  };
+  const first = post(context, data);
+  assert.equal(first.orderId, 'ORD9387', 'sequence continues after historical short IDs and ignores UUIDs');
+  assert.equal(first.requestId, data.requestId);
+  assert.equal(first.displayOrderId, first.orderId);
+  sheets.Food_Drinks_Menu.rows[1][20] = 76000;
+  const retry = post(context, data);
+  assert.equal(retry.duplicate, true, 'a lost response can be retried even after a menu price change');
+  assert.equal(retry.orderId, first.orderId);
+  assert.equal(retry.totalAmount, 75000);
+  assert.equal(orders.length, 4);
+  assert.equal(sentEmails.length, 1);
+  const oldRetry = post(context, { ...data, requestId: undefined, orderId: uuid });
+  assert.equal(oldRetry.duplicate, true, 'legacy UUID orders keep their original retry protection');
+  assert.equal(oldRetry.orderId, uuid);
+  assert.equal(orders.length, 4);
+  assert.equal(post(context, { ...data, storeCode: 'store_6' }).code, 'REQUEST_CONFLICT');
+  assert.equal(post(context, { action: 'confirmOrder', orderId: first.orderId }).status, 'success');
+  assert.equal(orders[3][11], 'CONFIRMED');
+  assert.equal(context.nextStoreOrderId([['Timestamp', 'Order_ID'], ['', 'ORD9999']]), 'ORD10000');
 }
 
 // Shared-sheet migration is a safe dry-run and identifies the complete append-only schema.

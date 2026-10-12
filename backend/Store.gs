@@ -557,6 +557,27 @@ function sendStoreOrderEmail(storeCode, orderData, orderId) {
   }
 }
 
+// [SỬA] Mã hiển thị tăng tuần tự, chỉ cấp bên trong ScriptLock, không dùng UUID của trình duyệt.
+function nextStoreOrderId(orderRows) {
+  var largest = 0;
+  for (var r = 1; r < orderRows.length; r++) {
+    var match = /^ORD(\d{4,10})$/.exec(String(orderRows[r][1] || "").trim());
+    if (match) largest = Math.max(largest, Number(match[1]));
+  }
+  return "ORD" + String(largest + 1).padStart(4, "0");
+}
+
+function storeOrderReceipt(data, requestId, orderId, totalAmount, extra) {
+  // Frontend cũ đối chiếu orderId với khóa đã gửi; frontend mới dùng requestId riêng.
+  var receipt = {
+    status: "success", requestId: requestId,
+    orderId: data.requestId ? orderId : requestId,
+    displayOrderId: orderId, totalAmount: totalAmount
+  };
+  Object.keys(extra || {}).forEach(function(key) { receipt[key] = extra[key]; });
+  return ContentService.createTextOutput(JSON.stringify(receipt)).setMimeType(ContentService.MimeType.JSON);
+}
+
 function handleStoreOrder(data) {
   if (!data || data.sourceChannel !== "STORE_DRINK" || data.action) {
     return storeOrderError("INVALID_SOURCE", "Invalid Store order source");
@@ -568,12 +589,9 @@ function handleStoreOrder(data) {
   if (["DINE_IN", "PICKUP", "DELIVERY"].indexOf(String(data.fulfillmentType).trim().toUpperCase()) < 0) {
     return storeOrderError("INVALID_FULFILLMENT", "Hình thức nhận đơn không hợp lệ.");
   }
-  // [SỬA] Dùng mã đơn ổn định do frontend tạo để tìm request lặp trước khi append.
-  var orderId = String(data.orderId || "").trim();
-  if (!/^ORD[A-Za-z0-9_-]{8,60}$/.test(orderId)) return storeOrderError("INVALID_ORDER_ID", "Mã đơn không hợp lệ. Hãy tải lại trang và thử lại.");
-
-  var calculation = calculateStoreOrder(data);
-  if (calculation.error) return storeOrderError(calculation.code, calculation.error);
+  // [SỬA] Khóa retry ổn định, kể cả UUID còn lưu trong tab hoặc localStorage cũ.
+  var requestId = String(data.requestId || data.orderId || "").trim();
+  if (!/^ORD[A-Za-z0-9_-]{8,60}$/.test(requestId)) return storeOrderError("INVALID_ORDER_ID", "Mã lần gửi không hợp lệ. Hãy tải lại trang và thử lại.");
 
   var ss = SpreadsheetApp.getActiveSpreadsheet();
   var sheet = ss.getSheetByName("Oriberry_DonHang_Store");
@@ -583,40 +601,54 @@ function handleStoreOrder(data) {
   getStoresData().forEach(function(store) {
     if (String(store.id).toLowerCase() === String(data.storeCode).toLowerCase()) storeName = store.name;
   });
-  var orderDetails = calculation.lines.map(function(line) {
-    var text = line.product.name + " (Size " + (line.size === "large" ? "Large" : "Normal") + ")";
-    if (line.addonNames.length) text += " [+ " + line.addonNames.join(", ") + "]";
-    text += " x" + line.qty + " (" + line.lineTotal.toLocaleString("vi-VN") + "đ)";
-    return text;
-  }).join(" | ");
-  var orderData = {
-    orderId: orderId, storeCode: storeName, fulfillmentType: data.fulfillmentType,
-    customerName: String(data.customerName).trim(), customerPhone: String(data.customerPhone).trim(),
-    locationDetail: data.locationDetail || "", orderDetails: orderDetails,
-    notes: data.notes || "", totalAmount: calculation.total, paymentMethod: data.paymentMethod || "COD"
-  };
-
-  // [SỬA] Khóa cùng lúc kiểm tra mã đơn và ghi hàng để retry/click lặp không tạo hai dòng.
+  var orderId;
+  var orderData;
+  // [SỬA] Kiểm tra khóa retry, cấp mã ngắn và ghi cả hai trong cùng một hàng, cùng khóa.
   var lock = LockService.getScriptLock();
   lock.waitLock(10000);
-  var duplicate = false;
   try {
     var orderRows = sheet.getDataRange().getValues();
+    var requestColumn = orderRows[0].indexOf("Request_ID");
     for (var r = 1; r < orderRows.length; r++) {
-      if (String(orderRows[r][1] || "").trim() === orderId) { duplicate = true; break; }
+      if (String(orderRows[r][1] || "").trim() === requestId ||
+          (requestColumn >= 0 && String(orderRows[r][requestColumn] || "").trim() === requestId)) {
+        if (String(orderRows[r][2]).toLowerCase() !== String(data.storeCode).trim().toLowerCase()) {
+          return storeOrderError("REQUEST_CONFLICT", "Lần gửi này thuộc cửa hàng khác. Hãy tải lại trang.");
+        }
+        // Retry đơn đã ghi phải thành công cả khi menu/giá đã thay đổi sau lần gửi đầu.
+        return storeOrderReceipt(data, requestId, String(orderRows[r][1]), Number(orderRows[r][9]), { duplicate: true });
+      }
     }
-    if (!duplicate) {
-      sheet.appendRow([
-        new Date(), orderId, String(data.storeCode).trim().toLowerCase(), data.fulfillmentType,
-        orderData.locationDetail, orderData.customerName, "'" + orderData.customerPhone,
-        orderData.orderDetails, orderData.notes, orderData.totalAmount, orderData.paymentMethod, "PENDING"
-      ]);
+    var calculation = calculateStoreOrder(data);
+    if (calculation.error) return storeOrderError(calculation.code, calculation.error);
+    orderId = nextStoreOrderId(orderRows);
+    var orderDetails = calculation.lines.map(function(line) {
+      var text = line.product.name + " (Size " + (line.size === "large" ? "Large" : "Normal") + ")";
+      if (line.addonNames.length) text += " [+ " + line.addonNames.join(", ") + "]";
+      text += " x" + line.qty + " (" + line.lineTotal.toLocaleString("vi-VN") + "đ)";
+      return text;
+    }).join(" | ");
+    orderData = {
+      orderId: orderId, storeCode: storeName, fulfillmentType: data.fulfillmentType,
+      customerName: String(data.customerName).trim(), customerPhone: String(data.customerPhone).trim(),
+      locationDetail: data.locationDetail || "", orderDetails: orderDetails,
+      notes: data.notes || "", totalAmount: calculation.total, paymentMethod: data.paymentMethod || "COD"
+    };
+    if (requestColumn < 0) {
+      requestColumn = sheet.getLastColumn();
+      sheet.getRange(1, requestColumn + 1).setValue("Request_ID");
     }
+    var row = [
+      new Date(), orderId, String(data.storeCode).trim().toLowerCase(), data.fulfillmentType,
+      orderData.locationDetail, orderData.customerName, "'" + orderData.customerPhone,
+      orderData.orderDetails, orderData.notes, orderData.totalAmount, orderData.paymentMethod, "PENDING"
+    ];
+    while (row.length <= requestColumn) row.push("");
+    row[requestColumn] = requestId;
+    sheet.appendRow(row);
   } finally {
     lock.releaseLock();
   }
-  if (duplicate) return ContentService.createTextOutput(JSON.stringify({ status: "success", orderId: orderId, duplicate: true }))
-    .setMimeType(ContentService.MimeType.JSON);
 
   // Giữ nguyên kênh Telegram và email hiện tại, dùng số tiền đã tính lại từ Sheets.
   try {
@@ -641,8 +673,7 @@ function handleStoreOrder(data) {
   // [SỬA] Email Store chỉ gửi tới địa chỉ gắn với đúng Store ID; Shop vẫn dùng email quản trị riêng.
   var emailNotification = sendStoreOrderEmail(data.storeCode, orderData, orderId);
 
-  return ContentService.createTextOutput(JSON.stringify({ status: "success", orderId: orderId, totalAmount: orderData.totalAmount, emailNotification: emailNotification }))
-    .setMimeType(ContentService.MimeType.JSON);
+  return storeOrderReceipt(data, requestId, orderId, orderData.totalAmount, { emailNotification: emailNotification });
 }
 
 // =========================================================================

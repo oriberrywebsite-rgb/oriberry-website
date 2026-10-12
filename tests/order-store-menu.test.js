@@ -9,7 +9,8 @@ function makeClassList() {
 function makeFrontend(fetchImpl) {
   const elements = new Map();
   const getElementById = id => {
-    if (!elements.has(id)) elements.set(id, { id, classList: makeClassList(), value: '', innerText: '', innerHTML: '', src: '', disabled: false, insertAdjacentHTML(_, html) { this.innerHTML += html; }, scrollIntoView() {} });
+    if (id === 'custAddress') return null; // The checkout form has no address input.
+    if (!elements.has(id)) elements.set(id, { id, classList: makeClassList(), value: '', innerText: '', innerHTML: '', src: '', disabled: false, insertAdjacentHTML(_, html) { this.innerHTML += html; }, scrollIntoView() {}, focus() {} });
     return elements.get(id);
   };
   const document = { getElementById, addEventListener() {}, querySelector(selector) { return selector.includes('productSize') ? { value: 'normal' } : null; }, querySelectorAll() { return []; } };
@@ -75,6 +76,32 @@ const catalog = { status: 'success', schemaVersion: 2, version: 'v1', fetchedAt:
   pending[0]({ ok: true, json: async () => ({ ...catalog, products: [{ ...catalog.products[0], name: 'Stale' }] }) });
   await first;
   assert.equal(vm.runInContext('MENU_CATALOG[0].name', racing.context), 'Latest', 'late responses cannot overwrite newer catalog data');
+
+  let checkoutPosts = 0;
+  let replyMode = 'mismatch';
+  const checkout = makeFrontend(async (url, options) => {
+    if (!options?.method) return { ok: true, json: async () => catalog };
+    checkoutPosts++;
+    const body = JSON.parse(options.body);
+    return { ok: true, json: async () => ({ status: 'success', orderId: 'ORD9387', displayOrderId: 'ORD9387', requestId: replyMode === 'mismatch' ? 'wrong-request' : body.requestId, totalAmount: 35 }) };
+  });
+  await checkout.context.fetchMenuProducts();
+  vm.runInContext("selectedStoreId = 'store_6'; cart = [{key:'ES', productId:'ES',name:'Espresso (Size Normal)',qty:1,price:35,size:'normal',addonIds:[]}]", checkout.context);
+  checkout.getElementById('custName').value = 'Preview';
+  checkout.getElementById('custPhone').value = '0000000000';
+  await checkout.context.submitOrder({preventDefault() {}});
+  assert.ok(checkout.getElementById('orderSuccessModal').classList.contains('hidden'), 'an unrelated success response must not show the popup');
+  assert.equal(vm.runInContext('cart.length', checkout.context), 1);
+  replyMode = 'success';
+  await checkout.context.submitOrder({preventDefault() {}});
+  assert.equal(checkout.getElementById('successOrderId').textContent, 'ORD9387', 'receipt shows the canonical ID instead of the UUID request key');
+  assert.ok(!checkout.getElementById('orderSuccessModal').classList.contains('hidden'));
+  assert.equal(vm.runInContext('cart.length', checkout.context), 0);
+  assert.equal(checkout.stored.has('oriberry_pending_store_order_id'), false);
+  assert.equal(checkoutPosts, 2);
+  checkout.context.closeOrderSuccess();
+  assert.ok(checkout.getElementById('orderSuccessModal').classList.contains('hidden'));
+  assert.equal(checkoutPosts, 2, 'closing the receipt never posts another order');
 
   console.log('Order shared-menu tests passed');
 })().catch(error => { console.error(error); process.exitCode = 1; });
