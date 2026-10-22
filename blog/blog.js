@@ -17,10 +17,17 @@ async function blogFetch(action, params) {
   const url = new URL(BLOG_API_URL);
   url.searchParams.set('action', action);
   Object.entries(params).forEach(([key, value]) => url.searchParams.set(key, value));
+  // [SỬA] Cache bài công khai hai phút trong phiên; dữ liệu nháp không được lưu.
+  const cacheKey = `oriberry_blog_v1:${url.search}`;
+  try {
+    const cached = JSON.parse(sessionStorage.getItem(cacheKey) || 'null');
+    if (cached && Date.now() - cached.savedAt < 120000) return cached.data;
+  } catch (_) { /* Storage có thể bị trình duyệt chặn. */ }
   const response = await fetch(url.toString());
   if (!response.ok) throw new Error('Không thể kết nối máy chủ.');
   const data = await response.json();
   if (data.status !== 'success') throw new Error(data.message || 'Không tải được bài viết.');
+  try { sessionStorage.setItem(cacheKey, JSON.stringify({savedAt:Date.now(),data})); } catch (_) { /* Optional cache. */ }
   return data;
 }
 

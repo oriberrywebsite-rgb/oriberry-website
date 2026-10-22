@@ -43,4 +43,12 @@ frontend.renderArticleContent(container,'## Heading\n- item\n<script>alert(1)</s
 assert.deepEqual(container.children.map(item=>item.tag),['h2','ul','p','img']);
 assert.equal(container.children[2].textContent,'<script>alert(1)</script>');
 assert.equal(frontend.imageUrl('javascript:alert(1)'),'');
-console.log('Blog CMS and safe rendering tests passed (mock Sheets and DOM)');
+const cached = new Map(); let fetchCount = 0;
+frontend.sessionStorage = {getItem:key=>cached.get(key)||null,setItem:(key,value)=>cached.set(key,value)};
+frontend.fetch = async () => { fetchCount++; return {ok:true,json:async()=>({status:'success',posts:[]})}; };
+(async () => {
+  await frontend.blogFetch('getBlogPosts',{category:'farmers',page:1});
+  await frontend.blogFetch('getBlogPosts',{category:'farmers',page:1});
+  assert.equal(fetchCount,1,'repeat page reads use short session cache');
+  console.log('Blog CMS, pagination, cache and safe rendering tests passed (mock Sheets and DOM)');
+})().catch(error => { console.error(error); process.exitCode = 1; });
