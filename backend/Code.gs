@@ -8,6 +8,10 @@ function doGet(e) {
 
   var action = e && e.parameter && e.parameter.action ? e.parameter.action : "";
 
+  // [SỬA] Blog dùng GET riêng từ ba tab CMS, không chạm luồng Shop/Store.
+  if (action === "getBlogPosts") return blogJson_(getBlogPostsData(e.parameter.category, e.parameter.page));
+  if (action === "getBlogPost") return blogJson_(getBlogPostData(e.parameter.category, e.parameter.slug));
+
   // [SỬA] Trước đây chỉ đọc e.parameter.store nên request thực tế của trang Store:
 
   // ?action=getStoreOrders&storeCode=store_1 bị mất storeCode và có thể trả về đơn của TẤT CẢ cửa hàng.
@@ -421,11 +425,17 @@ function handleShopOrder(data) {
 
   ]);
 
-  // Bắn thông báo Telegram và Email
+  // [SỬA] Chỉ gọi một lần sau appendRow thành công. Lỗi thông báo không biến đơn đã lưu thành lỗi đặt đơn.
+  var notifications;
+  try {
+    notifications = sendOrderNotifications(data);
+  } catch (notificationError) {
+    // Không log exception thô vì UrlFetchApp có thể đưa URL chứa token vào lỗi.
+    Logger.log(JSON.stringify({ event: "SHOP_NOTIFICATIONS_ERROR", code: "UNEXPECTED_NOTIFICATION_ERROR", orderSaved: true }));
+    notifications = { telegram: { status: "unknown", code: "UNEXPECTED_NOTIFICATION_ERROR" } };
+  }
 
-  sendOrderNotifications(data);
-
-  return ContentService.createTextOutput(JSON.stringify({status: "success"}))
+  return ContentService.createTextOutput(JSON.stringify({status: "success", notifications: notifications}))
 
                        .setMimeType(ContentService.MimeType.JSON);
 
@@ -437,9 +447,61 @@ function handleShopOrder(data) {
 
 // =========================================================================
 
+// [SỬA] Helper riêng cho Shop, không đổi sender Store đang hoạt động.
+function sendShopTelegramNotification(summaryText) {
+  var telegramToken = "";
+  var chatId = "";
+  var result;
+  try {
+    var properties = PropertiesService.getScriptProperties();
+    telegramToken = String(properties.getProperty("TELEGRAM_BOT_TOKEN") || "").trim();
+    chatId = String(properties.getProperty("TELEGRAM_CHAT_ID") || "").trim();
+    if (!telegramToken || !chatId) {
+      result = { status: "skipped", code: "TELEGRAM_CONFIG_MISSING", hasToken: !!telegramToken, hasChatId: !!chatId };
+    } else {
+      // Văn bản có [], _, * hoặc ` từ tên món/khách không được đưa qua Markdown parser.
+      // Giữ một tin duy nhất, kể cả giỏ hàng lớn vượt giới hạn 4096 ký tự của Telegram.
+      var text = String(summaryText);
+      if (text.length > 4096) {
+        var suffix = "\n… Nội dung dài đã rút gọn. Xem đầy đủ trong Google Sheets.";
+        text = text.slice(0, 4096 - suffix.length).replace(/[\uD800-\uDBFF]$/, "") + suffix;
+      }
+      // Không retry khi lỗi/timeout: request trước có thể đã được Telegram nhận.
+      var response = UrlFetchApp.fetch("https://api.telegram.org/bot" + telegramToken + "/sendMessage", {
+        method: "post", contentType: "application/json",
+        payload: JSON.stringify({ chat_id: chatId, text: text }),
+        muteHttpExceptions: true
+      });
+      var httpStatus = response.getResponseCode();
+      var body;
+      try { body = JSON.parse(response.getContentText()); } catch (parseError) { body = null; }
+      if (httpStatus >= 200 && httpStatus < 300 && body && body.ok === true) {
+        result = { status: "sent", httpStatus: httpStatus };
+      } else {
+        result = {
+          status: body && body.ok === false ? "failed" : "unknown",
+          code: body && body.ok === false ? "TELEGRAM_REJECTED" : "TELEGRAM_RESPONSE_UNCONFIRMED",
+          httpStatus: httpStatus
+        };
+        if (body && Number.isFinite(body.error_code)) result.errorCode = body.error_code;
+        if (body && typeof body.description === "string") {
+          // Phản hồi lỗi hữu ích cho Executions, luôn che token/chat ID trước khi ghi log.
+          var description = body.description.split(telegramToken).join("[REDACTED]").split(chatId).join("[REDACTED]");
+          result.description = description.slice(0, 300);
+        }
+      }
+    }
+  } catch (telegramError) {
+    result = { status: "unknown", code: "TELEGRAM_EXCEPTION_UNCONFIRMED" };
+  }
+  Logger.log(JSON.stringify({ event: "SHOP_TELEGRAM_RESULT", result: result }));
+  // Chỉ log description; phản hồi cho browser không chứa nội dung lỗi nội bộ.
+  return { status: result.status, code: result.code || "", httpStatus: result.httpStatus || 0 };
+}
+
 function sendOrderNotifications(data) {
 
-  var formattedTotal = (data.totalAmount || 0).toLocaleString('vi-VN') + "đ";
+  var formattedTotal = Number(data.totalAmount || 0).toLocaleString('vi-VN') + "đ";
 
   var summaryText = "ĐƠN HÀNG MỚI TỪ ORIBERRY SHOP\n" +
 
@@ -451,59 +513,15 @@ function sendOrderNotifications(data) {
 
                     "Địa chỉ: " + (data.customerAddress || "N/A") + "\n" +
 
-                    "Chi tiết: " + (data.orderDetails || "N/A") + "\n" +
-
                     "Tổng tiền: " + formattedTotal + "\n" +
+
+                    "Chi tiết: " + (data.orderDetails || "N/A") + "\n" +
 
                     "Ghi chú: " + (data.notes || "Không có");
 
-  // 1. Gửi Telegram văn phòng/shop
-
-  try {
-
-    // [SỬA BẢO MẬT] Không hard-code Telegram Bot Token trong source.
-
-    // Lý do: token là credential; nếu source bị chia sẻ/lộ thì bot có thể bị chiếm quyền sử dụng.
-
-    // Vào Project Settings -> Script Properties và tạo:
-
-    // TELEGRAM_BOT_TOKEN = <token mới>
-
-    // TELEGRAM_CHAT_ID   = <chat id>
-
-    var telegramToken = PropertiesService.getScriptProperties().getProperty("TELEGRAM_BOT_TOKEN");
-
-    var chatId = PropertiesService.getScriptProperties().getProperty("TELEGRAM_CHAT_ID");
-
-    if (telegramToken && chatId) {
-
-      UrlFetchApp.fetch("https://api.telegram.org/bot" + telegramToken + "/sendMessage", {
-
-        method: "post",
-
-        contentType: "application/json",
-
-        payload: JSON.stringify({
-
-          chat_id: chatId,
-
-          text: summaryText,
-
-          parse_mode: "Markdown"
-
-        }),
-
-        muteHttpExceptions: true
-
-      });
-
-    }
-
-  } catch (eTel) {
-
-    Logger.log("Lỗi gửi Telegram: " + eTel.toString());
-
-  }
+  // 1. Gửi Telegram đúng một lần, xác minh cả HTTP và JSON ok.
+  var telegramResult = sendShopTelegramNotification(summaryText);
+  var emailResult = { status: "skipped" };
 
   // 2. Gửi Email văn phòng/shop
 
@@ -534,13 +552,16 @@ function sendOrderNotifications(data) {
                       "- Ghi chú: " + (data.notes || "Không có");
 
       MailApp.sendEmail(adminEmail, emailSubject, emailBody);
+      emailResult = { status: "sent" };
 
     }
 
   } catch (eMail) {
 
-    Logger.log("Lỗi gửi Email: " + eMail.toString());
+    Logger.log(JSON.stringify({ event: "SHOP_EMAIL_ERROR", code: "EMAIL_SEND_FAILED", orderSaved: true }));
+    emailResult = { status: "failed" };
 
   }
 
+  return { telegram: telegramResult, email: emailResult };
 }

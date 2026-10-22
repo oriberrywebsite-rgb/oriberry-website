@@ -80,12 +80,30 @@ function parseMenuPrice(value) {
   return { empty: false, value: amount };
 }
 
+// [SỬA] Liên kết topping theo ID món; side_dish1-3 vẫn là món gợi ý.
+function getProductAddonMap() {
+  var sheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName("Product_Addons");
+  var result = {};
+  if (!sheet || sheet.getLastRow() < 2) return result;
+  var rows = sheet.getDataRange().getValues();
+  var headers = rows[0].map(function(value) { return String(value || "").trim().toLowerCase(); });
+  var productCol = headers.indexOf("product_id"), addonCol = headers.indexOf("addon_id"), statusCol = headers.indexOf("status");
+  if (productCol < 0 || addonCol < 0 || statusCol < 0) return result;
+  rows.slice(1).forEach(function(row) {
+    var productId = String(row[productCol] || "").trim(), addonId = String(row[addonCol] || "").trim();
+    if (!productId || !addonId || String(row[statusCol] || "").trim().toLowerCase() !== "active") return;
+    if (!result[productId]) result[productId] = [];
+    if (result[productId].indexOf(addonId) < 0) result[productId].push(addonId);
+  });
+  return result;
+}
+
 // Shared catalog: base prices are defaults; populated per-store cells override them.
 function getFoodMenuData(storeCode) {
   var requestedStore = String(storeCode || "").trim().toLowerCase();
   if (requestedStore && !STORE_MENU_CONFIG[requestedStore]) return { status: "error", code: "INVALID_STORE", message: "Store ID không hợp lệ." };
   var cache = typeof CacheService !== "undefined" ? CacheService.getScriptCache() : { get: function() { return null; }, put: function() {} };
-  var cached = cache.get("oriberry_shared_menu_v2");
+  var cached = cache.get("oriberry_shared_menu_v3");
   var catalog;
   if (cached) {
     try { catalog = JSON.parse(cached); } catch (ignore) { catalog = null; }
@@ -102,6 +120,7 @@ function getFoodMenuData(storeCode) {
       normal: col("normal_price"), large: col("large_price"), side1: col("side_dish1"), side2: col("side_dish2"), side3: col("side_dish3") };
     if (c.id < 0 || c.name < 0 || c.status < 0) return { status: "error", code: "MENU_SCHEMA_INVALID", message: "Thiếu cột id, name hoặc status." };
     var products = [];
+    var addonMap = getProductAddonMap();
     var seen = {};
     for (var r = 1; r < sourceRows.length; r++) {
       var row = sourceRows[r];
@@ -109,16 +128,18 @@ function getFoodMenuData(storeCode) {
       if (!id || seen[id] || String(row[c.status] || "").trim().toLowerCase() !== "active") continue;
       seen[id] = true;
       var baseNormal = parseMenuPrice(c.normal > -1 ? row[c.normal] : "");
-      if (baseNormal.empty) baseNormal = parseMenuPrice(c.price > -1 ? row[c.price] : "");
       var baseLarge = parseMenuPrice(c.large > -1 ? row[c.large] : "");
-      if (baseNormal.empty || baseNormal.invalid || baseLarge.invalid) continue;
+      // [SỬA] Cột price chỉ dùng cho hàng legacy khi CẢ HAI cột size đều trống.
+      if (baseNormal.empty && baseLarge.empty) baseNormal = parseMenuPrice(c.price > -1 ? row[c.price] : "");
+      if (baseNormal.invalid || baseLarge.invalid || (baseNormal.empty && baseLarge.empty)) continue;
       var item = { id: id, productId: id, name: row[c.name] || "", category: c.category > -1 ? row[c.category] || "" : "",
-        price: baseNormal.value, normal_price: baseNormal.value, normalPrice: baseNormal.value,
+        price: baseNormal.empty ? null : baseNormal.value, normal_price: baseNormal.empty ? null : baseNormal.value, normalPrice: baseNormal.empty ? null : baseNormal.value,
+        hasNormalSize: !baseNormal.empty,
         large_price: baseLarge.empty ? null : baseLarge.value, largePrice: baseLarge.empty ? null : baseLarge.value,
         hasLargeSize: !baseLarge.empty, shortDesc: c.shortDesc > -1 ? row[c.shortDesc] || "" : "",
         longDesc: c.longDesc > -1 ? row[c.longDesc] || "" : "", img1: c.img1 > -1 ? row[c.img1] || "" : "",
         side_dish1: c.side1 > -1 ? row[c.side1] || "" : "", side_dish2: c.side2 > -1 ? row[c.side2] || "" : "", side_dish3: c.side3 > -1 ? row[c.side3] || "" : "",
-        availableByStore: {}, priceByStore: {} };
+        addonIds: addonMap[id] || [], availableByStore: {}, priceByStore: {} };
       item.sideDish1 = item.side_dish1; item.sideDish2 = item.side_dish2; item.sideDish3 = item.side_dish3;
       Object.keys(STORE_MENU_CONFIG).forEach(function(storeId) {
         var cfg = STORE_MENU_CONFIG[storeId];
@@ -126,17 +147,18 @@ function getFoodMenuData(storeCode) {
         var available = availabilityCol > -1 ? row[availabilityCol] === true : false;
         var normalOverride = parseMenuPrice(normalCol > -1 ? row[normalCol] : "");
         var largeOverride = parseMenuPrice(largeCol > -1 ? row[largeCol] : "");
-        var normalPrice = normalOverride.empty ? baseNormal.value : (normalOverride.invalid ? null : normalOverride.value);
+        var hasNormal = !baseNormal.empty;
+        var normalPrice = hasNormal ? (normalOverride.empty ? baseNormal.value : (normalOverride.invalid ? null : normalOverride.value)) : null;
         var hasLarge = !baseLarge.empty;
         var largePrice = hasLarge ? (largeOverride.empty ? baseLarge.value : (largeOverride.invalid ? null : largeOverride.value)) : null;
-        item.availableByStore[storeId] = available && !normalOverride.invalid && (baseLarge.empty || !largeOverride.invalid);
-        item.priceByStore[storeId] = { normal: normalPrice, large: largePrice, hasLargeSize: hasLarge };
+        item.availableByStore[storeId] = available && (!hasNormal || !normalOverride.invalid) && (!hasLarge || !largeOverride.invalid);
+        item.priceByStore[storeId] = { normal: normalPrice, large: largePrice, hasNormalSize: hasNormal, hasLargeSize: hasLarge };
       });
       products.push(item);
     }
-    catalog = { status: "success", schemaVersion: 2, version: String(sourceSheet.getLastUpdated ? sourceSheet.getLastUpdated().getTime() : Date.now()),
+    catalog = { status: "success", schemaVersion: 3, version: String(Date.now()),
       fetchedAt: new Date().toISOString(), products: products };
-    try { cache.put("oriberry_shared_menu_v2", JSON.stringify(catalog), 60); } catch (ignoreCache) {}
+    try { cache.put("oriberry_shared_menu_v3", JSON.stringify(catalog), 60); } catch (ignoreCache) {}
   }
   if (!requestedStore) return catalog;
   var storeSheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName("Stores");
@@ -150,6 +172,7 @@ function getFoodMenuData(storeCode) {
     var projected = JSON.parse(JSON.stringify(item));
     var prices = projected.priceByStore[requestedStore];
     projected.price = projected.normal_price = projected.normalPrice = prices.normal;
+    projected.hasNormalSize = prices.hasNormalSize;
     projected.large_price = projected.largePrice = prices.large;
     projected.hasLargeSize = prices.hasLargeSize;
     return projected;
@@ -255,6 +278,10 @@ function getAddonsData() {
 
   var fPrice = headers.indexOf("price");
 
+  var fNormal = headers.indexOf("normal_price");
+
+  var fLarge = headers.indexOf("large_price");
+
   var fStatus = headers.indexOf("status");
 
   var addons = [];
@@ -267,6 +294,11 @@ function getAddonsData() {
 
     if (status.toLowerCase() === 'active') {
 
+      // [SỬA] Trống nghĩa là addon không bán ở size đó; số 0 là miễn phí.
+      var normal = parseMenuPrice(fNormal > -1 ? row[fNormal] : "");
+      var large = parseMenuPrice(fLarge > -1 ? row[fLarge] : "");
+      if (normal.invalid || large.invalid || (normal.empty && large.empty)) continue;
+
       addons.push({
 
         id: fId > -1 ? row[fId] : "",
@@ -275,7 +307,11 @@ function getAddonsData() {
 
         category: fCategory > -1 ? row[fCategory] : "",
 
-        price: fPrice > -1 ? (Number(row[fPrice]) || 0) : 0,
+        price: fPrice > -1 ? row[fPrice] : "",
+        normal_price: normal.empty ? null : normal.value,
+        large_price: large.empty ? null : large.value,
+        hasNormalSize: !normal.empty,
+        hasLargeSize: !large.empty,
 
         status: status
 
@@ -467,7 +503,7 @@ function calculateStoreOrder(data) {
     if (!product) return { error: "Một món không còn được bán tại cửa hàng đã chọn. Hãy tải lại menu.", code: "PRODUCT_UNAVAILABLE" };
     if (!Number.isInteger(qty) || qty < 1 || qty > 99) return { error: "Số lượng món không hợp lệ.", code: "INVALID_QUANTITY" };
     if (size !== "normal" && size !== "large") return { error: "Kích thước món không hợp lệ.", code: "INVALID_SIZE" };
-    if (size === "large" && !product.hasLargeSize) return { error: "Món này không có size Large.", code: "SIZE_UNAVAILABLE" };
+    if ((size === "large" && !product.hasLargeSize) || (size === "normal" && !product.hasNormalSize)) return { error: "Món này không bán size đã chọn.", code: "SIZE_UNAVAILABLE" };
 
     var basePrice = size === "large" ? product.large_price : product.normal_price;
     var addonIds = Array.isArray(requested.addonIds) ? requested.addonIds.map(function(id) { return String(id); }) : [];
@@ -476,23 +512,28 @@ function calculateStoreOrder(data) {
     var addonNames = [];
     for (var j = 0; j < addonIds.length; j++) {
       var addonId = addonIds[j];
-      if (seenAddons[addonId] || !addons[addonId]) return { error: "Topping không còn hợp lệ. Hãy tải lại menu.", code: "ADDON_UNAVAILABLE" };
+      if (seenAddons[addonId] || !addons[addonId] || product.addonIds.indexOf(addonId) < 0 ||
+          (size === "large" ? !addons[addonId].hasLargeSize : !addons[addonId].hasNormalSize)) {
+        return { error: "Topping không được bán cho món hoặc size đã chọn. Hãy tải lại menu.", code: "ADDON_UNAVAILABLE" };
+      }
       seenAddons[addonId] = true;
-      addonTotal += Number(addons[addonId].price);
+      addonTotal += size === "large" ? addons[addonId].large_price : addons[addonId].normal_price;
       addonNames.push(addons[addonId].name);
     }
 
     var unitPrice = Number(basePrice) + addonTotal;
     var quotedUnitPrice = Number(requested.quotedUnitPrice);
-    if (!isFinite(quotedUnitPrice) || quotedUnitPrice !== unitPrice) {
+    if (typeof requested.quotedUnitPrice !== "number" || !isFinite(quotedUnitPrice) || quotedUnitPrice !== unitPrice) {
       return { error: "Giá vừa thay đổi. Menu và giỏ hàng đã cần được cập nhật; vui lòng xác nhận lại đơn.", code: "PRICE_CHANGED" };
     }
     var lineTotal = unitPrice * qty;
     total += lineTotal;
-    lines.push({ product: product, productId: productId, size: size, qty: qty, addonNames: addonNames, unitPrice: unitPrice, lineTotal: lineTotal });
+    var specialInstructions = String(requested.specialInstructions || "").trim();
+    if (specialInstructions.length > 500) return { error: "Ghi chú món quá dài.", code: "INVALID_NOTE" };
+    lines.push({ product: product, productId: productId, size: size, qty: qty, addonNames: addonNames, specialInstructions: specialInstructions, unitPrice: unitPrice, lineTotal: lineTotal });
   }
 
-  if (!isFinite(Number(data.quotedTotal)) || Number(data.quotedTotal) !== total) {
+  if (typeof data.quotedTotal !== "number" || !isFinite(Number(data.quotedTotal)) || Number(data.quotedTotal) !== total) {
     return { error: "Tổng tiền thay đổi. Vui lòng kiểm tra lại giỏ hàng trước khi đặt.", code: "PRICE_CHANGED" };
   }
   return { lines: lines, total: total };
@@ -549,7 +590,7 @@ function sendStoreOrderEmail(storeCode, orderData, orderId) {
   }
   try {
     MailApp.sendEmail(config.email, "[Oriberry Store] Đơn đồ uống mới - " + orderId,
-      `Bạn vừa nhận được đơn Store mới:\n\n- Mã đơn: ${orderId}\n- Hình thức: ${orderData.fulfillmentType}\n- Cửa hàng: ${orderData.storeCode}\n- Khách hàng: ${orderData.customerName}\n- Số điện thoại: ${orderData.customerPhone}\n- Chi tiết món: ${orderData.orderDetails}\n- Tổng thanh toán: ${orderData.totalAmount.toLocaleString("vi-VN")}đ\n- Hình thức thanh toán: ${orderData.paymentMethod}\n- Ghi chú: ${orderData.notes || "Không có"}`);
+      `Bạn vừa nhận được đơn Store mới:\n\n- Mã đơn: ${orderId}\n- Hình thức: ${orderData.fulfillmentType}\n- Cửa hàng: ${orderData.storeCode}\n- Vị trí/địa chỉ: ${orderData.locationDetail || "Không có"}\n- Khách hàng: ${orderData.customerName}\n- Số điện thoại: ${orderData.customerPhone}\n- Chi tiết món:\n${orderData.orderDetails}\n- Tổng thanh toán: ${orderData.totalAmount.toLocaleString("vi-VN")}đ\n- Hình thức thanh toán: ${orderData.paymentMethod}\n- Ghi chú đơn: ${orderData.notes || "Không có"}`);
     return config.fallback ? { status: "fallback", code: config.code } : { status: "sent" };
   } catch (eMail) {
     Logger.log("Lỗi gửi Email Store: " + eMail.toString());
@@ -589,6 +630,8 @@ function handleStoreOrder(data) {
   if (["DINE_IN", "PICKUP", "DELIVERY"].indexOf(String(data.fulfillmentType).trim().toUpperCase()) < 0) {
     return storeOrderError("INVALID_FULFILLMENT", "Hình thức nhận đơn không hợp lệ.");
   }
+  var fulfillmentType = String(data.fulfillmentType).trim().toUpperCase();
+  var tableNumber = fulfillmentType === "DINE_IN" ? String(data.tableNumber || data.locationDetail || "").trim() : "";
   // [SỬA] Khóa retry ổn định, kể cả UUID còn lưu trong tab hoặc localStorage cũ.
   var requestId = String(data.requestId || data.orderId || "").trim();
   if (!/^ORD[A-Za-z0-9_-]{8,60}$/.test(requestId)) return storeOrderError("INVALID_ORDER_ID", "Mã lần gửi không hợp lệ. Hãy tải lại trang và thử lại.");
@@ -619,19 +662,23 @@ function handleStoreOrder(data) {
         return storeOrderReceipt(data, requestId, String(orderRows[r][1]), Number(orderRows[r][9]), { duplicate: true });
       }
     }
+    // [SỬA] Kiểm tra sau khóa retry để đơn cũ đã lưu vẫn nhận biên nhận, không tạo/gửi lại.
+    if (fulfillmentType === "DINE_IN" && !tableNumber) return storeOrderError("TABLE_REQUIRED", "Vui lòng nhập số bàn hoặc vị trí ngồi.");
+    if (tableNumber.length > 200 || String(data.notes || "").length > 1000) return storeOrderError("INVALID_NOTE", "Thông tin vị trí hoặc ghi chú quá dài.");
     var calculation = calculateStoreOrder(data);
     if (calculation.error) return storeOrderError(calculation.code, calculation.error);
     orderId = nextStoreOrderId(orderRows);
-    var orderDetails = calculation.lines.map(function(line) {
-      var text = line.product.name + " (Size " + (line.size === "large" ? "Large" : "Normal") + ")";
-      if (line.addonNames.length) text += " [+ " + line.addonNames.join(", ") + "]";
-      text += " x" + line.qty + " (" + line.lineTotal.toLocaleString("vi-VN") + "đ)";
+    var orderDetails = calculation.lines.map(function(line, index) {
+      var text = (index + 1) + ". " + line.product.name + " (Size " + (line.size === "large" ? "Large" : "Normal") + ") x" + line.qty;
+      if (line.addonNames.length) text += "\n   Topping: " + line.addonNames.join(", ");
+      if (line.specialInstructions) text += "\n   Ghi chú món: " + line.specialInstructions;
+      text += "\n   Thành tiền: " + line.lineTotal.toLocaleString("vi-VN") + "đ";
       return text;
-    }).join(" | ");
+    }).join("\n");
     orderData = {
-      orderId: orderId, storeCode: storeName, fulfillmentType: data.fulfillmentType,
+      orderId: orderId, storeCode: storeName, fulfillmentType: fulfillmentType,
       customerName: String(data.customerName).trim(), customerPhone: String(data.customerPhone).trim(),
-      locationDetail: data.locationDetail || "", orderDetails: orderDetails,
+      locationDetail: fulfillmentType === "DINE_IN" ? tableNumber : (fulfillmentType === "DELIVERY" ? String(data.locationDetail || "").trim() : ""), orderDetails: orderDetails,
       notes: data.notes || "", totalAmount: calculation.total, paymentMethod: data.paymentMethod || "COD"
     };
     if (requestColumn < 0) {
@@ -639,7 +686,7 @@ function handleStoreOrder(data) {
       sheet.getRange(1, requestColumn + 1).setValue("Request_ID");
     }
     var row = [
-      new Date(), orderId, String(data.storeCode).trim().toLowerCase(), data.fulfillmentType,
+      new Date(), orderId, String(data.storeCode).trim().toLowerCase(), fulfillmentType,
       orderData.locationDetail, orderData.customerName, "'" + orderData.customerPhone,
       orderData.orderDetails, orderData.notes, orderData.totalAmount, orderData.paymentMethod, "PENDING"
     ];
@@ -655,19 +702,26 @@ function handleStoreOrder(data) {
     var telegramToken = PropertiesService.getScriptProperties().getProperty("TELEGRAM_BOT_TOKEN");
     var chatId = PropertiesService.getScriptProperties().getProperty("TELEGRAM_CHAT_ID");
     var formattedTotal = orderData.totalAmount.toLocaleString("vi-VN") + "đ";
-    var message = `☕ *ĐƠN ĐỒ UỐNG MỚI (STORE)*
+    var message = `☕ ĐƠN ĐỒ UỐNG MỚI (STORE)
 ------------------------------------
 🆔 Mã đơn: ${orderId}
 📍 Hình thức: ${orderData.fulfillmentType}
 🏠 Cửa hàng: ${orderData.storeCode}
+📌 Vị trí/địa chỉ: ${orderData.locationDetail || "Không có"}
 👤 Khách hàng: ${orderData.customerName} (${orderData.customerPhone})
-🛍️ Chi tiết: ${orderData.orderDetails}
+🛍️ Chi tiết:\n${orderData.orderDetails}
 💰 Tổng tiền: ${formattedTotal}
-📝 Ghi chú: ${orderData.notes || "Không có"}`;
-    if (telegramToken && chatId) UrlFetchApp.fetch("https://api.telegram.org/bot" + telegramToken + "/sendMessage", {
-      method: "post", contentType: "application/json",
-      payload: JSON.stringify({ chat_id: chatId, text: message, parse_mode: "Markdown" }), muteHttpExceptions: true
-    });
+📝 Ghi chú đơn: ${orderData.notes || "Không có"}`;
+    if (telegramToken && chatId) {
+      var telegramResponse = UrlFetchApp.fetch("https://api.telegram.org/bot" + telegramToken + "/sendMessage", {
+        method: "post", contentType: "application/json",
+        payload: JSON.stringify({ chat_id: chatId, text: message }), muteHttpExceptions: true
+      });
+      // [SỬA] Telegram lỗi sau appendRow chỉ ghi mã HTTP; đơn đã tạo và retry không gửi lại.
+      if (telegramResponse && typeof telegramResponse.getResponseCode === "function" && telegramResponse.getResponseCode() >= 400) {
+        Logger.log(JSON.stringify({ event: "STORE_TELEGRAM_FAILURE", status: telegramResponse.getResponseCode(), orderId: orderId }));
+      }
+    }
   } catch (err) { Logger.log("Lỗi gửi Telegram Store: " + err.toString()); }
 
   // [SỬA] Email Store chỉ gửi tới địa chỉ gắn với đúng Store ID; Shop vẫn dùng email quản trị riêng.

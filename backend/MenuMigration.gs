@@ -133,14 +133,17 @@ function applySharedMenuMigration() {
       sheet.getRange(1, colNumber).setBackground("#3b2a20").setFontColor("#ffffff").setFontWeight("bold");
       sheet.autoResizeColumn(colNumber);
     });
-    if (typeof CacheService !== "undefined") CacheService.getScriptCache().remove("oriberry_shared_menu_v2");
+    if (typeof CacheService !== "undefined") CacheService.getScriptCache().remove("oriberry_shared_menu_v3");
     var result = { dryRun: false, sheet: "Food_Drinks_Menu", appendedHeaders: plan.headersToAppend, legacySheetsMapped: plan.legacySheetsToMap, oldSheetsDeleted: false };
     Logger.log(JSON.stringify(result, null, 2));
     return result;
   } finally { lock.releaseLock(); }
 }
 
-// Trigger this lightweight invalidator from edits to Food_Drinks_Menu.
+// [SỬA] Liên kết Product_Addons cũng nằm trong catalog cache.
 function onEdit(e) {
-  try { if (typeof CacheService !== "undefined" && e && e.range && e.range.getSheet().getName() === "Food_Drinks_Menu") CacheService.getScriptCache().remove("oriberry_shared_menu_v2"); } catch (ignore) {}
+  try {
+    if (typeof CacheService === "undefined" || !e || !e.range) return;
+    if (["Food_Drinks_Menu", "Product_Addons"].indexOf(e.range.getSheet().getName()) >= 0) CacheService.getScriptCache().remove("oriberry_shared_menu_v3");
+  } catch (ignore) {}
 }

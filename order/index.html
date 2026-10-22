@@ -248,6 +248,9 @@
                     <form id="checkoutForm" onsubmit="submitOrder(event)" class="space-y-2.5 pt-1">
                         <input type="text" id="custName" placeholder="Your Name *" required class="w-full text-xs border border-stone-300 rounded-xl p-2.5 focus:outline-none focus:border-amber-700">
                         <input type="tel" id="custPhone" placeholder="Your Phone Number *" required class="w-full text-xs border border-stone-300 rounded-xl p-2.5 focus:outline-none focus:border-amber-700">
+                        <label id="tableNumberField" class="block text-xs font-semibold text-stone-700">Số bàn / Vị trí ngồi *
+                            <input type="text" id="tableNumber" maxlength="200" placeholder="Bàn 05, tầng 2, gần cửa sổ" class="mt-1 w-full border border-stone-300 rounded-xl p-2.5 focus:outline-none focus:border-amber-700">
+                        </label>
                         <textarea id="orderNote" placeholder="• Special instructions (optional)" rows="2" class="w-full text-xs border border-stone-300 rounded-xl p-2.5 focus:outline-none focus:border-amber-700"></textarea>
                         <button type="submit" id="submitBtn" class="w-full bg-neutral-900 hover:bg-amber-950 text-white font-bold py-3 rounded-xl text-xs transition uppercase tracking-wider shadow-md cursor-pointer">PLACE ORDER</button>
                     </form>
@@ -338,7 +341,7 @@ let cart = JSON.parse(localStorage.getItem('oriberry_order_cart')) || [];
 let menuRequestNumber = 0;
 let MENU_CATALOG = [];
 let menuDataVerified = false;
-const MENU_CACHE_KEY = 'oriberry_shared_menu_cache_v2';
+const MENU_CACHE_KEY = 'oriberry_shared_menu_cache_v3';
 const MENU_CACHE_MAX_AGE = 5 * 60 * 1000;
         document.addEventListener('DOMContentLoaded', () => {
             renderSidebarCategories();
@@ -347,6 +350,7 @@ const MENU_CACHE_MAX_AGE = 5 * 60 * 1000;
             updateCartUI();
             initializeStoreFromUrl();
             fetchMenuProducts();
+            updateTableNumberField();
         });
 
         // Xử lý bật/tắt Sidebar ẩn/hiện
@@ -396,6 +400,8 @@ const MENU_CACHE_MAX_AGE = 5 * 60 * 1000;
                     document.getElementById('fulfillmentValue').innerText = `Table: ${table}`;
                     // [SỬA] Form hiện tại không có custAddress; giữ vị trí bàn trong payload.
                     window.currentDineInTable = table;
+                    document.getElementById('tableNumber').value = table;
+                    updateTableNumberField();
                 } else {
                     openFulfillmentModal();
                 }
@@ -467,8 +473,23 @@ function selectStore(storeId) {
 }
 
 function productPrice(product, size) {
-    if (size === 'large') return Number(product.large_price ?? product.largePrice ?? 0);
-    return Number(product.normal_price ?? product.normalPrice ?? product.price ?? 0);
+    const available = size === 'large' ? product.hasLargeSize : product.hasNormalSize;
+    const value = size === 'large' ? product.large_price : product.normal_price;
+    return available && typeof value === 'number' && Number.isFinite(value) ? value : null;
+}
+
+function lowestProductPrice(product) {
+    return productPrice(product, 'normal') ?? productPrice(product, 'large');
+}
+
+function addonPrice(addon, size) {
+    const available = size === 'large' ? addon.hasLargeSize : addon.hasNormalSize;
+    const value = size === 'large' ? addon.large_price : addon.normal_price;
+    return available && typeof value === 'number' && Number.isFinite(value) ? value : null;
+}
+
+function escapeHtml(value) {
+    return String(value ?? '').replace(/[&<>"']/g, char => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[char]));
 }
 
 function projectMenuForSelectedStore() {
@@ -477,17 +498,19 @@ function projectMenuForSelectedStore() {
         const copy = { ...product };
         const price = code ? product.priceByStore?.[code] : null;
         if (price) {
-            copy.price = copy.normal_price = copy.normalPrice = Number(price.normal);
-            copy.large_price = copy.largePrice = price.large == null ? null : Number(price.large);
+            copy.price = copy.normal_price = copy.normalPrice = price.normal;
+            copy.large_price = copy.largePrice = price.large;
+            copy.hasNormalSize = price.hasNormalSize === true;
             copy.hasLargeSize = price.hasLargeSize === true;
         } else {
-            copy.price = copy.normal_price = copy.normalPrice = Number(product.normal_price ?? product.price);
-            copy.large_price = copy.largePrice = product.large_price == null ? null : Number(product.large_price);
+            copy.price = copy.normal_price = copy.normalPrice = product.normal_price;
+            copy.large_price = copy.largePrice = product.large_price;
+            copy.hasNormalSize = product.hasNormalSize === true;
             copy.hasLargeSize = product.hasLargeSize === true;
         }
         copy.referencePrice = !code;
         return copy;
-    }).filter(product => Number.isFinite(productPrice(product, 'normal')));
+    }).filter(product => lowestProductPrice(product) !== null);
     const notice = selectedStoreId
         ? (menuDataVerified ? '' : '<div class="rounded-xl bg-amber-50 border border-amber-200 p-3 text-xs text-amber-900">Đang xem menu đã lưu ngoại tuyến. Cần xác minh kết nối trước khi đặt hàng.</div>')
         : '<div class="rounded-xl bg-amber-50 border border-amber-200 p-3 text-xs text-amber-900">Giá đang hiển thị là giá tham khảo chung. Vui lòng chọn cửa hàng để xem giá áp dụng và đặt món.</div>';
@@ -502,8 +525,8 @@ function projectMenuForSelectedStore() {
 }
 
 function isValidMenuCatalog(value) {
-    return !!value && value.schemaVersion === 2 && Array.isArray(value.products) && value.products.every(p =>
-        p && p.id != null && typeof p.availableByStore === 'object' && typeof p.priceByStore === 'object');
+    return !!value && value.schemaVersion === 3 && Array.isArray(value.products) && value.products.every(p =>
+        p && p.id != null && typeof p.availableByStore === 'object' && typeof p.priceByStore === 'object' && Array.isArray(p.addonIds));
 }
 
 // Tải catalog không gắn store; cache hiện ngay, sau đó refresh và chống response cũ.
@@ -545,8 +568,8 @@ async function fetchMenuProducts() {
 
             let filtered = PRODUCTS.filter(p => (p.name || '').toLowerCase().includes(searchKeyword));
 
-            if (sortVal === 'low-to-high') filtered.sort((a, b) => productPrice(a, 'normal') - productPrice(b, 'normal'));
-            else if (sortVal === 'high-to-low') filtered.sort((a, b) => productPrice(b, 'normal') - productPrice(a, 'normal'));
+            if (sortVal === 'low-to-high') filtered.sort((a, b) => lowestProductPrice(a) - lowestProductPrice(b));
+            else if (sortVal === 'high-to-low') filtered.sort((a, b) => lowestProductPrice(b) - lowestProductPrice(a));
 
             const container = document.getElementById('menuContentContainer');
             let htmlContent = '';
@@ -560,7 +583,7 @@ async function fetchMenuProducts() {
                             <div class="flex-1 min-w-0">
                                 <h3 class="text-sm font-bold text-stone-900 truncate">${p.name}</h3>
                                 <p class="text-[11px] text-stone-500 line-clamp-2 mt-0.5">${p.shortDesc || ''}</p>
-                                <span class="text-xs font-bold text-amber-900 mt-1 inline-block">${p.referencePrice ? 'Giá tham khảo · ' : ''}Normal ${productPrice(p, 'normal').toLocaleString('vi-VN')}đ${p.hasLargeSize ? ` · Large ${productPrice(p, 'large').toLocaleString('vi-VN')}đ` : ''}</span>
+                                <span class="text-xs font-bold text-amber-900 mt-1 inline-block">${p.referencePrice ? 'Giá tham khảo · ' : ''}${p.hasNormalSize ? `Normal ${productPrice(p, 'normal').toLocaleString('vi-VN')}đ` : ''}${p.hasNormalSize && p.hasLargeSize ? ' · ' : ''}${p.hasLargeSize ? `Large ${productPrice(p, 'large').toLocaleString('vi-VN')}đ` : ''}</span>
                             </div>
                             <div class="w-8 h-8 rounded-full bg-amber-900/10 text-amber-900 flex items-center justify-center hover:bg-amber-950 hover:text-white transition flex-shrink-0 shadow-sm">
                                 <i class="fa-solid fa-plus text-xs"></i>
@@ -588,12 +611,22 @@ async function fetchMenuProducts() {
 
         function selectFulfillment(type) {
             currentFulfillment = type;
+            updateTableNumberField();
             closeModal('fulfillmentModal');
             if (type === 'DELIVERY') {
                 document.getElementById('deliveryModal').classList.remove('hidden');
             } else {
                 document.getElementById('storeModal').classList.remove('hidden');
             }
+        }
+
+        function updateTableNumberField() {
+            const field = document.getElementById('tableNumberField');
+            const input = document.getElementById('tableNumber');
+            if (!field || !input) return;
+            if (currentFulfillment === 'DINE_IN') field.classList.remove('hidden');
+            else field.classList.add('hidden');
+            input.required = currentFulfillment === 'DINE_IN';
         }
 
         function backToFulfillmentModal() {
@@ -631,7 +664,9 @@ async function fetchMenuProducts() {
                 selectedStoreOrLocation = `${storeObj.name} - Table ${table}`;
                 document.getElementById('fulfillmentValue').innerText = `Table: ${table}`;
                 if (custAddrInput) custAddrInput.value = `Dine-in at ${table} (${storeObj.name})`;
+                document.getElementById('tableNumber').value = table;
             }
+            updateTableNumberField();
             projectMenuForSelectedStore();
     }
 
@@ -662,6 +697,7 @@ async function fetchMenuProducts() {
     closeModal('deliveryModal');
     document.getElementById('headerIcon').className = "fa-solid fa-motorcycle text-[10px]";
     document.getElementById('fulfillmentLabel').innerText = "Delivery";
+    updateTableNumberField();
     
     // 3. Hiển thị tên cửa hàng phụ trách lên nút góc trên bên phải thay vì chỉ hiện tên phường
     const fulfillmentEl = document.getElementById('fulfillmentText');
@@ -683,13 +719,14 @@ function openProductModal(id) {
     document.getElementById('modalProdName').innerText = activeProductForModal.name || '';
     document.getElementById('modalProdDesc').innerText = activeProductForModal.longDesc || activeProductForModal.shortDesc || '';
     document.getElementById('modalQty').innerText = currentModalQty;
+    document.getElementById('modalItemNote').value = '';
 
     // 2. Xử lý phần Chọn Size (Normal / Large)
     const normalPrice = productPrice(activeProductForModal, 'normal');
     const largePrice = productPrice(activeProductForModal, 'large');
 
     let sizeHtml = '';
-    if (Number.isFinite(normalPrice)) {
+    if (normalPrice !== null) {
         sizeHtml += `
             <label style="cursor: pointer; margin-right: 20px;">
                 <input type="radio" name="productSize" value="normal" checked onchange="updateModalPrices()">
@@ -700,16 +737,16 @@ function openProductModal(id) {
     if (activeProductForModal.hasLargeSize) {
         sizeHtml += `
             <label style="cursor: pointer;">
-                <input type="radio" name="productSize" value="large" onchange="updateModalPrices()">
+                <input type="radio" name="productSize" value="large" ${normalPrice === null ? 'checked' : ''} onchange="updateModalPrices()">
                 Large (${largePrice.toLocaleString('vi-VN')}₫)
             </label>
         `;
     }
 
-// 3. Lọc chuẩn: Chỉ lấy các addon có trạng thái active từ đúng bảng Addons_Menu
+// [SỬA] Chỉ hiển thị ID topping được Product_Addons liên kết với món này.
         const availableAddons = (windowAllAddons || []).filter(addon => {
             const status = String(addon.status || '').trim().toLowerCase();
-            return status === 'active';
+            return status === 'active' && activeProductForModal.addonIds.includes(String(addon.id));
         });
     
     let addonHtml = '';
@@ -717,8 +754,8 @@ function openProductModal(id) {
         addonHtml = availableAddons.map(addon => `
             <div style="margin-bottom: 4px;">
                 <label style="cursor: pointer; font-size: 13px;">
-                    <input type="checkbox" class="addon-checkbox" value="${addon.id}" data-addon-id="${addon.id}" data-price="${addon.price ?? 0}" onchange="updateModalPrices()">
-                    ${addon.name} (+${Number(addon.price || 0).toLocaleString('vi-VN')}₫)
+                    <input type="checkbox" class="addon-checkbox" value="${escapeHtml(addon.id)}" data-addon-id="${escapeHtml(addon.id)}" onchange="updateModalPrices()">
+                    <span class="addon-label">${escapeHtml(addon.name)}</span> <span class="addon-price"></span>
                 </label>
             </div>
         `).join('');
@@ -751,7 +788,7 @@ function openProductModal(id) {
                 <div onclick="openProductModal('${cs.id}')" class="w-32 flex-shrink-0 border border-stone-200 rounded-2xl p-2 bg-stone-50 flex flex-col justify-between cursor-pointer hover:border-amber-300 transition">
                     <img src="${cs.img1 || cs.image || 'https://images.unsplash.com/photo-1550566199-641a8ac3b55e-300'}" class="w-full h-16 object-cover rounded-xl mb-1">
                     <div class="text-[11px] font-bold text-stone-900 truncate">${cs.name}</div>
-                    <div class="text-[10px] text-amber-900 font-bold">${productPrice(cs, 'normal').toLocaleString('vi-VN')}₫</div>
+                    <div class="text-[10px] text-amber-900 font-bold">${lowestProductPrice(cs).toLocaleString('vi-VN')}₫</div>
                 </div>
             `).join('') : '<div class="text-xs text-stone-400">No recommendations available</div>';
         }
@@ -766,17 +803,23 @@ function updateModalPrices() {
     if (!activeProductForModal) return;
 
     const sizeRadio = document.querySelector('input[name="productSize"]:checked');
-    const selectedSize = sizeRadio ? sizeRadio.value : 'normal';
+    const selectedSize = sizeRadio ? sizeRadio.value : (activeProductForModal.hasNormalSize ? 'normal' : 'large');
     
     const basePrice = productPrice(activeProductForModal, selectedSize);
 
     let addonTotal = 0;
-    document.querySelectorAll('.addon-checkbox:checked').forEach(cb => {
-        addonTotal += Number(cb.dataset.price || 0);
+    document.querySelectorAll('.addon-checkbox').forEach(cb => {
+        const addon = windowAllAddons.find(item => String(item.id) === String(cb.dataset.addonId));
+        const price = addon ? addonPrice(addon, selectedSize) : null;
+        cb.disabled = price === null;
+        if (cb.disabled) cb.checked = false;
+        const label = cb.closest('label')?.querySelector('.addon-price');
+        if (label) label.textContent = cb.disabled ? '(không bán size này)' : `(+${price.toLocaleString('vi-VN')}₫)`;
+        if (cb.checked) addonTotal += price;
     });
 
     const qty = currentModalQty || 1;
-    const finalPrice = (basePrice + addonTotal) * qty;
+    const finalPrice = ((basePrice ?? 0) + addonTotal) * qty;
 
     const priceEl = document.getElementById('modalProdPrice');
     if (priceEl) {
@@ -803,17 +846,21 @@ function addToCartFromModal() {
 
     // 1. Lấy thông tin Size đã chọn
     const sizeRadio = document.querySelector('input[name="productSize"]:checked');
-    const selectedSize = sizeRadio ? sizeRadio.value : 'normal';
+    const selectedSize = sizeRadio ? sizeRadio.value : (activeProductForModal.hasNormalSize ? 'normal' : 'large');
     
     let unitPrice = productPrice(activeProductForModal, selectedSize);
+    if (unitPrice === null) return alert('Size này không còn được bán.');
 
     // 2. Lấy danh sách các Add-ons được chọn
     let selectedAddons = [];
     let addonTotal = 0;
     document.querySelectorAll('.addon-checkbox:checked').forEach(cb => {
         const addon = windowAllAddons.find(item => String(item.id) === String(cb.dataset.addonId));
-        if (addon) selectedAddons.push({ id: String(addon.id), name: addon.name, price: Number(addon.price || 0) });
-        addonTotal += Number(cb.dataset.price || 0);
+        const price = addon ? addonPrice(addon, selectedSize) : null;
+        if (price !== null) {
+            selectedAddons.push({ id: String(addon.id), name: addon.name, price });
+            addonTotal += price;
+        }
     });
 
     const qty = currentModalQty || 1;
@@ -821,6 +868,7 @@ function addToCartFromModal() {
 
     // 3. Tạo key định danh và tên món kèm Size + Topping
     const noteText = document.getElementById('modalItemNote') ? document.getElementById('modalItemNote').value.trim() : '';
+    if (noteText.length > 500) return alert('Ghi chú món tối đa 500 ký tự.');
     const addonIds = selectedAddons.map(addon => addon.id);
     const cartKey = `${activeProductForModal.id}-${selectedSize}-${addonIds.join('_')}-${noteText}`;
     
@@ -885,17 +933,18 @@ function addToCartFromModal() {
             if (cart.length === 0) {
                 container.innerHTML = `<p class="text-xs text-stone-400 text-center py-6">Giỏ hàng trống.</p>`;
             } else {
-                container.innerHTML = cart.map(i => `
+                container.innerHTML = cart.map((i, index) => `
                     <div class="flex items-center justify-between border-b border-stone-100 pb-2">
                         <div>
-                            <h4 class="text-xs font-bold text-stone-900">${i.name}</h4>
-                            ${i.note ? `<p class="text-[10px] text-stone-500">Ghi chú: ${i.note}</p>` : ''}
+                            <h4 class="text-xs font-bold text-stone-900">${escapeHtml(i.name)}</h4>
+                            ${i.note ? `<p class="text-[10px] text-stone-500">Ghi chú món: ${escapeHtml(i.note)}</p>` : ''}
+                            <button type="button" onclick="editCartItemNote(${index})" class="text-[10px] text-amber-900 underline">Sửa ghi chú món</button>
                             <p class="text-xs font-bold text-amber-900">${(i.price * i.qty).toLocaleString('vi-VN')}đ</p>
                         </div>
                         <div class="flex items-center border border-stone-300 rounded-xl overflow-hidden">
-                            <button onclick="updateQty('${i.key}', -1)" class="px-2 py-1 text-xs text-stone-600 hover:bg-stone-100 font-bold">-</button>
+                            <button onclick="updateQtyAt(${index}, -1)" class="px-2 py-1 text-xs text-stone-600 hover:bg-stone-100 font-bold">-</button>
                             <span class="px-2 text-xs font-bold">${i.qty}</span>
-                            <button onclick="updateQty('${i.key}', 1)" class="px-2 py-1 text-xs text-stone-600 hover:bg-stone-100 font-bold">+</button>
+                            <button onclick="updateQtyAt(${index}, 1)" class="px-2 py-1 text-xs text-stone-600 hover:bg-stone-100 font-bold">+</button>
                         </div>
                     </div>
                 `).join('');
@@ -903,6 +952,25 @@ function addToCartFromModal() {
             const cartBar = document.getElementById('cartBar');
             if (cart.length > 0) cartBar.classList.remove('hidden');
             else cartBar.classList.add('hidden');
+        }
+
+        function updateQtyAt(index, delta) {
+            if (!cart[index]) return;
+            cart[index].qty += delta;
+            if (cart[index].qty <= 0) cart.splice(index, 1);
+            invalidatePendingOrderForCartChange();
+            saveCart();
+        }
+
+        function editCartItemNote(index) {
+            if (!cart[index]) return;
+            const next = prompt('Ghi chú riêng cho món này:', cart[index].note || '');
+            if (next === null) return;
+            if (next.length > 500) return alert('Ghi chú món tối đa 500 ký tự.');
+            cart[index].note = next.trim();
+            cart[index].key = `${cart[index].productId}-${cart[index].size}-${(cart[index].addonIds || []).join('_')}-${cart[index].note}`;
+            invalidatePendingOrderForCartChange();
+            saveCart();
         }
 
         function openCartModal() { document.getElementById('cartModal').classList.remove('hidden'); }
@@ -927,7 +995,7 @@ async function refreshCartPrices() {
     await Promise.all([fetchMenuProducts(), fetchAddonsData()]);
     for (const item of cart) {
         const product = PRODUCTS.find(candidate => String(candidate.id) === String(item.productId || item.id));
-        if (!product || (item.size === 'large' && !product.hasLargeSize)) return false;
+        if (!product || productPrice(product, item.size || 'normal') === null) return false;
         // [SỬA] Chuyển topping từ giỏ cũ (tên hiển thị) về Addon_ID trước khi tính lại.
         if (!Array.isArray(item.addonIds) || !item.addonIds.length) {
             const legacyNames = String(item.name || '').match(/\[\+\s*(.*?)\]/);
@@ -935,7 +1003,7 @@ async function refreshCartPrices() {
                 const names = legacyNames[1].split(',').map(name => name.trim());
                 const matched = names.map(name => windowAllAddons.find(addon => addon.name === name));
                 if (matched.some(addon => !addon)) return false;
-                item.addons = matched.map(addon => ({ id: String(addon.id), name: addon.name, price: Number(addon.price || 0) }));
+                item.addons = matched.map(addon => ({ id: String(addon.id), name: addon.name, price: addonPrice(addon, item.size || 'normal') }));
                 item.addonIds = matched.map(addon => String(addon.id));
             } else {
                 item.addonIds = [];
@@ -945,8 +1013,12 @@ async function refreshCartPrices() {
         let unitPrice = productPrice(product, item.size || 'normal');
         for (const addonId of item.addonIds || []) {
             const addon = windowAllAddons.find(candidate => String(candidate.id) === String(addonId) && String(candidate.status).toLowerCase() === 'active');
-            if (!addon) return false;
-            unitPrice += Number(addon.price || 0);
+            if (!addon || !product.addonIds.includes(String(addonId))) return false;
+            const price = addonPrice(addon, item.size || 'normal');
+            if (price === null) return false;
+            unitPrice += price;
+            const stored = (item.addons || []).find(candidate => String(candidate.id) === String(addonId));
+            if (stored) stored.price = price;
         }
         item.productId = String(product.id);
         item.price = unitPrice;
@@ -968,12 +1040,15 @@ async function submitOrder(e) {
     const name = document.getElementById('custName')?.value.trim() || '';
     const phone = document.getElementById('custPhone')?.value.trim() || '';
     if (!name || !phone) return alert('Vui lòng nhập tên và số điện thoại.');
+    const tableNumber = currentFulfillment === 'DINE_IN' ? (document.getElementById('tableNumber')?.value.trim() || '') : '';
+    if (currentFulfillment === 'DINE_IN' && !tableNumber) return alert('Vui lòng nhập số bàn hoặc vị trí ngồi.');
     const quotedTotal = cart.reduce((sum, item) => sum + (Number(item.price) * Number(item.qty)), 0);
     const payload = {
         sourceChannel: 'STORE_DRINK',
         storeCode: selectedStoreId,
         fulfillmentType: currentFulfillment,
-        locationDetail: currentFulfillment === 'DELIVERY' ? (window.currentDeliveryAddress || '') : (currentFulfillment === 'DINE_IN' ? (window.currentDineInTable || '') : ''),
+        locationDetail: currentFulfillment === 'DELIVERY' ? (window.currentDeliveryAddress || '') : '',
+        tableNumber,
         customerName: name,
         customerPhone: phone,
         items: cart.map(item => ({
@@ -981,6 +1056,7 @@ async function submitOrder(e) {
             size: item.size || 'normal',
             qty: Number(item.qty),
             addonIds: Array.isArray(item.addonIds) ? item.addonIds : [],
+            specialInstructions: item.note || '',
             quotedUnitPrice: Number(item.price)
         })),
         quotedTotal: quotedTotal,
@@ -1007,7 +1083,7 @@ async function submitOrder(e) {
             const confirmedTotal = Number.isFinite(Number(result.totalAmount)) ? Number(result.totalAmount) : quotedTotal;
             document.getElementById('successOrderId').textContent = result.displayOrderId || result.orderId;
             document.getElementById('successStore').textContent = getStoreById(selectedStoreId)?.name || selectedStoreId;
-            document.getElementById('successOrderItems').innerHTML = cart.map(item => `<div class="flex justify-between gap-3"><span>${item.qty} × ${item.name}</span><span class="shrink-0">${(Number(item.price) * Number(item.qty)).toLocaleString('vi-VN')}đ</span></div>`).join('');
+            document.getElementById('successOrderItems').innerHTML = cart.map(item => `<div class="flex justify-between gap-3"><span>${item.qty} × ${escapeHtml(item.name)}${item.note ? `<br><small>Ghi chú món: ${escapeHtml(item.note)}</small>` : ''}</span><span class="shrink-0">${(Number(item.price) * Number(item.qty)).toLocaleString('vi-VN')}đ</span></div>`).join('');
             document.getElementById('successOrderTotal').textContent = `${confirmedTotal.toLocaleString('vi-VN')}đ`;
             document.getElementById('successOrderDetails').open = false;
             localStorage.removeItem('oriberry_pending_store_order_id');

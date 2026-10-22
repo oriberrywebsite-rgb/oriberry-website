@@ -106,7 +106,9 @@
                 <div class="flex justify-between gap-3"><span class="text-stone-500">Mã đơn</span><strong id="popupOrderId" class="break-all text-right"></strong></div>
                 <div class="flex justify-between gap-3"><span class="text-stone-500">Khách hàng</span><strong id="popupCustomer" class="text-right"></strong></div>
                 <div class="flex justify-between gap-3"><span class="text-stone-500">Hình thức</span><strong id="popupFulfillment" class="text-right"></strong></div>
+                <div class="flex justify-between gap-3"><span class="text-stone-500">Bàn / Địa chỉ</span><strong id="popupLocation" class="text-right"></strong></div>
                 <div class="border-t border-stone-200 pt-2"><div class="mb-1 text-xs font-bold uppercase text-stone-500">Món</div><div id="popupItems" class="break-words text-xs"></div></div>
+                <div class="border-t border-stone-200 pt-2"><div class="mb-1 text-xs font-bold uppercase text-stone-500">Ghi chú đơn</div><div id="popupNote" class="break-words text-xs"></div></div>
                 <div class="flex justify-between border-t border-stone-200 pt-2 font-bold"><span>Tổng tiền</span><span id="popupTotal" class="text-amber-900"></span></div>
             </div>
             <div class="mt-4 grid grid-cols-2 gap-2"><button type="button" onclick="viewPopupOrder()" class="rounded-xl border border-stone-300 py-3 text-sm font-bold text-stone-700">Xem trong danh sách</button><button type="button" onclick="confirmPopupOrder()" class="rounded-xl bg-amber-950 py-3 text-sm font-bold text-white">Xác nhận đơn</button></div>
@@ -133,6 +135,11 @@
             const code = String(order.storeCode || '').trim().toLowerCase();
             return code === currentStoreCode.toLowerCase() ||
                 code === String(STORE_NAMES[currentStoreCode] || '').toLowerCase();
+        }
+
+        // [SỬA] Ghi chú và dữ liệu khách hàng lấy từ Sheet phải được escape trước khi render.
+        function escapeHtml(value) {
+            return String(value ?? '').replace(/[&<>"']/g, char => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[char]));
         }
 
         document.addEventListener('DOMContentLoaded', () => {
@@ -196,7 +203,10 @@
             document.getElementById('popupOrderId').textContent = popupOrder.orderId || '';
             document.getElementById('popupCustomer').textContent = `${popupOrder.customerName || ''} · ${popupOrder.customerPhone || ''}`;
             document.getElementById('popupFulfillment').textContent = popupOrder.fulfillmentType || '';
+            document.getElementById('popupLocation').textContent = popupOrder.locationDetail || '';
             document.getElementById('popupItems').textContent = popupOrder.itemsDetail || '';
+            if (document.getElementById('popupItems').style) document.getElementById('popupItems').style.whiteSpace = 'pre-line';
+            document.getElementById('popupNote').textContent = popupOrder.note || 'Không có';
             document.getElementById('popupTotal').textContent = `${Number(popupOrder.totalAmount || 0).toLocaleString('vi-VN')}₫`;
             document.getElementById('newOrderQueueCount').textContent = String(notificationState.queue.length);
             const modal = document.getElementById('newOrderModal'); modal.classList.remove('hidden'); modal.classList.add('flex');
@@ -247,22 +257,22 @@
             tbody.innerHTML = storeOrders.map(order => `
                 <tr class="hover:bg-stone-50 transition">
                     <td class="p-3">
-                        <div class="font-bold text-stone-800">${order.orderId || ''}</div>
-                        <div class="text-xs text-stone-500">${order.timestamp || ''}</div>
+                        <div class="font-bold text-stone-800">${escapeHtml(order.orderId)}</div>
+                        <div class="text-xs text-stone-500">${escapeHtml(order.timestamp)}</div>
                     </td>
                     <td class="p-3">
-                        <div class="font-semibold text-stone-800">${order.customerName || ''}</div>
-                        <div class="text-xs text-stone-500">${order.customerPhone || ''}</div>
+                        <div class="font-semibold text-stone-800">${escapeHtml(order.customerName)}</div>
+                        <div class="text-xs text-stone-500">${escapeHtml(order.customerPhone)}</div>
                     </td>
                     <td class="p-3">
-                        <span class="px-2 py-1 bg-stone-100 rounded text-xs font-medium text-stone-700">${order.fulfillmentType || ''}</span>
-                        <div class="text-xs text-stone-500 mt-0.5">${order.locationDetail || ''}</div>
+                        <span class="px-2 py-1 bg-stone-100 rounded text-xs font-medium text-stone-700">${escapeHtml(order.fulfillmentType)}</span>
+                        <div class="text-xs text-stone-500 mt-0.5">${escapeHtml(order.locationDetail)}</div>
                     </td>
-                    <td class="p-3 text-stone-700 text-xs max-w-xs truncate" title="${order.itemsDetail || ''}">
-                        ${order.itemsDetail || ''}
+                    <td class="p-3 text-stone-700 text-xs max-w-xs whitespace-pre-line" title="${escapeHtml(order.itemsDetail)}">
+                        ${escapeHtml(order.itemsDetail)}
                     </td>
-                    <td class="p-3 text-amber-900 text-xs italic font-medium max-w-xs truncate" title="${order.note || ''}">
-                        ${order.note || '<span class="text-stone-300">Không có</span>'}
+                    <td class="p-3 text-amber-900 text-xs italic font-medium max-w-xs whitespace-pre-line" title="${escapeHtml(order.note)}">
+                        ${order.note ? escapeHtml(order.note) : '<span class="text-stone-300">Không có</span>'}
                     </td>
                     <td class="p-3 text-right font-bold text-amber-900">
                         ${Number(order.totalAmount || 0).toLocaleString('vi-VN')}₫
@@ -274,7 +284,7 @@
                     </td>
                     <td class="p-3 text-center">
                         ${order.status !== 'CONFIRMED' ? `
-                            <button type="button" onclick="confirmOrder('${order.orderId}')" class="bg-amber-900 hover:bg-amber-800 text-white px-3 py-1.5 rounded text-xs font-semibold transition">
+                            <button type="button" data-order-id="${escapeHtml(order.orderId)}" onclick="confirmOrder(this.dataset.orderId)" class="bg-amber-900 hover:bg-amber-800 text-white px-3 py-1.5 rounded text-xs font-semibold transition">
                                 Xác nhận
                             </button>
                         ` : `
