@@ -79,6 +79,7 @@ function createContext(includeSharedSchema = true, telegramEnabled = false) {
   };
   const sentEmails = [];
   const sentTelegrams = [];
+  const logs = [];
   const context = vm.createContext({
     ContentService: { MimeType: { JSON: 'JSON' }, createTextOutput(content) { return { content, setMimeType() { return this; } }; } },
     SpreadsheetApp: {
@@ -88,12 +89,12 @@ function createContext(includeSharedSchema = true, telegramEnabled = false) {
     LockService: { getScriptLock() { return { waitLock() {}, releaseLock() {} }; } },
     PropertiesService: { getScriptProperties() { return { getProperty(key) { return telegramEnabled ? ({TELEGRAM_BOT_TOKEN:'mock-token',TELEGRAM_CHAT_ID:'mock-chat'}[key] || null) : null; } }; } },
     MailApp: { sendEmail(to, subject, body) { sentEmails.push({ to, subject, body }); } }, UrlFetchApp: { fetch(_url, options) { sentTelegrams.push(JSON.parse(options.payload)); return { getResponseCode() { return 200; }, getContentText() { return '{"ok":true}'; } }; } },
-    Logger: { log() {} }, Utilities: { formatDate() { return '01/01/2026 00:00'; } }
+    Logger: { log(message) { logs.push(String(message)); } }, Utilities: { formatDate() { return '01/01/2026 00:00'; } }
   });
   for (const file of ['backend/Code.gs','backend/Store.gs','backend/MenuMigration.gs']) {
     vm.runInContext(fs.readFileSync(file, 'utf8'), context, { filename: file });
   }
-  return { context, sheets, sentEmails, sentTelegrams };
+  return { context, sheets, sentEmails, sentTelegrams, logs };
 }
 
 function post(context, payload) {
@@ -233,7 +234,7 @@ function post(context, payload) {
 // Shared-sheet migration is a safe dry-run and identifies the complete append-only schema.
 // [SỬA] HMO/MWC are exact live Sheet price shapes; all requests and Telegram are mocked.
 {
-  const { context, sheets, sentTelegrams } = createContext(true, true);
+  const { context, sheets, sentTelegrams, logs } = createContext(true, true);
   const addProduct = (id, legacy, normal, large) => {
     const row = Array(31).fill('');
     row[0] = id; row[1] = id; row[2] = 'Coffee'; row[3] = legacy;
@@ -287,9 +288,11 @@ function post(context, payload) {
   assert.equal(post(context, base).duplicate, true);
   assert.equal(sentTelegrams.length, 1, 'retry never sends duplicate Telegram');
   assert.equal(sheets.Oriberry_DonHang_Store.rows.length, 2);
+  context.UrlFetchApp.fetch = (_url, options) => { sentTelegrams.push(JSON.parse(options.payload)); return {getResponseCode:()=>400}; };
   const pickup = post(context, {...base, requestId:'ORD20261022mock0002',fulfillmentType:'PICKUP',tableNumber:'Old table'});
   assert.equal(pickup.status,'success','PICKUP does not require a table');
   assert.equal(sheets.Oriberry_DonHang_Store.rows[2][4],'','PICKUP ignores stale table');
+  assert.ok(logs.some(log => log.includes('STORE_TELEGRAM_FAILURE')),'failed Telegram is logged while order remains saved');
   const delivery = post(context, {...base, requestId:'ORD20261022mock0003',fulfillmentType:'DELIVERY',tableNumber:'Old table',locationDetail:'12 Test Street'});
   assert.equal(delivery.status,'success');
   assert.equal(sheets.Oriberry_DonHang_Store.rows[3][4],'12 Test Street','DELIVERY uses address instead of stale table');
