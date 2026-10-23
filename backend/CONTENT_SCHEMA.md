@@ -2,6 +2,7 @@
 
 Production spreadsheet: `Oriberry_CMS_Database` (`1tCAB0w3bmQjOkSxkE-_U_42LAJaBpKmiOLHFaZTdSns`).
 Backup made before the 2026-10-22 migration: `1hFhuvHf0e2KX9ELuY5fxv4oxHLN5piqKm2c1Ge8cjBA`.
+Backup made before publishing the first blog articles on 2026-10-23: `1EQhW2Q8uZ8eUsu7z8lmu96CKidNW_c6UYDQkigTnIA0`.
 
 ## Product sizes
 
@@ -20,6 +21,8 @@ The three homepage links map to existing CMS tabs as follows: The Business → `
 The tabs retain their old columns. `Block1_Farmers_Philosophy` gained `Slug`, `Published_At`, `Sort_Order`; the other two gained those plus `Excerpt` and `Main_Content`. To publish a row, fill a unique lowercase hyphenated `Slug` in its tab, `Title`, `Excerpt`, `Main_Content`, an HTTPS `Cover_Image_URL`, and set `Status` to `Active` or `Published`. Empty cells and placeholder `test` content do not publish. `Sort_Order` is ascending when numeric; otherwise `Published_At` sorts descending. A slug is unique within a category because article URLs include both category and slug.
 
 `Main_Content` accepts plain paragraphs, `##`/`###` headings, `- ` list items, and image lines like `![Alt text](https://example.com/photo.jpg)`. Raw HTML is shown as text, not executed. Each blog page displays three posts. Existing placeholder rows were preserved and are not public until completed.
+
+On 2026-10-23, one introductory article was published in each category in row 3 (ID 2): `from-farm-to-shops`, `working-with-small-farmers`, and `exploring-processing-and-roasting`. Their copy and images were adapted from the existing public homepage; they do not represent new interviews or reporting. The owner can edit these CMS rows directly as fuller stories become available.
 
 ## Order fields
 
