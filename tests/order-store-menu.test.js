@@ -12,7 +12,7 @@ function makeFrontend(fetchImpl) {
   let checkboxes = [];
   const getElementById = id => {
     if (id === 'custAddress') return null; // The checkout form has no address input.
-    if (!elements.has(id)) elements.set(id, { id, classList: makeClassList(), value: '', innerText: '', innerHTML: '', src: '', disabled: false, insertAdjacentHTML(_, html) { this.innerHTML += html; }, scrollIntoView() {}, focus() {} });
+    if (!elements.has(id)) elements.set(id, { id, classList: makeClassList(), value: '', innerText: '', innerHTML: '', src: '', disabled: false, hidden: false, insertAdjacentHTML(_, html) { this.innerHTML += html; }, scrollIntoView() {}, focus() {} });
     return elements.get(id);
   };
   const document = { getElementById, addEventListener() {}, querySelector(selector) { return selector.includes('productSize') ? { value: radioSize } : null; }, querySelectorAll(selector) { return selector.includes('addon-checkbox') ? checkboxes.filter(box => selector.includes(':checked') ? box.checked : true) : []; } };
@@ -52,7 +52,7 @@ const catalog = { status: 'success', schemaVersion: 3, version: 'v1', fetchedAt:
   assert.equal(api.getElementById('fulfillmentValue').innerText, 'Table: 01');
   api.context.openCartModal();
   assert.equal(api.getElementById('tableNumberField').hidden, false, 'Dine-in shows the table field in Review Cart');
-  assert.equal(api.getElementById('orderNoteField').hidden, true, 'Dine-in replaces the general note field');
+  assert.equal(api.getElementById('orderNoteField').hidden, false, 'Dine-in also shows the optional order note');
   assert.equal(api.getElementById('tableNumber').value, '01', 'QR table number remains editable');
   assert.equal(api.getElementById('tableNumber').required, true);
   api.context.selectFulfillment('PICKUP');
@@ -110,7 +110,7 @@ const catalog = { status: 'success', schemaVersion: 3, version: 'v1', fetchedAt:
   await checkout.context.submitOrder({preventDefault() {}});
   assert.equal(lastPayload.tableNumber,'Bàn 01');
   assert.equal(lastPayload.items[0].specialInstructions,'Ít đá');
-  assert.equal(lastPayload.notes,'', 'Dine-in does not send a hidden stale general note');
+  assert.equal(lastPayload.notes,'Ghi chú chung', 'Dine-in sends the optional order note separately from table and item notes');
   assert.ok(checkout.getElementById('orderSuccessModal').classList.contains('hidden'), 'an unrelated success response must not show the popup');
   assert.equal(vm.runInContext('cart.length', checkout.context), 1);
   replyMode = 'success';
@@ -144,6 +144,7 @@ const catalog = { status: 'success', schemaVersion: 3, version: 'v1', fetchedAt:
 
   const orderHtml = fs.readFileSync('order/index.html', 'utf8');
   assert.match(orderHtml, /placeholder="Nhập số bàn hoặc vị trí ngồi \(nếu bạn đang ở trong quán\)"/);
+  assert.match(orderHtml, /<div id="orderNoteField">[\s\S]*?<label for="orderNote"[^>]*>Ghi chú đơn hàng \(không bắt buộc\)<\/label>/);
   assert.doesNotMatch(orderHtml, /placeholder="• Special instructions \(optional\)"/);
 
   const largeOnly = {status:'success',schemaVersion:3,products:[{id:'MWC',name:'Mocha with Whipping Cream',category:'Coffee',price:null,normal_price:null,large_price:85000,

@@ -21,13 +21,16 @@ const html = fs.readFileSync('stores/order.html', 'utf8');
 const script = [...html.matchAll(/<script\b[^>]*>([\s\S]*?)<\/script>/gi)].map(match => match[1]).find(source => source.includes('const SCRIPT_URL'));
 vm.runInContext(script, context, { filename: 'stores/order.html' });
 
-const qaOrder = { orderId: 'ORD20261012-ABCDEF123456', storeCode: 'store_1', customerName: 'Customer', customerPhone: '000', fulfillmentType: 'PICKUP', itemsDetail: 'Latte x1', totalAmount: 55000, status: 'PENDING' };
+const qaOrder = { orderId: 'ORD20261012-ABCDEF123456', storeCode: 'store_1', customerName: 'Customer', customerPhone: '000', fulfillmentType: 'DINE_IN', locationDetail: 'Bàn 03', itemsDetail: 'Latte x1\nGhi chú món: Ít đá', note: 'Ghi chú chung', totalAmount: 55000, status: 'PENDING' };
 const otherStoreOrder = { ...qaOrder, orderId: 'ORD-OTHER', storeCode: 'store_6' };
 context.detectNewStoreOrders([qaOrder, otherStoreOrder]);
 assert.equal(vm.runInContext('notificationState.queue.length', context), 0, 'initial poll establishes a baseline without alerting on existing orders');
 context.detectNewStoreOrders([qaOrder, otherStoreOrder, { ...qaOrder, orderId: 'ORD-NEW' }]);
 assert.equal(vm.runInContext('notificationState.queue.length', context), 1, 'only a new order for the current store enters the popup queue');
 assert.equal(getElementById('popupOrderId').textContent, 'ORD-NEW');
+assert.equal(getElementById('popupLocation').textContent, 'Bàn 03');
+assert.match(getElementById('popupItems').textContent, /Ghi chú món: Ít đá/);
+assert.equal(getElementById('popupNote').textContent, 'Ghi chú chung');
 context.detectNewStoreOrders([qaOrder, otherStoreOrder, { ...qaOrder, orderId: 'ORD-NEW' }]);
 assert.equal(vm.runInContext('notificationState.queue.length', context), 1, 'repeated polls do not duplicate a notification');
 context.dismissNewOrderPopup();

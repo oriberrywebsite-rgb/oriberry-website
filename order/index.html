@@ -252,9 +252,9 @@
                             <label for="tableNumber" class="text-xs font-semibold text-stone-700">Số bàn / vị trí ngồi *</label>
                             <textarea id="tableNumber" maxlength="200" rows="2" placeholder="Nhập số bàn hoặc vị trí ngồi (nếu bạn đang ở trong quán)" class="mt-1 w-full text-xs border border-stone-300 rounded-xl p-2.5 focus:outline-none focus:border-amber-700"></textarea>
                         </div>
-                        <div id="orderNoteField" hidden>
-                            <label for="orderNote" class="text-xs font-semibold text-stone-700">Ghi chú đơn hàng</label>
-                            <textarea id="orderNote" placeholder="Ghi chú đơn hàng (không bắt buộc)" rows="2" class="mt-1 w-full text-xs border border-stone-300 rounded-xl p-2.5 focus:outline-none focus:border-amber-700"></textarea>
+                        <div id="orderNoteField">
+                            <label for="orderNote" class="text-xs font-semibold text-stone-700">Ghi chú đơn hàng (không bắt buộc)</label>
+                            <textarea id="orderNote" maxlength="1000" placeholder="Yêu cầu chung cho cả đơn (nếu có)" rows="2" class="mt-1 w-full text-xs border border-stone-300 rounded-xl p-2.5 focus:outline-none focus:border-amber-700"></textarea>
                         </div>
                         <button type="submit" id="submitBtn" class="w-full bg-neutral-900 hover:bg-amber-950 text-white font-bold py-3 rounded-xl text-xs transition uppercase tracking-wider shadow-md cursor-pointer">PLACE ORDER</button>
                     </form>
@@ -631,12 +631,10 @@ async function fetchMenuProducts() {
         function updateTableNumberField() {
             const field = document.getElementById('tableNumberField');
             const input = document.getElementById('tableNumber');
-            const noteField = document.getElementById('orderNoteField');
-            if (!field || !input || !noteField) return;
-            // [SỬA] Review Cart dùng cùng vị trí cho số bàn khi Dine-in, ghi chú chung chỉ khi Pickup/Delivery.
+            if (!field || !input) return;
+            // [SỬA] Dine-in cần số bàn và vẫn giữ ghi chú chung cho toàn bộ đơn.
             const isDineIn = currentFulfillment === 'DINE_IN';
             field.hidden = !isDineIn;
-            noteField.hidden = isDineIn;
             input.required = isDineIn;
         }
 
@@ -1074,7 +1072,7 @@ async function submitOrder(e) {
             quotedUnitPrice: Number(item.price)
         })),
         quotedTotal: quotedTotal,
-        notes: currentFulfillment === 'DINE_IN' ? '' : (document.getElementById('orderNote')?.value || ''),
+        notes: document.getElementById('orderNote')?.value || '',
         paymentMethod: 'COD'
     };
     payload.orderId = getPendingStoreOrderId(payload);
