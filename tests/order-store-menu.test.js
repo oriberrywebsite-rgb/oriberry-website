@@ -142,7 +142,35 @@ const catalog = { status: 'success', schemaVersion: 3, version: 'v1', fetchedAt:
   assert.equal(pickupPayload.notes, 'Lấy tại quầy', 'Pickup keeps the general order note');
   assert.equal(pickupPayload.items[0].specialInstructions, 'Ít đá', 'item notes remain independent');
 
+  const editing = makeFrontend(async () => ({ok:true,json:async()=>catalog}));
+  vm.runInContext("cart=[{key:'ES-normal--Ít đá',productId:'ES',size:'normal',addonIds:[],name:'Espresso',note:'Ít đá',qty:1,price:35},{key:'ES-normal--Không đường',productId:'ES',size:'normal',addonIds:[],name:'Espresso',note:'Không đường',qty:1,price:35}]", editing.context);
+  editing.context.saveCart();
+  editing.stored.set('oriberry_pending_store_order_id', 'ORD-RETRY');
+  editing.context.editCartItemNote(0);
+  assert.equal(editing.getElementById('editCartNoteModal').classList.contains('hidden'), false, 'note editor opens in-page');
+  assert.equal(editing.getElementById('editCartNoteItemName').textContent, 'Espresso');
+  assert.equal(editing.getElementById('editCartNoteInput').value, 'Ít đá');
+  editing.getElementById('editCartNoteInput').value = 'Ít đá, thêm sữa';
+  editing.context.cancelCartItemNote();
+  assert.equal(vm.runInContext('cart[0].note', editing.context), 'Ít đá', 'Cancel keeps the original note');
+  assert.equal(editing.stored.get('oriberry_pending_store_order_id'), 'ORD-RETRY', 'Cancel keeps retry identity');
+  editing.context.editCartItemNote(0);
+  editing.getElementById('editCartNoteInput').value = ' Ít đá, thêm sữa ';
+  editing.context.saveCartItemNote();
+  assert.equal(vm.runInContext('cart[0].note', editing.context), 'Ít đá, thêm sữa');
+  assert.equal(vm.runInContext('cart[1].note', editing.context), 'Không đường', 'another item note is unchanged');
+  assert.match(editing.getElementById('cartItemsContainer').innerHTML, /Ghi chú món: Ít đá, thêm sữa/);
+  assert.equal(editing.stored.has('oriberry_pending_store_order_id'), false, 'changing a note invalidates the old retry identity');
+  editing.context.editCartItemNote(0);
+  editing.getElementById('editCartNoteInput').value = 'x'.repeat(501);
+  editing.context.saveCartItemNote();
+  assert.equal(editing.getElementById('editCartNoteError').hidden, false, 'overlong note shows inline validation');
+  assert.equal(vm.runInContext('cart[0].note', editing.context), 'Ít đá, thêm sữa');
+  editing.context.cancelCartItemNote();
+
   const orderHtml = fs.readFileSync('order/index.html', 'utf8');
+  assert.match(orderHtml, /id="editCartNoteModal"/);
+  assert.doesNotMatch(orderHtml, /prompt\('Ghi chú riêng cho món này:'/);
   assert.match(orderHtml, /placeholder="Nhập số bàn hoặc vị trí ngồi \(nếu bạn đang ở trong quán\)"/);
   assert.match(orderHtml, /<div id="orderNoteField">[\s\S]*?<label for="orderNote"[^>]*>Ghi chú đơn hàng \(không bắt buộc\)<\/label>/);
   assert.doesNotMatch(orderHtml, /placeholder="• Special instructions \(optional\)"/);
