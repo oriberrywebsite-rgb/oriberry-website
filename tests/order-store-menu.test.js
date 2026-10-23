@@ -50,6 +50,16 @@ const catalog = { status: 'success', schemaVersion: 3, version: 'v1', fetchedAt:
   assert.equal(vm.runInContext('selectedStoreId', api.context), 'store_6');
   assert.equal(vm.runInContext('currentFulfillment', api.context), 'DINE_IN');
   assert.equal(api.getElementById('fulfillmentValue').innerText, 'Table: 01');
+  api.context.openCartModal();
+  assert.equal(api.getElementById('tableNumberField').hidden, false, 'Dine-in shows the table field in Review Cart');
+  assert.equal(api.getElementById('orderNoteField').hidden, true, 'Dine-in replaces the general note field');
+  assert.equal(api.getElementById('tableNumber').value, '01', 'QR table number remains editable');
+  assert.equal(api.getElementById('tableNumber').required, true);
+  api.context.selectFulfillment('PICKUP');
+  assert.equal(api.getElementById('tableNumberField').hidden, true);
+  assert.equal(api.getElementById('orderNoteField').hidden, false);
+  assert.equal(api.getElementById('tableNumber').value, '', 'switching away clears stale table number');
+  assert.equal(api.getElementById('tableNumber').required, false);
   assert.deepEqual(Array.from(vm.runInContext('PRODUCTS.map(p => p.id)', api.context)), ['ES', 'TEA']);
   assert.equal(vm.runInContext('PRODUCTS[0].normal_price', api.context), 35, 'store prices are projected from the cached catalog');
   assert.equal(requests.length, 1, 'selecting or changing stores does not refetch menu');
@@ -100,7 +110,7 @@ const catalog = { status: 'success', schemaVersion: 3, version: 'v1', fetchedAt:
   await checkout.context.submitOrder({preventDefault() {}});
   assert.equal(lastPayload.tableNumber,'Bàn 01');
   assert.equal(lastPayload.items[0].specialInstructions,'Ít đá');
-  assert.equal(lastPayload.notes,'Ghi chú chung');
+  assert.equal(lastPayload.notes,'', 'Dine-in does not send a hidden stale general note');
   assert.ok(checkout.getElementById('orderSuccessModal').classList.contains('hidden'), 'an unrelated success response must not show the popup');
   assert.equal(vm.runInContext('cart.length', checkout.context), 1);
   replyMode = 'success';
@@ -113,6 +123,28 @@ const catalog = { status: 'success', schemaVersion: 3, version: 'v1', fetchedAt:
   checkout.context.closeOrderSuccess();
   assert.ok(checkout.getElementById('orderSuccessModal').classList.contains('hidden'));
   assert.equal(checkoutPosts, 2, 'closing the receipt never posts another order');
+
+  let pickupPayload;
+  const pickup = makeFrontend(async (url, options) => {
+    if (!options?.method) return {ok:true,json:async()=>catalog};
+    pickupPayload = JSON.parse(options.body);
+    return {ok:true,json:async()=>({status:'success',orderId:'ORD9388',displayOrderId:'ORD9388',requestId:pickupPayload.requestId,totalAmount:35})};
+  });
+  vm.runInContext("selectedStoreId='store_6'", pickup.context);
+  await pickup.context.fetchMenuProducts();
+  vm.runInContext("cart=[{key:'ES-note',productId:'ES',name:'Espresso (Size Normal)',note:'Ít đá',qty:1,price:35,size:'normal',addonIds:[]}]", pickup.context);
+  pickup.context.selectFulfillment('PICKUP');
+  pickup.getElementById('custName').value = 'Preview';
+  pickup.getElementById('custPhone').value = '0000000000';
+  pickup.getElementById('orderNote').value = 'Lấy tại quầy';
+  await pickup.context.submitOrder({preventDefault() {}});
+  assert.equal(pickupPayload.tableNumber, '', 'Pickup never sends a table number');
+  assert.equal(pickupPayload.notes, 'Lấy tại quầy', 'Pickup keeps the general order note');
+  assert.equal(pickupPayload.items[0].specialInstructions, 'Ít đá', 'item notes remain independent');
+
+  const orderHtml = fs.readFileSync('order/index.html', 'utf8');
+  assert.match(orderHtml, /placeholder="Nhập số bàn hoặc vị trí ngồi \(nếu bạn đang ở trong quán\)"/);
+  assert.doesNotMatch(orderHtml, /placeholder="• Special instructions \(optional\)"/);
 
   const largeOnly = {status:'success',schemaVersion:3,products:[{id:'MWC',name:'Mocha with Whipping Cream',category:'Coffee',price:null,normal_price:null,large_price:85000,
     hasNormalSize:false,hasLargeSize:true,addonIds:['SYR'],availableByStore:{store_1:true},priceByStore:{store_1:{normal:null,large:85000,hasNormalSize:false,hasLargeSize:true}}}]};

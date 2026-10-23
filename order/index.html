@@ -248,10 +248,14 @@
                     <form id="checkoutForm" onsubmit="submitOrder(event)" class="space-y-2.5 pt-1">
                         <input type="text" id="custName" placeholder="Your Name *" required class="w-full text-xs border border-stone-300 rounded-xl p-2.5 focus:outline-none focus:border-amber-700">
                         <input type="tel" id="custPhone" placeholder="Your Phone Number *" required class="w-full text-xs border border-stone-300 rounded-xl p-2.5 focus:outline-none focus:border-amber-700">
-                        <label id="tableNumberField" class="block text-xs font-semibold text-stone-700">Số bàn / Vị trí ngồi *
-                            <input type="text" id="tableNumber" maxlength="200" placeholder="Bàn 05, tầng 2, gần cửa sổ" class="mt-1 w-full border border-stone-300 rounded-xl p-2.5 focus:outline-none focus:border-amber-700">
-                        </label>
-                        <textarea id="orderNote" placeholder="• Special instructions (optional)" rows="2" class="w-full text-xs border border-stone-300 rounded-xl p-2.5 focus:outline-none focus:border-amber-700"></textarea>
+                        <div id="tableNumberField">
+                            <label for="tableNumber" class="text-xs font-semibold text-stone-700">Số bàn / vị trí ngồi *</label>
+                            <textarea id="tableNumber" maxlength="200" rows="2" placeholder="Nhập số bàn hoặc vị trí ngồi (nếu bạn đang ở trong quán)" class="mt-1 w-full text-xs border border-stone-300 rounded-xl p-2.5 focus:outline-none focus:border-amber-700"></textarea>
+                        </div>
+                        <div id="orderNoteField" hidden>
+                            <label for="orderNote" class="text-xs font-semibold text-stone-700">Ghi chú đơn hàng</label>
+                            <textarea id="orderNote" placeholder="Ghi chú đơn hàng (không bắt buộc)" rows="2" class="mt-1 w-full text-xs border border-stone-300 rounded-xl p-2.5 focus:outline-none focus:border-amber-700"></textarea>
+                        </div>
                         <button type="submit" id="submitBtn" class="w-full bg-neutral-900 hover:bg-amber-950 text-white font-bold py-3 rounded-xl text-xs transition uppercase tracking-wider shadow-md cursor-pointer">PLACE ORDER</button>
                     </form>
                 </div>
@@ -610,6 +614,10 @@ async function fetchMenuProducts() {
         function closeModal(id) { document.getElementById(id).classList.add('hidden'); }
 
         function selectFulfillment(type) {
+            if (currentFulfillment === 'DINE_IN' && type !== 'DINE_IN') {
+                document.getElementById('tableNumber').value = '';
+                window.currentDineInTable = '';
+            }
             currentFulfillment = type;
             updateTableNumberField();
             closeModal('fulfillmentModal');
@@ -623,10 +631,13 @@ async function fetchMenuProducts() {
         function updateTableNumberField() {
             const field = document.getElementById('tableNumberField');
             const input = document.getElementById('tableNumber');
-            if (!field || !input) return;
-            if (currentFulfillment === 'DINE_IN') field.classList.remove('hidden');
-            else field.classList.add('hidden');
-            input.required = currentFulfillment === 'DINE_IN';
+            const noteField = document.getElementById('orderNoteField');
+            if (!field || !input || !noteField) return;
+            // [SỬA] Review Cart dùng cùng vị trí cho số bàn khi Dine-in, ghi chú chung chỉ khi Pickup/Delivery.
+            const isDineIn = currentFulfillment === 'DINE_IN';
+            field.hidden = !isDineIn;
+            noteField.hidden = isDineIn;
+            input.required = isDineIn;
         }
 
         function backToFulfillmentModal() {
@@ -973,7 +984,10 @@ function addToCartFromModal() {
             saveCart();
         }
 
-        function openCartModal() { document.getElementById('cartModal').classList.remove('hidden'); }
+        function openCartModal() {
+            updateTableNumberField();
+            document.getElementById('cartModal').classList.remove('hidden');
+        }
 
 function getPendingStoreOrderId(payload) {
     // Đây là khóa retry nội bộ; Order_ID hiển thị do backend cấp dưới ScriptLock.
@@ -1060,7 +1074,7 @@ async function submitOrder(e) {
             quotedUnitPrice: Number(item.price)
         })),
         quotedTotal: quotedTotal,
-        notes: document.getElementById('orderNote')?.value || '',
+        notes: currentFulfillment === 'DINE_IN' ? '' : (document.getElementById('orderNote')?.value || ''),
         paymentMethod: 'COD'
     };
     payload.orderId = getPendingStoreOrderId(payload);
