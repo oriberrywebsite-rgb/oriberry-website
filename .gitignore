@@ -1,0 +1,5 @@
+# Backend is deployed separately to Google Apps Script; keep local sources off Git.
+/backend/
+
+# Keep local regression tests available without publishing them to Git.
+/tests/
