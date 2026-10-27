@@ -16,6 +16,16 @@ Backup made before publishing the first blog articles on 2026-10-23: `1EQhW2Q8uZ
 
 ## Blog
 
+### Sửa blog ở đâu?
+
+- `blog/index.html` chứa toàn bộ giao diện và JavaScript: phần 1 là CSS, phần 2 là HTML, phần 3 là cấu hình `BLOG_API_URL` và chuyên mục; các phần sau xử lý cache, danh sách, bài viết và chọn màn hình. Không cần framework hay bước build.
+- `blog/article.html` chỉ chuyển tiếp link bài cũ sang trang chung, giữ tham số URL và dấu `#`. Giữ file này để các link đã chia sẻ tiếp tục dùng được.
+- Danh sách: `/blog/?category=farmers&page=1`. Bài viết: `/blog/?category=farmers&slug=working-with-small-farmers`. Không có `slug` là danh sách; `slug` rỗng báo thiếu đường dẫn bài.
+- Đăng/sửa bài trực tiếp trong đúng tab Google Sheets theo các cột bên dưới; không cần tạo thêm file trên GitHub. API và cách lọc/sắp xếp bài nằm trong `backend/Blog.gs`, không thay đổi khi sửa giao diện. Cache trình duyệt kéo dài 2 phút nên nội dung vừa sửa có thể chưa hiện ngay.
+- Chạy `node tests/blog.test.js` và `node tests/blog-frontend.test.js` từ thư mục gốc để kiểm tra blog bằng dữ liệu giả lập. Đây không phải kiểm tra triển khai thực tế.
+
+### Nội dung trên Google Sheets
+
 The three homepage links map to existing CMS tabs as follows: The Business → `Block3_Shops_Menu`, The Farmers → `Block1_Farmers_Philosophy`, The Processing → `Block2_Roastery_Products`. This mapping is based on the tab topics and homepage labels; no previous link mapping existed.
 
 The tabs retain their old columns. `Block1_Farmers_Philosophy` gained `Slug`, `Published_At`, `Sort_Order`; the other two gained those plus `Excerpt` and `Main_Content`. To publish a row, fill a unique lowercase hyphenated `Slug` in its tab, `Title`, `Excerpt`, `Main_Content`, an HTTPS `Cover_Image_URL`, and set `Status` to `Active` or `Published`. Empty cells and placeholder `test` content do not publish. `Sort_Order` is ascending when numeric; otherwise `Published_At` sorts descending. A slug is unique within a category because article URLs include both category and slug.

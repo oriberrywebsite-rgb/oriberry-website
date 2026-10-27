@@ -37,7 +37,10 @@ assert.equal(get({action:'getBlogPost',category:'farmers',slug:'missing'}).code,
 const node = tag => ({tag,textContent:'',children:[],append(...items){this.children.push(...items);},replaceChildren(){this.children=[];}});
 const document = {getElementById:()=>null,createElement:node};
 const frontend = vm.createContext({document,location:{search:'?category=farmers'},URLSearchParams,URL,fetch(){throw Error('No network')},console});
-vm.runInContext(fs.readFileSync('blog/blog.js','utf8'),frontend);
+const blogHtml = fs.readFileSync('blog/index.html', 'utf8');
+const blogScript = blogHtml.match(/<script id="blog-script">([\s\S]*?)<\/script>/)[1];
+// These low-level checks call helpers directly; frontend tests exercise real startup.
+vm.runInContext(blogScript.replace(/\binitBlog\(\);\s*$/, ''), frontend);
 const container = node('section');
 frontend.renderArticleContent(container,'## Heading\n- item\n<script>alert(1)</script>\n![photo](https://example.test/photo.jpg)');
 assert.deepEqual(container.children.map(item=>item.tag),['h2','ul','p','img']);
@@ -50,5 +53,20 @@ frontend.fetch = async () => { fetchCount++; return {ok:true,json:async()=>({sta
   await frontend.blogFetch('getBlogPosts',{category:'farmers',page:1});
   await frontend.blogFetch('getBlogPosts',{category:'farmers',page:1});
   assert.equal(fetchCount,1,'repeat page reads use short session cache');
+  const cacheKey = [...cached.keys()][0];
+  const entry = JSON.parse(cached.get(cacheKey));
+  entry.savedAt = Date.now() - 120001;
+  cached.set(cacheKey, JSON.stringify(entry));
+  await frontend.blogFetch('getBlogPosts',{category:'farmers',page:1});
+  assert.equal(fetchCount,2,'expired two-minute cache refetches');
+  cached.set(cacheKey, 'invalid JSON');
+  await frontend.blogFetch('getBlogPosts',{category:'farmers',page:1});
+  assert.equal(fetchCount,3,'corrupt cache does not prevent reading posts');
+  frontend.sessionStorage = {
+    getItem() { throw new Error('Storage blocked'); },
+    setItem() { throw new Error('Storage blocked'); }
+  };
+  await frontend.blogFetch('getBlogPosts',{category:'farmers',page:1});
+  assert.equal(fetchCount,4,'blog still works with storage blocked');
   console.log('Blog CMS, pagination, cache and safe rendering tests passed (mock Sheets and DOM)');
 })().catch(error => { console.error(error); process.exitCode = 1; });

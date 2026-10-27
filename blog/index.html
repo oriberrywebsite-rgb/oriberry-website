@@ -1,5 +1,507 @@
 <!doctype html>
-<html lang="vi"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="description" content="Câu chuyện kinh doanh, nông dân và chế biến cà phê của Oriberry."><title>Oriberry Journal</title><link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Newsreader:wght@400;500&display=swap" rel="stylesheet"><link rel="stylesheet" href="/blog/blog.css"></head>
-<body><header><div class="shell topbar"><a class="brand" href="/">Oriberry</a><nav aria-label="Điều hướng chính"><a href="/">Trang chủ</a><a href="/order/">Menu</a><a href="/shop/">Shop</a></nav></div></header>
-<main class="shell"><section class="hero"><div class="eyebrow">Oriberry Journal</div><h1 id="categoryTitle">Stories</h1><p>Câu chuyện từ nông trại, cách chúng tôi làm việc và hành trình của từng hạt cà phê.</p></section><nav id="categoryNav" class="category-nav" aria-label="Chuyên mục"></nav><section id="postGrid" class="post-grid" aria-live="polite"><div class="state">Đang tải bài viết…</div></section><nav id="pagination" class="pagination" aria-label="Trang bài viết"></nav></main>
-<footer><div class="shell">© Oriberry Coffee · <a href="/">Về trang chủ</a></div></footer><script src="/blog/blog.js" defer></script></body></html>
+<html lang="vi">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="description" content="Câu chuyện kinh doanh, nông dân và chế biến cà phê của Oriberry.">
+  <title>Oriberry Journal</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Newsreader:wght@400;500&display=swap" rel="stylesheet">
+
+  <!-- 1. Giao diện chung, danh sách, bài viết và màn hình nhỏ. -->
+  <style id="blog-styles">
+    :root {
+      color-scheme:light;
+      font-family:Inter,Arial,sans-serif;
+      color:#231b16;
+      background:#f6f2ea
+    }
+    * {
+      box-sizing:border-box
+    }
+    body {
+      margin:0
+    }
+    a {
+      color:inherit
+    }
+    button {
+      font:inherit
+    }
+    header {
+      border-bottom:1px solid #ded4c5;
+      background:#faf7f1
+    }
+    .shell {
+      max-width:1120px;
+      margin:auto;
+      padding:0 24px
+    }
+    .topbar {
+      min-height:76px;
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:20px
+    }
+    .brand {
+      font-family:Newsreader,Georgia,serif;
+      font-size:30px;
+      text-decoration:none;
+      letter-spacing:.02em
+    }
+    .topbar nav {
+      display:flex;
+      gap:18px;
+      font-size:14px
+    }
+    .topbar nav a {
+      text-decoration:none
+    }
+    .topbar nav a:hover,.category-nav a:hover {
+      text-decoration:underline
+    }
+    .hero {
+      padding:68px 0 40px
+    }
+    .eyebrow {
+      text-transform:uppercase;
+      letter-spacing:.18em;
+      color:#88633c;
+      font-size:12px;
+      font-weight:700
+    }
+    .hero h1 {
+      font-family:Newsreader,Georgia,serif;
+      font-size:clamp(42px,7vw,76px);
+      font-weight:400;
+      margin:8px 0 12px
+    }
+    .hero p {
+      max-width:640px;
+      line-height:1.7;
+      color:#685e55
+    }
+    .category-nav {
+      display:flex;
+      gap:10px;
+      flex-wrap:wrap;
+      margin:12px 0 32px
+    }
+    .category-nav a {
+      text-decoration:none;
+      border:1px solid #cdbba6;
+      border-radius:999px;
+      padding:11px 18px;
+      font-size:13px;
+      font-weight:600
+    }
+    .category-nav a[aria-current=page] {
+      background:#3b2a20;
+      color:#fff;
+      border-color:#3b2a20
+    }
+    .post-grid {
+      display:grid;
+      grid-template-columns:repeat(3,minmax(0,1fr));
+      gap:22px;
+      min-height:190px
+    }
+    .post-card {
+      background:#fff;
+      border:1px solid #e4dacd;
+      border-radius:20px;
+      overflow:hidden;
+      box-shadow:0 8px 24px #3927150a
+    }
+    .post-card a {
+      text-decoration:none;
+      display:block;
+      height:100%
+    }
+    .post-card img {
+      width:100%;
+      aspect-ratio:3/2;
+      object-fit:cover;
+      background:#e4dacd
+    }
+    .post-card-content {
+      padding:20px
+    }
+    .post-card h2 {
+      font:400 27px/1.12 Newsreader,Georgia,serif;
+      margin:0 0 10px
+    }
+    .post-card p {
+      font-size:14px;
+      line-height:1.55;
+      color:#66594f;
+      margin:0
+    }
+    .pagination {
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      gap:8px;
+      padding:36px 0 72px
+    }
+    .pagination a,.pagination span {
+      min-width:38px;
+      text-align:center;
+      padding:10px 14px;
+      border:1px solid #cdbba6;
+      border-radius:10px;
+      text-decoration:none;
+      font-size:13px
+    }
+    .pagination .current {
+      background:#3b2a20;
+      color:#fff;
+      border-color:#3b2a20
+    }
+    .pagination .disabled {
+      opacity:.4
+    }
+    .state {
+      grid-column:1/-1;
+      padding:44px 20px;
+      background:#fff;
+      border:1px solid #e4dacd;
+      border-radius:18px;
+      text-align:center;
+      color:#65594e;
+      line-height:1.6
+    }
+    .article {
+      max-width:780px;
+      margin:auto;
+      padding:58px 24px 90px
+    }
+    .article .back {
+      font-size:13px;
+      color:#76583a;
+      text-decoration:none
+    }
+    .article h1 {
+      font:400 clamp(40px,7vw,70px)/1.07 Newsreader,Georgia,serif;
+      margin:25px 0 14px
+    }
+    .article .intro {
+      font-size:19px;
+      line-height:1.65;
+      color:#675b50
+    }
+    .article .cover {
+      width:100%;
+      border-radius:18px;
+      aspect-ratio:16/9;
+      object-fit:cover;
+      margin:28px 0
+    }
+    .article-content {
+      font-size:17px;
+      line-height:1.85
+    }
+    .article-content h2 {
+      font:400 34px Newsreader,Georgia,serif;
+      margin:36px 0 12px
+    }
+    .article-content h3 {
+      font:500 24px Newsreader,Georgia,serif;
+      margin:28px 0 10px
+    }
+    .article-content img {
+      max-width:100%;
+      height:auto;
+      border-radius:14px;
+      margin:20px 0
+    }
+    .article-content li {
+      margin:6px 0
+    }
+    .article-content p {
+      margin:0 0 18px
+    }
+    footer {
+      border-top:1px solid #ded4c5;
+      padding:32px 0;
+      color:#76675b;
+      font-size:13px
+    }
+    @media(max-width:850px) {
+      .post-grid {
+        grid-template-columns:repeat(2,minmax(0,1fr))
+      }
+    }
+    @media(max-width:620px) {
+      .shell {
+        padding:0 16px
+      }
+      .topbar {
+        min-height:65px
+      }
+      .topbar nav {
+        gap:12px;
+        font-size:12px
+      }
+      .brand {
+        font-size:25px
+      }
+      .hero {
+        padding:42px 0 24px
+      }
+      .post-grid {
+        grid-template-columns:1fr
+      }
+      .article {
+        padding:38px 16px 65px
+      }
+    }
+  </style>
+</head>
+<body>
+  <!-- 2. HTML: đầu/cuối trang dùng chung; chỉ hiện một trong hai nội dung. -->
+  <header>
+    <div class="shell topbar">
+      <a class="brand" href="/">Oriberry</a>
+      <nav aria-label="Điều hướng chính">
+        <a href="/">Trang chủ</a>
+        <a href="/order/">Menu</a>
+        <a href="/shop/">Shop</a>
+      </nav>
+    </div>
+  </header>
+
+  <main id="blogList" class="shell" hidden>
+    <section class="hero">
+      <div class="eyebrow">Oriberry Journal</div>
+      <h1 id="categoryTitle">Stories</h1>
+      <p>Câu chuyện từ nông trại, cách chúng tôi làm việc và hành trình của từng hạt cà phê.</p>
+    </section>
+    <nav id="categoryNav" class="category-nav" aria-label="Chuyên mục"></nav>
+    <section id="postGrid" class="post-grid" aria-live="polite">
+      <div class="state">Đang tải bài viết…</div>
+    </section>
+    <nav id="pagination" class="pagination" aria-label="Trang bài viết"></nav>
+  </main>
+
+  <main id="blogArticle" class="article" hidden>
+    <a id="backToCategory" class="back" href="/blog/">← Danh sách bài viết</a>
+    <div id="articleCategory" class="eyebrow" style="margin-top:34px"></div>
+    <h1 id="articleTitle">Oriberry Journal</h1>
+    <p id="articleExcerpt" class="intro"></p>
+    <img id="articleCover" class="cover" alt="" hidden>
+    <div id="articleBody" class="article-content" aria-live="polite">
+      <div class="state">Đang tải bài viết…</div>
+    </div>
+  </main>
+
+  <footer>
+    <div class="shell">© Oriberry Coffee · <a href="/">Về trang chủ</a></div>
+  </footer>
+
+  <script id="blog-script">
+    // 3. Cấu hình và đường dẫn. API và Google Sheets giữ nguyên.
+    const BLOG_API_URL = 'https://script.google.com/macros/s/AKfycbx6HqvTfvToQnn61_8d2dtIIf57SlKvL_-XCi32O-HVWWCIwlQ6f9kvbas04guhiGt-/exec';
+    const BLOG_CATEGORIES = { business: 'The Business', farmers: 'The Farmers', processing: 'The Processing' };
+    const blogParams = new URLSearchParams(location.search);
+    const blogCategory = Object.hasOwn(BLOG_CATEGORIES, blogParams.get('category')) ? blogParams.get('category') : 'farmers';
+
+    function blogListUrl(category, page = 1) {
+      return `/blog/?category=${encodeURIComponent(category)}&page=${page}`;
+    }
+
+    function blogArticleUrl(category, slug) {
+      return `/blog/?category=${encodeURIComponent(category)}&slug=${encodeURIComponent(slug)}`;
+    }
+
+    function setText(id, value) {
+      document.getElementById(id).textContent = value;
+    }
+
+    function blogState(element, message) {
+      element.replaceChildren();
+      const box = document.createElement('div');
+      box.className = 'state';
+      box.textContent = message;
+      element.append(box);
+    }
+
+    function imageUrl(value) {
+      return /^https:\/\/[^\s"'<>]+$/i.test(String(value || '')) ? value : '';
+    }
+
+    // 4. Đọc bài công khai và cache hai phút trong phiên.
+    async function blogFetch(action, params) {
+      const url = new URL(BLOG_API_URL);
+      url.searchParams.set('action', action);
+      Object.entries(params).forEach(([key, value]) => url.searchParams.set(key, value));
+      const cacheKey = `oriberry_blog_v1:${url.search}`;
+      try {
+        const cached = JSON.parse(sessionStorage.getItem(cacheKey) || 'null');
+        if (cached && Date.now() - cached.savedAt < 120000) return cached.data;
+      } catch (_) { /* Storage có thể bị trình duyệt chặn. */ }
+      const response = await fetch(url.toString());
+      if (!response.ok) throw new Error('Không thể kết nối máy chủ.');
+      const data = await response.json();
+      if (data.status !== 'success') throw new Error(data.message || 'Không tải được bài viết.');
+      try {
+        sessionStorage.setItem(cacheKey, JSON.stringify({ savedAt: Date.now(), data }));
+      } catch (_) { /* Cache không bắt buộc. */ }
+      return data;
+    }
+
+    // 5. Danh sách: chuyên mục, thẻ bài và phân trang.
+    function addCategoryNavigation() {
+      const nav = document.getElementById('categoryNav');
+      if (!nav) return;
+      Object.entries(BLOG_CATEGORIES).forEach(([id, name]) => {
+        const link = document.createElement('a');
+        link.href = blogListUrl(id);
+        link.textContent = name;
+        if (id === blogCategory) link.setAttribute('aria-current', 'page');
+        nav.append(link);
+      });
+    }
+
+    function addPagination(data) {
+      const nav = document.getElementById('pagination');
+      nav.replaceChildren();
+      if (data.pages < 2) return;
+      const add = (label, page, current = false) => {
+        const node = document.createElement(page ? 'a' : 'span');
+        node.textContent = label;
+        if (page) node.href = blogListUrl(blogCategory, page);
+        if (current) {
+          node.className = 'current';
+          node.setAttribute('aria-current', 'page');
+        }
+        if (!page && !current) node.className = 'disabled';
+        nav.append(node);
+      };
+      add('Previous', data.page > 1 ? data.page - 1 : null);
+      for (let page = 1; page <= data.pages; page++) add(String(page), page === data.page ? null : page, page === data.page);
+      add('Next', data.page < data.pages ? data.page + 1 : null);
+    }
+
+    async function loadBlogList() {
+      addCategoryNavigation();
+      const title = BLOG_CATEGORIES[blogCategory];
+      setText('categoryTitle', title);
+      document.title = `${title} | Oriberry Journal`;
+      const container = document.getElementById('postGrid');
+      const rawPage = Number(blogParams.get('page') || 1);
+      const page = Number.isInteger(rawPage) && rawPage > 0 ? rawPage : 1;
+      try {
+        const data = await blogFetch('getBlogPosts', { category: blogCategory, page });
+        container.replaceChildren();
+        if (!data.posts.length) blogState(container, data.total ? 'Trang này chưa có bài viết.' : 'Chuyên mục này chưa có bài viết được xuất bản.');
+        data.posts.forEach(post => {
+          const card = document.createElement('article');
+          card.className = 'post-card';
+          const link = document.createElement('a');
+          link.href = blogArticleUrl(blogCategory, post.slug);
+          const img = document.createElement('img');
+          img.src = imageUrl(post.coverImageUrl);
+          img.alt = post.title;
+          img.loading = 'lazy';
+          const body = document.createElement('div');
+          body.className = 'post-card-content';
+          const heading = document.createElement('h2');
+          heading.textContent = post.title;
+          const summary = document.createElement('p');
+          summary.textContent = post.excerpt;
+          body.append(heading, summary);
+          link.append(img, body);
+          card.append(link);
+          container.append(card);
+        });
+        addPagination(data);
+      } catch (error) {
+        blogState(container, error.message || 'Không thể tải bài viết. Vui lòng thử lại.');
+      }
+    }
+
+    // 6. Markdown giới hạn. Dùng textContent để không thực thi HTML từ Sheets.
+    function renderArticleContent(container, source) {
+      container.replaceChildren();
+      let list = null;
+      String(source || '').split(/\r?\n/).forEach(raw => {
+        const line = raw.trim();
+        if (!line) {
+          list = null;
+          return;
+        }
+        const image = /^!\[([^\]]*)\]\((https:\/\/[^\s"'<>]+)\)$/.exec(line);
+        if (image) {
+          const img = document.createElement('img');
+          img.src = imageUrl(image[2]);
+          img.alt = image[1];
+          img.loading = 'lazy';
+          container.append(img);
+          list = null;
+        } else if (/^###? /.test(line)) {
+          const heading = document.createElement(line.startsWith('### ') ? 'h3' : 'h2');
+          heading.textContent = line.replace(/^###? /, '');
+          container.append(heading);
+          list = null;
+        } else if (/^- /.test(line)) {
+          if (!list) {
+            list = document.createElement('ul');
+            container.append(list);
+          }
+          const item = document.createElement('li');
+          item.textContent = line.slice(2);
+          list.append(item);
+        } else {
+          const paragraph = document.createElement('p');
+          paragraph.textContent = line;
+          container.append(paragraph);
+          list = null;
+        }
+      });
+    }
+
+    async function loadBlogArticle() {
+      const back = document.getElementById('backToCategory');
+      back.href = blogListUrl(blogCategory);
+      back.textContent = `← ${BLOG_CATEGORIES[blogCategory]}`;
+      const slug = blogParams.get('slug') || '';
+      const container = document.getElementById('articleBody');
+      if (!slug) return blogState(container, 'Thiếu đường dẫn bài viết.');
+      try {
+        const { post } = await blogFetch('getBlogPost', { category: blogCategory, slug });
+        setText('articleCategory', BLOG_CATEGORIES[blogCategory]);
+        setText('articleTitle', post.title);
+        setText('articleExcerpt', post.excerpt);
+        document.title = `${post.title} | Oriberry Journal`;
+        document.querySelector('meta[name="description"]').content = post.excerpt;
+        const cover = document.getElementById('articleCover');
+        cover.src = imageUrl(post.coverImageUrl);
+        cover.alt = post.title;
+        cover.hidden = !cover.src;
+        renderArticleContent(container, post.content);
+      } catch (error) {
+        blogState(container, error.message || 'Không tìm thấy bài viết.');
+      }
+    }
+
+    // 7. Có slug (kể cả rỗng) là trang bài. Không có là danh sách.
+    async function initBlog() {
+      const isArticle = blogParams.has('slug');
+      document.getElementById('blogList').hidden = isArticle;
+      document.getElementById('blogArticle').hidden = !isArticle;
+      if (isArticle) {
+        document.title = 'Bài viết | Oriberry Journal';
+        document.querySelector('meta[name="description"]').content = 'Bài viết từ Oriberry Journal.';
+        await loadBlogArticle();
+      } else {
+        await loadBlogList();
+      }
+    }
+
+    initBlog();
+  </script>
+</body>
+</html>
