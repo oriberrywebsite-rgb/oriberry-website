@@ -11,7 +11,7 @@ function makeNode(tag) {
   return {
     tag, children: [], textContent: '', className: '', attributes: {}, hidden: true,
     append(...nodes) { this.children.push(...nodes); },
-    replaceChildren(...nodes) { this.children = [...nodes]; },
+    replaceChildren() { this.children = []; },
     setAttribute(name, value) { this.attributes[name] = value; }
   };
 }

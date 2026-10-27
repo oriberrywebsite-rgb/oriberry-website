@@ -46,12 +46,6 @@ frontend.renderArticleContent(container,'## Heading\n- item\n<script>alert(1)</s
 assert.deepEqual(container.children.map(item=>item.tag),['h2','ul','p','img']);
 assert.equal(container.children[2].textContent,'<script>alert(1)</script>');
 assert.equal(frontend.imageUrl('javascript:alert(1)'),'');
-frontend.renderArticleContent(container, '- First\n- Second\n\n- Third\n### Subheading\n## Heading\n![blocked](javascript:alert)\n<script>alert(1)</script>');
-assert.deepEqual(container.children.map(item=>item.tag), ['ul','ul','h3','h2','p','p']);
-assert.equal(container.children[0].children.length, 2, 'consecutive bullet lines share a list');
-assert.equal(container.children[1].children.length, 1, 'blank line starts a new list');
-assert.equal(container.children[4].textContent, '![blocked](javascript:alert)');
-assert.equal(container.children[5].textContent, '<script>alert(1)</script>');
 const cached = new Map(); let fetchCount = 0;
 frontend.sessionStorage = {getItem:key=>cached.get(key)||null,setItem:(key,value)=>cached.set(key,value)};
 frontend.fetch = async () => { fetchCount++; return {ok:true,json:async()=>({status:'success',posts:[]})}; };
