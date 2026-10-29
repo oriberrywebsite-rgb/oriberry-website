@@ -51,7 +51,6 @@
     }
   </script>
 
-  <!-- Giao diện tùy chỉnh bổ sung cho Blog theo mô hình 2 cột -->
   <style id="blog-styles">
     .post-card {
       background: #fff;
@@ -107,7 +106,7 @@
 </head>
 <body class="bg-brand-bg text-brand-text font-sans antialiased selection:bg-stone-200 overflow-x-hidden">
 
-  <!-- HEADER CHUẨN GIAO DIỆN TRANG CHỦ -->
+  <!-- HEADER: Logo font Aardvark-Cafe và 3 tab chuyên mục ở giữa -->
   <header class="sticky top-0 z-50 bg-brand-bg/95 backdrop-blur-md border-b border-brand-border/80">
     <div class="max-w-7xl mx-auto px-3 md:px-6 h-16 md:h-20 flex items-center justify-between gap-2 md:gap-4">
       
@@ -115,11 +114,9 @@
         ORIBERRY
       </a>
       
-      <nav class="hidden md:flex items-center justify-center flex-1 min-w-0 space-x-2 lg:space-x-6 text-[11px] lg:text-sm font-medium tracking-tight text-brand-muted">
-        <a href="/#featured" class="hover:text-brand-text transition-colors whitespace-nowrap">Get Our Coffee</a>
-        <a href="/#shops" class="hover:text-brand-text transition-colors whitespace-nowrap">Order Food & Drinks</a>
-        <a href="/blog/" class="hover:text-brand-text transition-colors whitespace-nowrap text-brand-text font-semibold">Stories</a>
-        <a href="/#contact" class="hover:text-brand-text transition-colors whitespace-nowrap">Chat with us</a>
+      <!-- 3 Tab chuyên mục nằm giữa header -->
+      <nav id="headerCategoryNav" class="hidden md:flex items-center justify-center flex-1 min-w-0 space-x-4 lg:space-x-8 text-[12px] lg:text-sm font-medium tracking-tight text-brand-muted" aria-label="Chuyên mục chính">
+        <!-- Javascript tự render 3 tab -->
       </nav>
 
       <!-- Các nút chuyển trang chính (Call-to-Action vuông chuẩn trang chủ) -->
@@ -135,19 +132,19 @@
     </div>
   </header>
 
-  <!-- DANH SÁCH BÀI VIẾT (GIAO DIỆN MÁY TÍNH CHIA 2 CỘT: CỘT TRÁI NỘI DUNG, CỘT PHẢI MỤC LỤC/DANH MỤC) -->
+  <!-- DANH SÁCH BÀI VIẾT (GIAO DIỆN 2 CỘT: CỘT TRÁI LỚN HIỂN THỊ BÀI VIẾT, CỘT PHẢI NHỎ LÀM MỤC LỤC CÁC BÀI TIẾP THEO) -->
   <main id="blogList" class="max-w-7xl mx-auto px-4 md:px-6 py-8 md:py-12" hidden>
     <section class="mb-8">
       <h1 id="categoryTitle" class="text-3xl md:text-5xl font-serif font-light tracking-tight text-brand-text">Stories</h1>
       <p class="mt-2 text-sm text-brand-muted max-w-2xl">Câu chuyện từ nông trại, cách chúng tôi làm việc và hành trình của từng hạt cà phê.</p>
     </section>
 
-    <!-- Bố cục 2 cột cho màn hình lớn: Cột trái (70-75%) và Cột phải (25-30% cho Mục lục) -->
+    <!-- Bố cục 2 cột chuẩn: Cột trái rộng cho bài viết chính, Cột phải cho mục lục bài viết tiếp theo -->
     <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
       
-      <!-- Cột trái: Lưới bài viết -->
+      <!-- Cột trái: Bài viết chính (Hiển thị dạng danh sách lớn, rõ ràng) -->
       <div class="lg:col-span-8">
-        <section id="postGrid" class="grid grid-cols-1 md:grid-cols-2 gap-6" aria-live="polite">
+        <section id="postGrid" class="grid grid-cols-1 gap-6" aria-live="polite">
           <div class="state">Đang tải bài viết…</div>
         </section>
         
@@ -155,25 +152,22 @@
         <nav id="pagination" class="flex items-center justify-center gap-2 py-8" aria-label="Trang bài viết"></nav>
       </div>
 
-      <!-- Cột phải: Mục lục / Chuyên mục / Bài viết liên quan -->
+      <!-- Cột phải: Mục lục sắp xếp các bài viết tiếp theo -->
       <aside class="lg:col-span-4 bg-brand-card border border-brand-border p-6 rounded-2xl sticky top-28">
-        <h3 class="text-lg font-serif font-medium text-brand-text mb-4 pb-2 border-b border-brand-border">Chuyên mục</h3>
-        <nav id="categoryNav" class="flex flex-col space-y-2.5" aria-label="Chuyên mục"></nav>
-        
-        <div class="mt-8 pt-6 border-t border-brand-border">
-          <h4 class="text-xs font-semibold uppercase tracking-widest text-brand-muted mb-2">Về Oriberry Journal</h4>
-          <p class="text-xs text-brand-muted leading-relaxed">Nơi lưu giữ các góc nhìn sâu sắc về chuỗi cung ứng cà phê minh bạch và phát triển cộng đồng bền vững tại Việt Nam.</p>
+        <h3 class="text-lg font-serif font-medium text-brand-text mb-4 pb-2 border-b border-brand-border">Các bài viết tiếp theo</h3>
+        <div id="sidebarPostList" class="flex flex-col space-y-4">
+          <p class="text-xs text-brand-muted">Đang tải danh sách...</p>
         </div>
       </aside>
 
     </div>
   </main>
 
-  <!-- TRANG CHI TIẾT BÀI VIẾT (CŨNG ĐƯỢC THIẾT KẾ CHIA 2 CỘT HIỆN ĐẠI) -->
+  <!-- TRANG CHI TIẾT BÀI VIẾT (CŨNG DÙNG CẤU TRÚC 2 CỘT HIỆN ĐẠI) -->
   <main id="blogArticle" class="max-w-7xl mx-auto px-4 md:px-6 py-8 md:py-12" hidden>
     <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
       
-      <!-- Cột trái: Nội dung chi tiết bài viết -->
+      <!-- Cột trái: Nội dung chi tiết bài viết lớn -->
       <article class="lg:col-span-8 bg-white border border-brand-border p-6 md:p-10 rounded-2xl">
         <a id="backToCategory" class="inline-flex items-center text-xs font-semibold text-brand-muted hover:text-brand-text mb-6 transition-colors" href="/blog/">← Quay lại danh sách</a>
         
@@ -188,13 +182,11 @@
         </div>
       </article>
 
-      <!-- Cột phải: Khối điều hướng phụ / Chuyên mục nhanh -->
+      <!-- Cột phải: Mục lục các bài viết liên quan -->
       <aside class="lg:col-span-4 bg-brand-card border border-brand-border p-6 rounded-2xl sticky top-28">
-        <h3 class="text-lg font-serif font-medium text-brand-text mb-4 pb-2 border-b border-brand-border">Khám phá thêm</h3>
-        <div class="flex flex-col space-y-3 text-sm">
-          <a href="/blog/?category=business" class="hover:text-amber-700 transition-colors">→ The Business</a>
-          <a href="/blog/?category=farmers" class="hover:text-amber-700 transition-colors">→ The Farmers</a>
-          <a href="/blog/?category=processing" class="hover:text-amber-700 transition-colors">→ The Processing</a>
+        <h3 class="text-lg font-serif font-medium text-brand-text mb-4 pb-2 border-b border-brand-border">Các bài viết khác</h3>
+        <div id="articleSidebarList" class="flex flex-col space-y-3">
+          <!-- Load danh sách bài viết khác cùng chuyên mục -->
         </div>
         <div class="mt-6 pt-6 border-t border-brand-border">
           <a href="/shop/" class="block text-center text-xs font-medium bg-brand-text text-brand-bg py-2.5 hover:bg-stone-800 transition-all">
@@ -240,7 +232,6 @@
   </footer>
 
   <script id="blog-script">
-    // 3. Cấu hình và đường dẫn API Google Sheets giữ nguyên hoàn toàn
     const BLOG_API_URL = 'https://script.google.com/macros/s/AKfycbx6HqvTfvToQnn61_8d2dtIIf57SlKvL_-XCi32O-HVWWCIwlQ6f9kvbas04guhiGt-/exec';
     const BLOG_CATEGORIES = { business: 'The Business', farmers: 'The Farmers', processing: 'The Processing' };
     const blogParams = new URLSearchParams(location.search);
@@ -272,41 +263,70 @@
       return /^https:\/\/[^\s"'<>]+$/i.test(String(value || '')) ? value : '';
     }
 
-    // 4. Đọc dữ liệu cache từ phiên làm việc
     async function blogFetch(action, params) {
       const url = new URL(BLOG_API_URL);
       url.searchParams.set('action', action);
       Object.entries(params).forEach(([key, value]) => url.searchParams.set(key, value));
-      const cacheKey = `oriberry_blog_v1:${url.search}`;
+      const cacheKey = `oriberry_blog_v3:${url.search}`;
       try {
         const cached = JSON.parse(sessionStorage.getItem(cacheKey) || 'null');
         if (cached && Date.now() - cached.savedAt < 120000) return cached.data;
-      } catch (_) { /* Bỏ qua nếu bị chặn storage */ }
+      } catch (_) {}
       const response = await fetch(url.toString());
       if (!response.ok) throw new Error('Không thể kết nối máy chủ.');
       const data = await response.json();
       if (data.status !== 'success') throw new Error(data.message || 'Không tải được bài viết.');
       try {
         sessionStorage.setItem(cacheKey, JSON.stringify({ savedAt: Date.now(), data }));
-      } catch (_) { /* Cache không bắt buộc */ }
+      } catch (_) {}
       return data;
     }
 
-    // 5. Điều hướng danh mục bên cột phải (Mục lục)
-    function addCategoryNavigation() {
-      const nav = document.getElementById('categoryNav');
+    function renderHeaderCategories() {
+      const nav = document.getElementById('headerCategoryNav');
       if (!nav) return;
       nav.replaceChildren();
       Object.entries(BLOG_CATEGORIES).forEach(([id, name]) => {
         const link = document.createElement('a');
         link.href = blogListUrl(id);
-        link.textContent = `→ ${name}`;
-        link.className = "text-sm font-medium text-brand-muted hover:text-brand-text transition-colors py-1";
+        link.textContent = name;
+        link.className = "hover:text-brand-text transition-colors whitespace-nowrap text-brand-muted";
         if (id === blogCategory) {
-          link.className = "text-sm font-bold text-brand-text py-1";
+          link.className = "hover:text-brand-text transition-colors whitespace-nowrap text-brand-text font-semibold border-b-2 border-brand-text pb-1";
           link.setAttribute('aria-current', 'page');
         }
         nav.append(link);
+      });
+    }
+
+    function renderSidebarPosts(posts, currentSlug = '') {
+      const containers = [document.getElementById('sidebarPostList'), document.getElementById('articleSidebarList')];
+      containers.forEach(container => {
+        if (!container) return;
+        container.replaceChildren();
+        
+        const filteredPosts = posts.filter(p => p.slug !== currentSlug);
+        if (filteredPosts.length === 0) {
+          container.innerHTML = '<p class="text-xs text-brand-muted">Chưa có bài viết khác.</p>';
+          return;
+        }
+
+        filteredPosts.forEach(post => {
+          const item = document.createElement('a');
+          item.href = blogArticleUrl(blogCategory, post.slug);
+          item.className = 'group block p-3 rounded-xl bg-white border border-brand-border hover:border-stone-400 transition-all';
+          
+          const title = document.createElement('h4');
+          title.textContent = post.title;
+          title.className = 'text-xs font-serif font-medium text-brand-text group-hover:text-amber-700 transition-colors line-clamp-2';
+          
+          const excerpt = document.createElement('p');
+          excerpt.textContent = post.excerpt;
+          excerpt.className = 'text-[11px] text-brand-muted mt-1 line-clamp-1';
+          
+          item.append(title, excerpt);
+          container.append(item);
+        });
       });
     }
 
@@ -335,7 +355,7 @@
     }
 
     async function loadBlogList() {
-      addCategoryNavigation();
+      renderHeaderCategories();
       const title = BLOG_CATEGORIES[blogCategory];
       setText('categoryTitle', title);
       document.title = `${title} | Oriberry`;
@@ -345,36 +365,48 @@
       try {
         const data = await blogFetch('getBlogPosts', { category: blogCategory, page });
         container.replaceChildren();
-        if (!data.posts.length) blogState(container, data.total ? 'Trang này chưa có bài viết.' : 'Chuyên mục này chưa có bài viết được xuất bản.');
-        data.posts.forEach(post => {
+        if (!data.posts.length) {
+          blogState(container, data.total ? 'Trang này chưa có bài viết.' : 'Chuyên mục này chưa có bài viết được xuất bản.');
+          return;
+        }
+
+        data.posts.forEach((post) => {
           const card = document.createElement('article');
-          card.className = 'post-card flex flex-col h-full bg-white';
+          card.className = 'post-card bg-white flex flex-col md:flex-row gap-6 p-5 md:p-6 items-center';
+          
           const link = document.createElement('a');
           link.href = blogArticleUrl(blogCategory, post.slug);
-          link.className = 'flex flex-col h-full no-underline text-inherit';
+          link.className = 'w-full md:w-5/12 flex-shrink-0';
           
           const img = document.createElement('img');
           img.src = imageUrl(post.coverImageUrl);
           img.alt = post.title;
           img.loading = 'lazy';
-          img.className = 'w-full aspect-[16/10] object-cover bg-stone-200';
-          
+          img.className = 'w-full aspect-[16/10] object-cover rounded-xl bg-stone-200 hover:scale-[1.02] transition-transform';
+          link.append(img);
+
           const body = document.createElement('div');
-          body.className = 'p-5 flex flex-col flex-grow justify-between';
+          body.className = 'flex-grow flex flex-col justify-between';
           
           const heading = document.createElement('h2');
           heading.textContent = post.title;
-          heading.className = 'font-serif text-xl font-normal text-brand-text mb-2 leading-snug';
+          heading.className = 'font-serif text-2xl font-normal text-brand-text mb-3 leading-snug';
           
           const summary = document.createElement('p');
           summary.textContent = post.excerpt;
-          summary.className = 'text-xs text-brand-muted line-clamp-3 leading-relaxed';
-          
-          body.append(heading, summary);
-          link.append(img, body);
-          card.append(link);
+          summary.className = 'text-sm text-brand-muted leading-relaxed mb-4';
+
+          const readMore = document.createElement('a');
+          readMore.href = blogArticleUrl(blogCategory, post.slug);
+          readMore.textContent = 'Đọc tiếp →';
+          readMore.className = 'text-xs font-semibold text-brand-text hover:text-amber-700 transition-colors uppercase tracking-wider';
+
+          body.append(heading, summary, readMore);
+          card.append(link, body);
           container.append(card);
         });
+
+        renderSidebarPosts(data.posts);
         addPagination(data);
       } catch (error) {
         blogState(container, error.message || 'Không thể tải bài viết. Vui lòng thử lại.');
@@ -421,7 +453,7 @@
     }
 
     async function loadBlogArticle() {
-      addCategoryNavigation();
+      renderHeaderCategories();
       const back = document.getElementById('backToCategory');
       if (back) {
         back.href = blogListUrl(blogCategory);
@@ -431,7 +463,11 @@
       const container = document.getElementById('articleBody');
       if (!slug) return blogState(container, 'Thiếu đường dẫn bài viết.');
       try {
-        const { post } = await blogFetch('getBlogPost', { category: blogCategory, slug });
+        const [{ post }, listData] = await Promise.all([
+          blogFetch('getBlogPost', { category: blogCategory, slug }),
+          blogFetch('getBlogPosts', { category: blogCategory, page: 1 })
+        ]);
+
         setText('articleCategory', BLOG_CATEGORIES[blogCategory]);
         setText('articleTitle', post.title);
         setText('articleExcerpt', post.excerpt);
@@ -446,6 +482,7 @@
           cover.hidden = !cover.src;
         }
         renderArticleContent(container, post.content);
+        renderSidebarPosts(listData.posts || [], slug);
       } catch (error) {
         blogState(container, error.message || 'Không tìm thấy bài viết.');
       }
@@ -456,7 +493,6 @@
       document.getElementById('blogList').hidden = isArticle;
       document.getElementById('blogArticle').hidden = !isArticle;
       if (isArticle) {
-        document.title = 'Bài viết | Oriberry';
         await loadBlogArticle();
       } else {
         await loadBlogList();
