@@ -234,6 +234,11 @@
   <script id="blog-script">
     const BLOG_API_URL = 'https://script.google.com/macros/s/AKfycbx6HqvTfvToQnn61_8d2dtIIf57SlKvL_-XCi32O-HVWWCIwlQ6f9kvbas04guhiGt-/exec';
     const BLOG_CATEGORIES = { business: 'The Business', farmers: 'The Farmers', processing: 'The Processing' };
+    const BLOG_DESCRIPTIONS = {
+  business: "Information about the organization, development philosophy, history, and strategic growth regarding our company, coffee shops, and online trading policies.",
+  farmers: "Real stories, field experience, and sustainable practices from ethnic minority farming communities partnering with Oriberry across Vietnam.",
+  processing: "Exploring processing methods, micro-batch roasting experiments, and flavor development techniques to unlock the full potential of Vietnamese specialty coffee."
+};
     const blogParams = new URLSearchParams(location.search);
     const blogCategory = Object.hasOwn(BLOG_CATEGORIES, blogParams.get('category')) ? blogParams.get('category') : 'farmers';
 
@@ -358,6 +363,7 @@
       renderHeaderCategories();
       const title = BLOG_CATEGORIES[blogCategory];
       setText('categoryTitle', title);
+      setText('categoryDesc', BLOG_DESCRIPTIONS[blogCategory] || '');
       document.title = `${title} | Oriberry`;
       const container = document.getElementById('postGrid');
       const rawPage = Number(blogParams.get('page') || 1);
