@@ -330,12 +330,17 @@
           return;
         }
 
-        filteredPosts.forEach(post => {
-          const item = document.createElement('a');
-          const inline = blogCategory === 'business' && !blogParams.has('slug');
-          item.href = inline ? `#post-${post.slug}` : blogArticleUrl(blogCategory, post.slug);
-          if (inline) item.onclick = () => { document.getElementById(`post-${post.slug}`).open = true; };
-          item.className = 'group block p-3 rounded-xl bg-white border border-brand-border hover:border-stone-400 transition-all';
+filteredPosts.forEach(post => {
+    const item = document.createElement('a');
+    item.href = `?category=${blogCategory}&slug=${post.slug}`;
+    item.onclick = function(e) {
+      e.preventDefault();
+      window.history.pushState({ category: blogCategory, slug: post.slug }, '', item.href);
+      loadBlogArticle(); // Gọi lại hàm load bài viết
+    };
+
+    item.className = 'group block p-3 rounded-xl bg-white border border-brand-border hover:border-brand-text transition-all mb-3';
+    // ... các phần code bên dưới giữ nguyên ...
           
           const title = document.createElement('h4');
           title.textContent = post.title;
