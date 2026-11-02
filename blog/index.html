@@ -392,8 +392,13 @@ async function loadBlogList() {
           return;
         }
 
-        // Lấy bài viết đầu tiên hiển thị đầy đủ ở cột trái
-        const firstPost = data.posts[0];
+        // Lấy bài viết đầu tiên từ danh sách
+        const firstSummary = data.posts[0];
+        
+        // Gọi API lấy nội dung CHI TIẾT đầy đủ của bài đầu tiên để hiện ở cột trái
+        const detailData = await blogFetch('getBlogPost', { category: blogCategory, slug: firstSummary.slug });
+        const firstPost = detailData.post || firstSummary;
+
         const card = document.createElement('article');
         card.className = 'post-card p-6 md:p-8 bg-white';
         
@@ -408,14 +413,20 @@ async function loadBlogList() {
         
         const body = document.createElement('div');
         body.className = 'article-content text-brand-text text-base';
-        renderArticleContent(body, firstPost.content);
+        
+        // Hiển thị trọn vẹn nội dung chi tiết bài viết ở cột trái
+        renderArticleContent(body, firstPost.content || firstPost.excerpt);
         
         card.append(img, heading, body);
         container.append(card);
 
-        // Cột phải hiển thị các bài viết tiếp theo (loại bỏ bài đang hiển thị ở cột trái)
+        // Cột phải hiển thị các bài viết tiếp theo
         renderSidebarPosts(data.posts, firstPost.slug);
-        addPagination(data);
+        
+        // Ẩn thanh phân trang thừa ở giao diện này
+        const pagination = document.getElementById('pagination');
+        if (pagination) pagination.hidden = true;
+
       } catch (error) {
         blogState(container, error.message || 'Không thể tải bài viết. Vui lòng thử lại.');
       }
