@@ -333,28 +333,42 @@
 filteredPosts.forEach(post => {
     const item = document.createElement('a');
     item.href = `?category=${blogCategory}&slug=${post.slug}`;
-item.onclick = async function (e) {
+    
+    item.onclick = async function (e) {
       e.preventDefault();
       window.history.pushState({ category: blogCategory, slug: post.slug }, '', item.href);
-      await loadBlogArticle();
+      
+      try {
+        const container = document.getElementById('articleBody');
+        const [postData] = await Promise.all([
+          blogFetch('getBlogPost', { category: blogCategory, slug: post.slug })
+        ]);
+        if (postData && postData.post) {
+          renderArticleContent(container, postData.post.content);
+          setTeaser('articleTitle', postData.post.title);
+          setTeaser('articleExcerpt', postData.post.excerpt);
+          document.title = `${postData.post.title} | Oriberry`;
+        }
+      } catch (err) {
+        console.error(err);
+      }
+      
       window.scrollTo({ top: 0, behavior: 'smooth' });
     };
+
     item.className = 'group block p-3 rounded-xl bg-white border border-brand-border hover:border-brand-text transition-all mb-3';
-    // ... các phần code bên dưới giữ nguyên ...
-          
-          const title = document.createElement('h4');
-          title.textContent = post.title;
-          title.className = 'text-xs font-serif font-medium text-brand-text group-hover:text-amber-700 transition-colors line-clamp-2';
-          
-          const excerpt = document.createElement('p');
-          excerpt.textContent = post.excerpt;
-          excerpt.className = 'text-[11px] text-brand-muted mt-1 line-clamp-1';
-          
-          item.append(title, excerpt);
-          container.append(item);
-        });
-      });
-    }
+
+    const title = document.createElement('h4');
+    title.textContent = post.title;
+    title.className = 'text-xs font-serif font-medium text-brand-text group-hover:text-amber-700 transition-colors line-clamp-2';
+
+    const excerpt = document.createElement('p');
+    excerpt.textContent = post.excerpt;
+    excerpt.className = 'text-[11px] text-brand-muted mt-1 line-clamp-1';
+
+    item.append(title, excerpt);
+    container.append(item);
+  });
 
     function addPagination(data) {
       const nav = document.getElementById('pagination');
