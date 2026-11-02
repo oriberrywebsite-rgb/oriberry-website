@@ -375,7 +375,7 @@
       add('Next', data.page < data.pages ? data.page + 1 : null);
     }
 
-    async function loadBlogList() {
+async function loadBlogList() {
       renderHeaderCategories();
       const title = BLOG_CATEGORIES[blogCategory];
       setText('categoryTitle', title);
@@ -392,74 +392,29 @@
           return;
         }
 
-        data.posts.forEach((post) => {
-          const inline = blogCategory === 'business';
-          const card = document.createElement(inline ? 'details' : 'article');
-          card.className = 'post-card';
-          const preview = inline ? document.createElement('summary') : card;
-          preview.className += ' flex flex-col md:flex-row gap-6 p-5 md:p-6 items-center';
-          if (inline) {
-            card.id = `post-${post.slug}`;
-            preview.className += ' cursor-pointer focus-visible:outline focus-visible:outline-2 focus-visible:outline-stone-600';
-            card.append(preview);
-          }
-          
-          const link = document.createElement(inline ? 'div' : 'a');
-          if (!inline) link.href = blogArticleUrl(blogCategory, post.slug);
-          link.className = 'w-full md:w-5/12 flex-shrink-0';
-          
-          const img = document.createElement('img');
-          img.src = imageUrl(post.coverImageUrl);
-          img.alt = post.title;
-          img.loading = 'lazy';
-          img.className = 'w-full aspect-[16/10] object-cover rounded-xl bg-stone-200 hover:scale-[1.02] transition-transform';
-          link.append(img);
+        // Lấy bài viết đầu tiên hiển thị đầy đủ ở cột trái
+        const firstPost = data.posts[0];
+        const card = document.createElement('article');
+        card.className = 'post-card p-6 md:p-8 bg-white';
+        
+        const img = document.createElement('img');
+        img.src = imageUrl(firstPost.coverImageUrl);
+        img.alt = firstPost.title;
+        img.className = 'w-full aspect-[16/9] object-cover rounded-xl mb-6 bg-stone-200';
+        
+        const heading = document.createElement('h2');
+        heading.textContent = firstPost.title;
+        heading.className = 'font-serif text-3xl font-normal text-brand-text mb-4 leading-tight';
+        
+        const body = document.createElement('div');
+        body.className = 'article-content text-brand-text text-base';
+        renderArticleContent(body, firstPost.content);
+        
+        card.append(img, heading, body);
+        container.append(card);
 
-          const body = document.createElement('div');
-          body.className = 'flex-grow flex flex-col justify-between';
-          
-          const heading = document.createElement('h2');
-          heading.textContent = post.title;
-          heading.className = 'font-serif text-2xl font-normal text-brand-text mb-3 leading-snug';
-          
-          const summary = document.createElement('p');
-          summary.textContent = post.excerpt;
-          summary.className = 'text-sm text-brand-muted leading-relaxed mb-4';
-
-          const readMore = document.createElement(inline ? 'span' : 'a');
-          if (!inline) readMore.href = blogArticleUrl(blogCategory, post.slug);
-          readMore.textContent = 'Đọc thêm →';
-          readMore.className = 'text-xs font-semibold text-brand-text hover:text-amber-700 transition-colors uppercase tracking-wider';
-
-          body.append(heading, summary, readMore);
-          preview.append(link, body);
-          if (inline) {
-            const content = document.createElement('div');
-            content.className = 'article-content text-brand-text text-base p-5 md:p-6';
-            content.setAttribute('aria-live', 'polite');
-            card.append(content);
-            let loaded = false;
-            let loading = false;
-            card.ontoggle = async () => {
-              readMore.textContent = card.open ? 'Thu gọn ↑' : 'Đọc thêm →';
-              if (!card.open || loaded || loading) return;
-              loading = true;
-              blogState(content, 'Đang tải bài viết…');
-              try {
-                const { post: detail } = await blogFetch('getBlogPost', { category: blogCategory, slug: post.slug });
-                renderArticleContent(content, detail.content);
-                loaded = true;
-              } catch (error) {
-                blogState(content, `${error.message || 'Không thể tải bài viết.'} Đóng rồi mở lại để thử lại.`);
-              } finally {
-                loading = false;
-              }
-            };
-          }
-          container.append(card);
-        });
-
-        renderSidebarPosts(data.posts);
+        // Cột phải hiển thị các bài viết tiếp theo (loại bỏ bài đang hiển thị ở cột trái)
+        renderSidebarPosts(data.posts, firstPost.slug);
         addPagination(data);
       } catch (error) {
         blogState(container, error.message || 'Không thể tải bài viết. Vui lòng thử lại.');
