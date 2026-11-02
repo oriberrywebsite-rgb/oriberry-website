@@ -385,14 +385,19 @@ async function loadBlogList() {
       const rawPage = Number(blogParams.get('page') || 1);
       const page = Number.isInteger(rawPage) && rawPage > 0 ? rawPage : 1;
       try {
-        const data = await blogFetch('getBlogPosts', { category: blogCategory, page });
+        // Lấy danh sách bài viết và đồng thời lấy số lượng lớn để sidebar có đủ toàn bộ bài
+        const [data, allData] = await Promise.all([
+          blogFetch('getBlogPosts', { category: blogCategory, page }),
+          blogFetch('getBlogPosts', { category: blogCategory, page: 1, limit: 50 }).catch(() => null)
+        ]);
+
         container.replaceChildren();
         if (!data.posts.length) {
           blogState(container, data.total ? 'Trang này chưa có bài viết.' : 'Chuyên mục này chưa có bài viết được xuất bản.');
           return;
         }
 
-        // Lấy bài viết đầu tiên từ danh sách
+        // Lấy bài viết đầu tiên từ danh sách hiện tại
         const firstSummary = data.posts[0];
         
         // Gọi API lấy nội dung CHI TIẾT đầy đủ của bài đầu tiên để hiện ở cột trái
@@ -420,8 +425,9 @@ async function loadBlogList() {
         card.append(img, heading, body);
         container.append(card);
 
-        // Cột phải hiển thị các bài viết tiếp theo
-        renderSidebarPosts(data.posts, firstPost.slug);
+        // Cột phải hiển thị đầy đủ tất cả các bài viết khác trong chuyên mục
+        const sidebarPosts = (allData && allData.posts) ? allData.posts : data.posts;
+        renderSidebarPosts(sidebarPosts, firstPost.slug);
         
         // Ẩn thanh phân trang thừa ở giao diện này
         const pagination = document.getElementById('pagination');
