@@ -333,10 +333,10 @@
 filteredPosts.forEach(post => {
     const item = document.createElement('a');
     item.href = `?category=${blogCategory}&slug=${post.slug}`;
-    item.onclick = async function (e) {
+item.onclick = async function (e) {
       e.preventDefault();
       window.history.pushState({ category: blogCategory, slug: post.slug }, '', item.href);
-      await loadBlogArticle(); // Gọi lại hàm load nội dung lên cột trái
+      await loadBlogArticle();
       window.scrollTo({ top: 0, behavior: 'smooth' });
     };
     item.className = 'group block p-3 rounded-xl bg-white border border-brand-border hover:border-brand-text transition-all mb-3';
