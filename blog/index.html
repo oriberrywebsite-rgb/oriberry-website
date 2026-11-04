@@ -169,7 +169,7 @@
 
       <!-- Cột phải: Mục lục sắp xếp các bài viết tiếp theo -->
       <aside id="listSidebar" class="lg:col-span-4 bg-brand-card border border-brand-border p-6 rounded-2xl sticky top-28">
-        <h3 class="text-lg font-serif font-medium text-brand-text mb-4 pb-2 border-b border-brand-border">Các bài viết tiếp theo</h3>
+        <h3 id="listSidebarTitle" class="text-lg font-serif font-medium text-brand-text mb-4 pb-2 border-b border-brand-border">Các bài viết tiếp theo</h3>
         <div id="sidebarPostList" class="flex flex-col space-y-4">
           <p class="text-xs text-brand-muted">Đang tải danh sách...</p>
         </div>
@@ -385,70 +385,19 @@
       add('Next', data.page < data.pages ? data.page + 1 : null);
     }
 
-    async function loadBusinessPosts(container) {
-      document.getElementById('categoryIntro').hidden = true;
-      document.getElementById('listSidebar').hidden = true;
-      document.getElementById('listColumn').className = 'lg:col-span-12 w-full max-w-4xl mx-auto';
-      document.getElementById('pagination').hidden = true;
-      const first = await blogFetch('getBlogPosts', { category: blogCategory, page: 1 });
-      const posts = [...first.posts];
-      // Đọc tiếp các trang API để hiện đủ bài trong chuyên mục.
-      for (let page = 2; page <= first.pages; page++) {
-        const data = await blogFetch('getBlogPosts', { category: blogCategory, page });
-        posts.push(...data.posts);
-      }
-      container.replaceChildren();
-      if (!posts.length) return blogState(container, 'Chuyên mục này chưa có bài viết được xuất bản.');
-      await Promise.all(posts.map(async post => {
-        const card = document.createElement('article');
-        card.id = `post-${post.slug}`;
-        card.className = 'post-card p-6 md:p-8 bg-white';
-        const img = document.createElement('img');
-        img.src = imageUrl(post.coverImageUrl);
-        img.alt = post.title;
-        img.loading = 'lazy';
-        img.className = 'w-full aspect-[16/9] object-cover rounded-xl mb-6 bg-stone-200';
-        const heading = document.createElement('h2');
-        heading.textContent = post.title;
-        heading.className = 'font-serif text-3xl font-normal text-brand-text mb-4 leading-tight';
-        const excerpt = document.createElement('p');
-        excerpt.textContent = post.excerpt;
-        excerpt.className = 'text-brand-muted font-serif italic mb-6 leading-relaxed';
-        const body = document.createElement('div');
-        body.className = 'article-content text-brand-text text-base';
-        card.append(img, heading, excerpt, body);
-        container.append(card);
-        const load = async () => {
-          blogState(body, 'Đang tải bài viết…');
-          try {
-            const { post: detail } = await blogFetch('getBlogPost', { category: blogCategory, slug: post.slug });
-            renderArticleContent(body, detail.content);
-          } catch (error) {
-            blogState(body, error.message || 'Không thể tải bài viết.');
-            const retry = document.createElement('button');
-            retry.type = 'button';
-            retry.textContent = 'Thử lại';
-            retry.className = 'mt-4 underline';
-            retry.onclick = load;
-            body.append(retry);
-          }
-        };
-        await load();
-      }));
-    }
-
     async function loadBlogList() {
       const requestedSearch = location.search;
       renderHeaderCategories();
       const title = BLOG_CATEGORIES[blogCategory];
       setText('categoryTitle', title);
       setText('categoryDesc', BLOG_DESCRIPTIONS[blogCategory] || '');
+      document.getElementById('categoryIntro').hidden = blogCategory === 'business';
+      setText('listSidebarTitle', blogCategory === 'business' ? 'Các bài viết khác' : 'Các bài viết tiếp theo');
       document.title = `${title} | Oriberry`;
       const container = document.getElementById('postGrid');
       const rawPage = Number(blogParams.get('page') || 1);
       const page = Number.isInteger(rawPage) && rawPage > 0 ? rawPage : 1;
       try {
-        if (blogCategory === 'business') return await loadBusinessPosts(container);
         // Lấy danh sách bài viết và đồng thời lấy số lượng lớn để sidebar có đủ toàn bộ bài
         const [data, allData] = await Promise.all([
           blogFetch('getBlogPosts', { category: blogCategory, page }),
