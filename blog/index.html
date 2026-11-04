@@ -256,7 +256,7 @@
   farmers: "Real stories, field experience, and sustainable practices from ethnic minority farming communities partnering with Oriberry across Vietnam.",
   processing: "Exploring processing methods, micro-batch roasting experiments, and flavor development techniques to unlock the full potential of Vietnamese specialty coffee."
 };
-    const blogParams = new URLSearchParams(location.search);
+    let blogParams = new URLSearchParams(location.search);
     const blogCategory = Object.hasOwn(BLOG_CATEGORIES, blogParams.get('category')) ? blogParams.get('category') : 'farmers';
 
     function blogListUrl(category, page = 1) {
@@ -333,17 +333,19 @@
           return;
         }
 
-filteredPosts.forEach(post => {
-    const item = document.createElement('a');
-    item.href = `?category=${blogCategory}&slug=${post.slug}`;
-item.onclick = async function (e) {
-      e.preventDefault();
-      window.history.pushState({ category: blogCategory, slug: post.slug }, '', item.href);
-      await loadBlogArticle();
-      window.scrollTo({ top: 0, behavior: 'smooth' });
-    };
-    item.className = 'group block p-3 rounded-xl bg-white border border-brand-border hover:border-brand-text transition-all mb-3';
-    // ... các phần code bên dưới giữ nguyên ...
+        filteredPosts.forEach(post => {
+          const item = document.createElement('a');
+          item.href = blogArticleUrl(blogCategory, post.slug);
+          item.onclick = async event => {
+            if (event.button !== 0 || event.ctrlKey || event.metaKey || event.shiftKey || event.altKey) return;
+            event.preventDefault();
+            if (blogParams.get('slug') !== post.slug) {
+              window.history.pushState(null, '', item.href);
+            }
+            await initBlog();
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+          };
+          item.className = 'group block p-3 rounded-xl bg-white border border-brand-border hover:border-brand-text transition-all mb-3';
           
           const title = document.createElement('h4');
           title.textContent = post.title;
@@ -436,6 +438,7 @@ item.onclick = async function (e) {
     }
 
     async function loadBlogList() {
+      const requestedSearch = location.search;
       renderHeaderCategories();
       const title = BLOG_CATEGORIES[blogCategory];
       setText('categoryTitle', title);
@@ -451,6 +454,7 @@ item.onclick = async function (e) {
           blogFetch('getBlogPosts', { category: blogCategory, page }),
           blogFetch('getBlogPosts', { category: blogCategory, page: 1, limit: 50 }).catch(() => null)
         ]);
+        if (location.search !== requestedSearch) return;
 
         container.replaceChildren();
         if (!data.posts.length) {
@@ -463,6 +467,7 @@ item.onclick = async function (e) {
         
         // Gọi API lấy nội dung CHI TIẾT đầy đủ của bài đầu tiên để hiện ở cột trái
         const detailData = await blogFetch('getBlogPost', { category: blogCategory, slug: firstSummary.slug });
+        if (location.search !== requestedSearch) return;
         const firstPost = detailData.post || firstSummary;
 
         const card = document.createElement('article');
@@ -495,6 +500,7 @@ item.onclick = async function (e) {
         if (pagination) pagination.hidden = true;
 
       } catch (error) {
+        if (location.search !== requestedSearch) return;
         blogState(container, error.message || 'Không thể tải bài viết. Vui lòng thử lại.');
       }
     }
@@ -539,6 +545,7 @@ item.onclick = async function (e) {
     }
 
     async function loadBlogArticle() {
+      const requestedSearch = location.search;
       renderHeaderCategories();
       const back = document.getElementById('backToCategory');
       if (back) {
@@ -549,12 +556,17 @@ item.onclick = async function (e) {
       document.getElementById('articleCategory').hidden = blogCategory === 'business';
       const slug = blogParams.get('slug') || '';
       const container = document.getElementById('articleBody');
+      setText('articleTitle', 'Bài viết');
+      setText('articleExcerpt', '');
+      document.getElementById('articleCover').hidden = true;
+      blogState(container, 'Đang tải bài viết…');
       if (!slug) return blogState(container, 'Thiếu đường dẫn bài viết.');
       try {
         const [{ post }, listData] = await Promise.all([
           blogFetch('getBlogPost', { category: blogCategory, slug }),
           blogFetch('getBlogPosts', { category: blogCategory, page: 1 })
         ]);
+        if (location.search !== requestedSearch) return;
 
         setText('articleCategory', BLOG_CATEGORIES[blogCategory]);
         setText('articleTitle', post.title);
@@ -572,11 +584,13 @@ item.onclick = async function (e) {
         renderArticleContent(container, post.content);
         renderSidebarPosts(listData.posts || [], slug);
       } catch (error) {
+        if (location.search !== requestedSearch) return;
         blogState(container, error.message || 'Không tìm thấy bài viết.');
       }
     }
 
     async function initBlog() {
+      blogParams = new URLSearchParams(location.search);
       const isArticle = blogParams.has('slug');
       document.getElementById('blogList').hidden = isArticle;
       document.getElementById('blogArticle').hidden = !isArticle;
@@ -587,6 +601,7 @@ item.onclick = async function (e) {
       }
     }
 
+    window.addEventListener('popstate', initBlog);
     initBlog();
   </script>
 </body>
