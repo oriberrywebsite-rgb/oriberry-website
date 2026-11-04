@@ -52,6 +52,9 @@
   </script>
 
   <style id="blog-styles">
+    [hidden] {
+      display: none !important;
+    }
     .post-card {
       background: #fff;
       border: 1px solid #E2DFD7;
@@ -146,7 +149,7 @@
 
   <!-- DANH SÁCH BÀI VIẾT (GIAO DIỆN 2 CỘT: CỘT TRÁI LỚN HIỂN THỊ BÀI VIẾT, CỘT PHẢI NHỎ LÀM MỤC LỤC CÁC BÀI TIẾP THEO) -->
   <main id="blogList" class="max-w-7xl mx-auto px-4 md:px-6 py-8 md:py-12" hidden>
-    <section class="mb-8">
+    <section id="categoryIntro" class="mb-8">
       <h1 id="categoryTitle" class="text-3xl md:text-5xl font-serif font-light tracking-tight text-brand-text">Stories</h1>
       <p class="mt-2 text-sm text-brand-muted max-w-2xl"><p id="categoryDesc" class="mt-2 text-sm text-brand-muted max-w-3xl leading-relaxed"></p>
     </section>
@@ -155,7 +158,7 @@
     <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
       
       <!-- Cột trái: Bài viết chính (Hiển thị dạng danh sách lớn, rõ ràng) -->
-      <div class="lg:col-span-8">
+      <div id="listColumn" class="lg:col-span-8">
         <section id="postGrid" class="grid grid-cols-1 gap-6" aria-live="polite">
           <div class="state">Đang tải bài viết…</div>
         </section>
@@ -165,7 +168,7 @@
       </div>
 
       <!-- Cột phải: Mục lục sắp xếp các bài viết tiếp theo -->
-      <aside class="lg:col-span-4 bg-brand-card border border-brand-border p-6 rounded-2xl sticky top-28">
+      <aside id="listSidebar" class="lg:col-span-4 bg-brand-card border border-brand-border p-6 rounded-2xl sticky top-28">
         <h3 class="text-lg font-serif font-medium text-brand-text mb-4 pb-2 border-b border-brand-border">Các bài viết tiếp theo</h3>
         <div id="sidebarPostList" class="flex flex-col space-y-4">
           <p class="text-xs text-brand-muted">Đang tải danh sách...</p>
@@ -380,7 +383,59 @@ item.onclick = async function (e) {
       add('Next', data.page < data.pages ? data.page + 1 : null);
     }
 
-async function loadBlogList() {
+    async function loadBusinessPosts(container) {
+      document.getElementById('categoryIntro').hidden = true;
+      document.getElementById('listSidebar').hidden = true;
+      document.getElementById('listColumn').className = 'lg:col-span-12 w-full max-w-4xl mx-auto';
+      document.getElementById('pagination').hidden = true;
+      const first = await blogFetch('getBlogPosts', { category: blogCategory, page: 1 });
+      const posts = [...first.posts];
+      // Đọc tiếp các trang API để hiện đủ bài trong chuyên mục.
+      for (let page = 2; page <= first.pages; page++) {
+        const data = await blogFetch('getBlogPosts', { category: blogCategory, page });
+        posts.push(...data.posts);
+      }
+      container.replaceChildren();
+      if (!posts.length) return blogState(container, 'Chuyên mục này chưa có bài viết được xuất bản.');
+      await Promise.all(posts.map(async post => {
+        const card = document.createElement('article');
+        card.id = `post-${post.slug}`;
+        card.className = 'post-card p-6 md:p-8 bg-white';
+        const img = document.createElement('img');
+        img.src = imageUrl(post.coverImageUrl);
+        img.alt = post.title;
+        img.loading = 'lazy';
+        img.className = 'w-full aspect-[16/9] object-cover rounded-xl mb-6 bg-stone-200';
+        const heading = document.createElement('h2');
+        heading.textContent = post.title;
+        heading.className = 'font-serif text-3xl font-normal text-brand-text mb-4 leading-tight';
+        const excerpt = document.createElement('p');
+        excerpt.textContent = post.excerpt;
+        excerpt.className = 'text-brand-muted font-serif italic mb-6 leading-relaxed';
+        const body = document.createElement('div');
+        body.className = 'article-content text-brand-text text-base';
+        card.append(img, heading, excerpt, body);
+        container.append(card);
+        const load = async () => {
+          blogState(body, 'Đang tải bài viết…');
+          try {
+            const { post: detail } = await blogFetch('getBlogPost', { category: blogCategory, slug: post.slug });
+            renderArticleContent(body, detail.content);
+          } catch (error) {
+            blogState(body, error.message || 'Không thể tải bài viết.');
+            const retry = document.createElement('button');
+            retry.type = 'button';
+            retry.textContent = 'Thử lại';
+            retry.className = 'mt-4 underline';
+            retry.onclick = load;
+            body.append(retry);
+          }
+        };
+        await load();
+      }));
+    }
+
+    async function loadBlogList() {
       renderHeaderCategories();
       const title = BLOG_CATEGORIES[blogCategory];
       setText('categoryTitle', title);
@@ -390,6 +445,7 @@ async function loadBlogList() {
       const rawPage = Number(blogParams.get('page') || 1);
       const page = Number.isInteger(rawPage) && rawPage > 0 ? rawPage : 1;
       try {
+        if (blogCategory === 'business') return await loadBusinessPosts(container);
         // Lấy danh sách bài viết và đồng thời lấy số lượng lớn để sidebar có đủ toàn bộ bài
         const [data, allData] = await Promise.all([
           blogFetch('getBlogPosts', { category: blogCategory, page }),
@@ -488,7 +544,9 @@ async function loadBlogList() {
       if (back) {
         back.href = blogListUrl(blogCategory);
         back.textContent = `← Quay lại ${BLOG_CATEGORIES[blogCategory]}`;
+        back.hidden = blogCategory === 'business';
       }
+      document.getElementById('articleCategory').hidden = blogCategory === 'business';
       const slug = blogParams.get('slug') || '';
       const container = document.getElementById('articleBody');
       if (!slug) return blogState(container, 'Thiếu đường dẫn bài viết.');
