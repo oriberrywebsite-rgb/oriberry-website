@@ -191,13 +191,13 @@
                 
                 <!-- CHỌN SIZE -->
                 <div>
-                    <label class="block text-xs font-bold text-stone-700 uppercase tracking-wider mb-1">Chọn Size:</label>
+                    <label class="block text-xs font-bold text-stone-700 uppercase tracking-wider mb-1">Select size:</label>
                     <div id="modalSizeContainer" class="flex gap-4 text-xs text-stone-800"></div>
                 </div>
 
                 <!-- CHỌN TOPPING / ADD-ONS -->
                 <div>
-                    <label class="block text-xs font-bold text-stone-700 uppercase tracking-wider mb-1">Topping / Dùng kèm:</label>
+                    <label class="block text-xs font-bold text-stone-700 uppercase tracking-wider mb-1">Topping</label>
                     <div id="modalAddonContainer" class="space-y-1"></div>
                 </div>
 
@@ -253,8 +253,8 @@
                             <textarea id="tableNumber" maxlength="200" rows="2" placeholder="Nhập số bàn hoặc vị trí ngồi (nếu bạn đang ở trong quán)" class="mt-1 w-full text-xs border border-stone-300 rounded-xl p-2.5 focus:outline-none focus:border-amber-700"></textarea>
                         </div>
                         <div id="orderNoteField">
-                            <label for="orderNote" class="text-xs font-semibold text-stone-700">Ghi chú đơn hàng (không bắt buộc)</label>
-                            <textarea id="orderNote" maxlength="1000" placeholder="Yêu cầu chung cho cả đơn (nếu có)" rows="2" class="mt-1 w-full text-xs border border-stone-300 rounded-xl p-2.5 focus:outline-none focus:border-amber-700"></textarea>
+                            <label for="orderNote" class="text-xs font-semibold text-stone-700">Order note (Optional)</label>
+                            <textarea id="orderNote" maxlength="1000" placeholder="General requests for the entire order (if any)" rows="2" class="mt-1 w-full text-xs border border-stone-300 rounded-xl p-2.5 focus:outline-none focus:border-amber-700"></textarea>
                         </div>
                         <button type="submit" id="submitBtn" class="w-full bg-neutral-900 hover:bg-amber-950 text-white font-bold py-3 rounded-xl text-xs transition uppercase tracking-wider shadow-md cursor-pointer">PLACE ORDER</button>
                     </form>
@@ -266,14 +266,14 @@
     <div id="editCartNoteModal" class="fixed inset-0 z-[60] hidden items-center justify-center p-4" role="dialog" aria-modal="true" aria-labelledby="editCartNoteTitle" aria-describedby="editCartNoteItemName">
         <div class="fixed inset-0 bg-black/60 backdrop-blur-sm" onclick="cancelCartItemNote()"></div>
         <div class="relative z-10 w-full max-w-md max-h-[90dvh] overflow-y-auto rounded-2xl bg-white p-5 shadow-2xl">
-            <h2 id="editCartNoteTitle" class="text-lg font-bold text-stone-900">Sửa ghi chú món</h2>
+            <h2 id="editCartNoteTitle" class="text-lg font-bold text-stone-900">Edit note</h2>
             <p id="editCartNoteItemName" class="mt-1 text-sm text-stone-600"></p>
             <label for="editCartNoteInput" class="mt-4 block text-sm font-semibold text-stone-800">Yêu cầu riêng cho món này</label>
             <textarea id="editCartNoteInput" maxlength="500" rows="4" placeholder="Ví dụ: Ít đá, không đường" class="mt-2 w-full resize-y rounded-xl border border-stone-300 p-3 text-sm focus:outline-none focus:border-amber-800"></textarea>
-            <p id="editCartNoteError" class="mt-1 text-xs text-red-700" hidden>Ghi chú món tối đa 500 ký tự.</p>
+            <p id="editCartNoteError" class="mt-1 text-xs text-red-700" hidden>Item note max 500 characters</p>
             <div class="mt-4 flex justify-end gap-2">
                 <button type="button" onclick="cancelCartItemNote()" class="rounded-xl border border-stone-300 px-4 py-2 text-sm font-semibold text-stone-700">Hủy</button>
-                <button type="button" onclick="saveCartItemNote()" class="rounded-xl bg-amber-950 px-4 py-2 text-sm font-semibold text-white">Lưu ghi chú</button>
+                <button type="button" onclick="saveCartItemNote()" class="rounded-xl bg-amber-950 px-4 py-2 text-sm font-semibold text-white">Save note</button>
             </div>
         </div>
     </div>
@@ -284,7 +284,7 @@
         <div class="relative z-10 w-full max-w-sm max-h-[90dvh] overflow-y-auto rounded-2xl bg-white p-6 text-center shadow-2xl space-y-4">
             <div class="mx-auto flex h-14 w-14 items-center justify-center rounded-full bg-emerald-100 text-2xl font-bold text-emerald-700" aria-hidden="true">✓</div>
             <h2 id="orderSuccessTitle" class="text-lg font-bold text-gray-900">Đã nhận đơn của bạn!</h2>
-            <p id="orderSuccessMessage" class="text-xs leading-relaxed text-gray-600">Cảm ơn bạn đã đặt món tại Oriberry. Đơn hàng đã được gửi tới cửa hàng và đang chờ nhân viên xác nhận.</p>
+            <p id="orderSuccessMessage" class="text-xs leading-relaxed text-gray-600">Thank you for your order! It has been sent to the store and is waiting for confirmation.</p>
             <div class="text-xs text-gray-600"><strong id="successOrderId" class="text-gray-900"></strong><span aria-hidden="true"> · </span><span id="successStore"></span></div>
             <details id="successOrderDetails" class="text-left text-xs text-gray-600">
                 <summary class="cursor-pointer text-center underline underline-offset-4">Xem chi tiết đơn hàng</summary>
