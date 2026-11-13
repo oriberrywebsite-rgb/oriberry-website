@@ -538,16 +538,16 @@ function projectMenuForSelectedStore() {
         return copy;
     }).filter(product => lowestProductPrice(product) !== null);
     const notice = selectedStoreId
-        ? (menuDataVerified ? '' : '<div class="rounded-xl bg-amber-50 border border-amber-200 p-3 text-xs text-amber-900">Đang xem menu đã lưu ngoại tuyến. Cần xác minh kết nối trước khi đặt hàng.</div>')
-        : '<div class="rounded-xl bg-amber-50 border border-amber-200 p-3 text-xs text-amber-900">Giá đang hiển thị là giá tham khảo chung. Vui lòng chọn cửa hàng để xem giá áp dụng và đặt món.</div>';
+        ? (menuDataVerified ? '' : '<div class="rounded-xl bg-amber-50 border border-amber-200 p-3 text-xs text-amber-900">Viewing offline menu. Please check your connection before placing an order.</div>')
+        : '<div class="rounded-xl bg-amber-50 border border-amber-200 p-3 text-xs text-amber-900">The prices shown are for reference only. Please select a store to view applicable pricing and place your order.</div>';
     const container = document.getElementById('menuContentContainer');
     if (!MENU_CATALOG.length && !menuDataVerified) {
-        showMenuMessage('Không tải được thực đơn. Hãy thử tải lại trang khi có kết nối mạng.');
+        showMenuMessage('Unable to load menu. Please refresh the page and try again.');
         return;
     }
     renderMenuProducts();
     if (container && notice) container.insertAdjacentHTML('afterbegin', notice);
-    if (selectedStoreId && !PRODUCTS.length) showMenuMessage('Cửa hàng hiện chưa có món nào được bật bán.');
+    if (selectedStoreId && !PRODUCTS.length) showMenuMessage('There are currently no items available for sale at this store.');
 }
 
 function isValidMenuCatalog(value) {
@@ -575,7 +575,7 @@ async function fetchMenuProducts() {
         const result = await res.json();
         if (requestNumber !== menuRequestNumber) return;
         if (!res.ok || !isValidMenuCatalog(result) || result.status !== 'success') {
-            throw new Error(result.message || 'Không tải được menu cửa hàng.');
+            throw new Error(result.message || 'Unable to load store menu.');
         }
         MENU_CATALOG = result.products;
         menuDataVerified = true;
@@ -628,7 +628,7 @@ async function fetchMenuProducts() {
                 }
             });
 
-            container.innerHTML = htmlContent || `<div class="text-center py-12 text-stone-400 text-xs">Không tìm thấy món phù hợp.</div>`;
+            container.innerHTML = htmlContent || `<div class="text-center py-12 text-stone-400 text-xs">No items found.</div>`;
         }
 
         // Luồng chọn hình thức & cơ sở quán (Modal V0)
@@ -791,7 +791,7 @@ function openProductModal(id) {
             </div>
         `).join('');
     } else {
-        addonHtml = `<p style="color: #888; font-size: 12px; margin: 0;">Không có topping cho món này</p>`;
+        addonHtml = `<p style="color: #888; font-size: 12px; margin: 0;">No toppings available for this item</p>`;
     }
 
     // Gắn trực tiếp Size và Topping vào đúng container trên modal (Khai báo duy nhất tại đây)
@@ -872,15 +872,15 @@ function updateModalPrices() {
 
 function addToCartFromModal() {
     if (!activeProductForModal) return;
-    if (!selectedStoreId) return alert('Vui lòng chọn cửa hàng trước khi thêm món.');
-    if (!menuDataVerified) return alert('Chưa xác minh được menu mới nhất. Hãy kết nối mạng và tải lại trang trước khi đặt món.');
+    if (!selectedStoreId) return alert('Please select a store first.');
+    if (!menuDataVerified) return alert('Could not verify the latest menu. Please check your connection and refresh before ordering.');
 
     // 1. Lấy thông tin Size đã chọn
     const sizeRadio = document.querySelector('input[name="productSize"]:checked');
     const selectedSize = sizeRadio ? sizeRadio.value : (activeProductForModal.hasNormalSize ? 'normal' : 'large');
     
     let unitPrice = productPrice(activeProductForModal, selectedSize);
-    if (unitPrice === null) return alert('Size này không còn được bán.');
+    if (unitPrice === null) return alert('This size is no longer available.');
 
     // 2. Lấy danh sách các Add-ons được chọn
     let selectedAddons = [];
@@ -962,14 +962,14 @@ function addToCartFromModal() {
 
             const container = document.getElementById('cartItemsContainer');
             if (cart.length === 0) {
-                container.innerHTML = `<p class="text-xs text-stone-400 text-center py-6">Giỏ hàng trống.</p>`;
+                container.innerHTML = `<p class="text-xs text-stone-400 text-center py-6">Empty cart.</p>`;
             } else {
                 container.innerHTML = cart.map((i, index) => `
                     <div class="flex items-center justify-between border-b border-stone-100 pb-2">
                         <div>
                             <h4 class="text-xs font-bold text-stone-900">${escapeHtml(i.name)}</h4>
                             ${i.note ? `<p class="text-[10px] text-stone-500">Ghi chú món: ${escapeHtml(i.note)}</p>` : ''}
-                            <button type="button" data-edit-note-index="${index}" onclick="editCartItemNote(${index})" class="text-[10px] text-amber-900 underline">Sửa ghi chú món</button>
+                            <button type="button" data-edit-note-index="${index}" onclick="editCartItemNote(${index})" class="text-[10px] text-amber-900 underline">Edit note</button>
                             <p class="text-xs font-bold text-amber-900">${(i.price * i.qty).toLocaleString('vi-VN')}đ</p>
                         </div>
                         <div class="flex items-center border border-stone-300 rounded-xl overflow-hidden">
@@ -1098,16 +1098,16 @@ async function refreshCartPrices() {
 async function submitOrder(e) {
     e.preventDefault();
     if (document.getElementById('submitBtn')?.disabled) return;
-    if (!selectedStoreId || !getStoreById(selectedStoreId)) return alert('Vui lòng chọn cửa hàng trước khi đặt món.');
-    if (!menuDataVerified) return alert('Chưa xác minh được menu mới nhất. Hãy kết nối mạng và tải lại trang trước khi đặt món.');
-    if (!cart.length) return alert('Giỏ hàng trống!');
-    if (cart.some(item => !item.productId && !item.id)) return alert('Giỏ hàng cũ thiếu mã món. Hãy xóa giỏ hàng và chọn món lại.');
+    if (!selectedStoreId || !getStoreById(selectedStoreId)) return alert('Please select a store first.');
+    if (!menuDataVerified) return alert('Could not verify the latest menu. Please check your connection and refresh before ordering.');
+    if (!cart.length) return alert('Empty cart!');
+    if (cart.some(item => !item.productId && !item.id)) return alert('Your previous cart is missing item codes. Please clear the cart and re-select your items.');
 
     const name = document.getElementById('custName')?.value.trim() || '';
     const phone = document.getElementById('custPhone')?.value.trim() || '';
-    if (!name || !phone) return alert('Vui lòng nhập tên và số điện thoại.');
+    if (!name || !phone) return alert('Please enter name and phone number.');
     const tableNumber = currentFulfillment === 'DINE_IN' ? (document.getElementById('tableNumber')?.value.trim() || '') : '';
-    if (currentFulfillment === 'DINE_IN' && !tableNumber) return alert('Vui lòng nhập số bàn hoặc vị trí ngồi.');
+    if (currentFulfillment === 'DINE_IN' && !tableNumber) return alert('Please enter your table number or seating location.');
     const quotedTotal = cart.reduce((sum, item) => sum + (Number(item.price) * Number(item.qty)), 0);
     const payload = {
         sourceChannel: 'STORE_DRINK',
@@ -1149,7 +1149,7 @@ async function submitOrder(e) {
             const confirmedTotal = Number.isFinite(Number(result.totalAmount)) ? Number(result.totalAmount) : quotedTotal;
             document.getElementById('successOrderId').textContent = result.displayOrderId || result.orderId;
             document.getElementById('successStore').textContent = getStoreById(selectedStoreId)?.name || selectedStoreId;
-            document.getElementById('successOrderItems').innerHTML = cart.map(item => `<div class="flex justify-between gap-3"><span>${item.qty} × ${escapeHtml(item.name)}${item.note ? `<br><small>Ghi chú món: ${escapeHtml(item.note)}</small>` : ''}</span><span class="shrink-0">${(Number(item.price) * Number(item.qty)).toLocaleString('vi-VN')}đ</span></div>`).join('');
+            document.getElementById('successOrderItems').innerHTML = cart.map(item => `<div class="flex justify-between gap-3"><span>${item.qty} × ${escapeHtml(item.name)}${item.note ? `<br><small>Item note: ${escapeHtml(item.note)}</small>` : ''}</span><span class="shrink-0">${(Number(item.price) * Number(item.qty)).toLocaleString('vi-VN')}đ</span></div>`).join('');
             document.getElementById('successOrderTotal').textContent = `${confirmedTotal.toLocaleString('vi-VN')}đ`;
             document.getElementById('successOrderDetails').open = false;
             localStorage.removeItem('oriberry_pending_store_order_id');
@@ -1164,13 +1164,13 @@ async function submitOrder(e) {
         } else if (result.code === 'PRICE_CHANGED') {
             const refreshed = await refreshCartPrices();
             alert(refreshed
-                ? 'Giá hoặc menu vừa thay đổi. Giỏ hàng đã được cập nhật; vui lòng kiểm tra và bấm xác nhận lại.'
-                : 'Menu đã thay đổi. Có món hoặc topping không còn bán; vui lòng kiểm tra lại giỏ hàng.');
+                ? 'Menu or prices have changed. Your cart has been updated—please review and reconfirm.'
+                : 'Menu updated. Some items or toppings are unavailable—please check your cart.');
         } else {
-            alert(`Không thể đặt đơn: ${result.message || 'Vui lòng thử lại.'}`);
+            alert(`Order failed: ${result.message || 'Please try again.'}`);
         }
     } catch (err) {
-        alert('Không nhận được phản hồi từ hệ thống. Thông tin lần gửi được giữ lại để tránh tạo trùng khi bạn thử lại.');
+        alert('System timed out. Your order details are saved to prevent duplicates when retrying.');
     } finally {
         if (submitBtn) {
             submitBtn.disabled = false;
