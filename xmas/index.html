@@ -1,1 +1,416 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Holiday Specials & Gifts | Oriberry</title>
+    
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;0,6..72,600&display=swap" rel="stylesheet">
+    
+    <style>
+        @font-face {
+            font-family: 'Aardvark-Cafe';
+            src: url('../AARDC___.TTF') format('truetype');
+            font-weight: normal;
+            font-style: normal;
+            font-display: swap;
+        }
+        .font-logo {
+            font-family: 'Aardvark-Cafe', sans-serif;
+            letter-spacing: 0.05em;
+        }
+        body {
+            background-color: #F9F8F6;
+            color: #1C1C1A;
+            font-family: 'Inter', sans-serif;
+        }
+        .font-serif-custom {
+            font-family: 'Newsreader', serif;
+        }
+    </style>
+</head>
+<body class="bg-[#F9F8F6] text-[#1C1C1A] min-h-screen flex flex-col antialiased">
 
+    <!-- Thanh thông báo đầu trang -->
+    <div class="bg-[#1C1C1A] text-[#F9F8F6] text-xs py-2 px-4 text-center font-medium flex items-center justify-center gap-3">
+        <span>🎄 Holiday Season: Special Offers on Gift Sets & E-Gift Cards!</span>
+        <button onclick="openPopup()" class="underline hover:text-amber-300 font-semibold cursor-pointer">Xem Popup Khuyến Mãi</button>
+    </div>
+
+    <!-- Header / Thanh điều hướng -->
+    <header class="bg-white border-b border-[#E2DFD7] sticky top-0 z-40">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between">
+            <a href="/" class="text-3xl sm:text-4xl font-logo font-bold tracking-tight text-[#1C1C1A]">
+                ORIBERRY
+            </a>
+
+            <nav class="hidden md:flex items-center gap-8 text-sm font-medium text-[#1C1C1A]">
+                <a href="#set-qua" class="hover:text-amber-800 transition">Christmas Gift Set</a>
+                <a href="#e-gift" class="hover:text-amber-800 transition">E-Gift Card</a>
+                <a href="/" class="text-[#666560] hover:text-[#1C1C1A] transition">Home</a>
+            </nav>
+
+            <div class="flex items-center gap-3">
+                <button onclick="toggleCart()" class="relative p-2.5 bg-[#F1EFEA] hover:bg-[#E2DFD7] text-[#1C1C1A] rounded-xl transition cursor-pointer flex items-center gap-2">
+                    <i class="fa-solid fa-bag-shopping"></i>
+                    <span class="text-xs font-semibold hidden sm:inline">Your Cart</span>
+                    <span id="cart-badge" class="absolute -top-1 -right-1 w-5 h-5 bg-[#8B2635] text-white text-[10px] font-bold rounded-full flex items-center justify-center">0</span>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Hero Section -->
+    <section class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-12 pb-8 text-center">
+        <span class="inline-block px-3.5 py-1 mb-4 text-xs font-semibold tracking-wider text-[#8B2635] uppercase bg-[#8B2635]/10 border border-[#8B2635]/20 rounded-full">
+            Christmas Collection 2026
+        </span>
+        <h1 class="text-4xl sm:text-6xl font-serif-custom font-normal text-[#1C1C1A] tracking-tight mb-4 max-w-3xl mx-auto leading-tight">
+            Coffee Flavors Wrapped for the Holiday Season
+        </h1>
+        <p class="text-sm sm:text-base text-[#666560] max-w-2xl mx-auto mb-8 leading-relaxed">
+            Send warmth with handcrafted gift boxes or flexible E-Gift Cards, valid across all 6 Oriberry locations in Hanoi.
+        </p>
+        <div class="flex flex-wrap justify-center gap-4">
+            <a href="#set-qua" class="px-6 py-3 bg-[#1C1C1A] text-[#F9F8F6] text-xs font-semibold uppercase tracking-wider rounded-xl hover:bg-stone-800 transition shadow-sm">
+                Explore Gift Sets &rarr;
+            </a>
+            <a href="#e-gift" class="px-6 py-3 bg-white border border-[#E2DFD7] text-[#1C1C1A] text-xs font-semibold uppercase tracking-wider rounded-xl hover:bg-stone-100 transition shadow-xs">
+                Design Your E-Gift Card &rarr;
+            </a>
+        </div>
+    </section>
+
+    <!-- LỰA CHỌN 1: SET QUÀ GIÁNG SINH -->
+    <section id="set-qua" class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 border-t border-[#E2DFD7]">
+        <div class="mb-8">
+            <span class="text-xs uppercase tracking-widest text-[#666560] font-semibold">Option 01 &bull; Physical Gifts</span>
+            <h2 class="text-2xl sm:text-3xl font-serif-custom font-normal text-[#1C1C1A] mt-1">Special Christmas Gift Set</h2>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <!-- Set 1 -->
+            <div class="bg-white border border-[#E2DFD7] rounded-2xl p-5 shadow-xs hover:shadow-md transition flex flex-col">
+                <div class="w-full aspect-[4/3] object-cover rounded-xl bg-[#F1EFEA] mb-4 flex items-center justify-center text-[#666560] text-xs">
+                    [Hình ảnh Set An Lành]
+                </div>
+                <h3 class="font-serif-custom text-xl text-[#1C1C1A] mb-1">Set An Lành - Phin & Cà Phê</h3>
+                <p class="text-xs text-[#666560] mb-4 leading-relaxed flex-1">Gồm 1 túi cà phê Arabica Cầu Đất 250g + 1 Phin nhôm mạ đồng khắc logo Oriberry.</p>
+                <div class="flex items-center justify-between pt-4 border-t border-[#E2DFD7] mt-auto">
+                    <div>
+                        <span class="text-xs text-[#666560] line-through block">340.000đ</span>
+                        <span class="text-sm font-bold text-[#1C1C1A]">289.000đ</span>
+                    </div>
+                    <button onclick="addToCart('Set An Lành', 289000)" class="text-xs font-semibold bg-[#1C1C1A] text-white px-4 py-2.5 rounded-xl hover:bg-stone-800 transition cursor-pointer">
+                        Thêm vào giỏ &rarr;
+                    </button>
+                </div>
+            </div>
+
+            <!-- Set 2 -->
+            <div class="bg-white border border-[#E2DFD7] rounded-2xl p-5 shadow-xs hover:shadow-md transition flex flex-col">
+                <div class="w-full aspect-[4/3] object-cover rounded-xl bg-[#F1EFEA] mb-4 flex items-center justify-center text-[#666560] text-xs">
+                    [Hình ảnh Set Ấm Áp]
+                </div>
+                <h3 class="font-serif-custom text-xl text-[#1C1C1A] mb-1">Set Ấm Áp - Điện Biên & Muỗng Phảng</h3>
+                <p class="text-xs text-[#666560] mb-4 leading-relaxed flex-1">Gồm 2 túi cà phê đặc sản vùng cao Tây Bắc, hộp quà thiết kế lễ hội thủ công.</p>
+                <div class="flex items-center justify-between pt-4 border-t border-[#E2DFD7] mt-auto">
+                    <div>
+                        <span class="text-xs text-[#666560] line-through block">450.000đ</span>
+                        <span class="text-sm font-bold text-[#1C1C1A]">390.000đ</span>
+                    </div>
+                    <button onclick="addToCart('Set Ấm Áp', 390000)" class="text-xs font-semibold bg-[#1C1C1A] text-white px-4 py-2.5 rounded-xl hover:bg-stone-800 transition cursor-pointer">
+                        Thêm vào giỏ &rarr;
+                    </button>
+                </div>
+            </div>
+
+            <!-- Set 3 -->
+            <div class="bg-white border border-[#E2DFD7] rounded-2xl p-5 shadow-xs hover:shadow-md transition flex flex-col">
+                <div class="w-full aspect-[4/3] object-cover rounded-xl bg-[#F1EFEA] mb-4 flex items-center justify-center text-[#666560] text-xs">
+                    [Hình ảnh Set Tri Ân]
+                </div>
+                <h3 class="font-serif-custom text-xl text-[#1C1C1A] mb-1">Set Tri Ân - Hộp Quà & Cốc Giữ Nhiệt</h3>
+                <p class="text-xs text-[#666560] mb-4 leading-relaxed flex-1">Món quà sang trọng tặng đối tác với 2 túi cà phê đặc sản chọn lọc + 1 cốc giữ nhiệt thép không gỉ.</p>
+                <div class="flex items-center justify-between pt-4 border-t border-[#E2DFD7] mt-auto">
+                    <div>
+                        <span class="text-xs text-[#666560] line-through block">750.000đ</span>
+                        <span class="text-sm font-bold text-[#1C1C1A]">599.000đ</span>
+                    </div>
+                    <button onclick="addToCart('Set Tri Ân', 599000)" class="text-xs font-semibold bg-[#1C1C1A] text-white px-4 py-2.5 rounded-xl hover:bg-stone-800 transition cursor-pointer">
+                        Thêm vào giỏ &rarr;
+                    </button>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- LỰA CHỌN 2: THẺ E-GIFT CARD (Hỗ trợ 2 màu sắc thiết kế) -->
+    <section id="e-gift" class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 border-t border-[#E2DFD7]">
+        <div class="max-w-4xl mx-auto bg-white border border-[#E2DFD7] rounded-3xl p-6 sm:p-10 shadow-sm">
+            <div class="mb-8">
+                <span class="text-xs uppercase tracking-widest text-[#666560] font-semibold">Lựa Chọn 02 &bull; Quà Tặng Giá Trị Tiền Mặt</span>
+                <h2 class="text-2xl sm:text-3xl font-serif-custom font-normal text-[#1C1C1A] mt-1">Thẻ Quà Tặng Điện Tử (E-Gift Card)</h2>
+                <p class="text-xs sm:text-sm text-[#666560] mt-2">Lựa chọn tinh gọn để gửi tặng bạn bè, đồng nghiệp hoặc đối tác. Người nhận sử dụng thẻ để thưởng thức đồ uống hoặc mua cà phê hạt cho đến khi hết số dư.</p>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-8 items-start">
+                <!-- Cột trái: Tùy chọn thông tin & chọn màu thẻ -->
+                <div class="space-y-4">
+                    <div>
+                        <label class="block text-xs font-semibold text-[#1C1C1A] mb-1.5">1. Chọn mệnh giá thẻ quà tặng:</label>
+                        <div class="grid grid-cols-3 gap-2">
+                            <button onclick="setGiftValue(200000, this)" class="gift-btn py-2.5 px-3 border border-[#E2DFD7] rounded-xl text-xs font-semibold bg-[#1C1C1A] text-white transition cursor-pointer">200.000đ</button>
+                            <button onclick="setGiftValue(500000, this)" class="gift-btn py-2.5 px-3 border border-[#E2DFD7] rounded-xl text-xs font-semibold bg-white text-[#1C1C1A] hover:bg-stone-50 transition cursor-pointer">500.000đ</button>
+                            <button onclick="setGiftValue(1000000, this)" class="gift-btn py-2.5 px-3 border border-[#E2DFD7] rounded-xl text-xs font-semibold bg-white text-[#1C1C1A] hover:bg-stone-50 transition cursor-pointer">1.000.000đ</button>
+                        </div>
+                    </div>
+
+                    <div>
+                        <label class="block text-xs font-semibold text-[#1C1C1A] mb-1.5">2. Chọn màu mẫu thiết kế thẻ:</label>
+                        <div class="grid grid-cols-2 gap-2">
+                            <button onclick="setCardTheme('kraft', this)" class="theme-btn py-2.5 px-3 border-2 border-[#1C1C1A] rounded-xl text-xs font-semibold bg-[#F1EFEA] text-[#1C1C1A] transition cursor-pointer text-left">
+                                <span class="block font-bold">Giấy Kraft Nguyên Bản</span>
+                                <span class="text-[10px] text-[#666560]">Mộc mạc, ấm áp & đậm chất lễ hội</span>
+                            </button>
+                            <button onclick="setCardTheme('xanh', this)" class="theme-btn py-2.5 px-3 border border-[#E2DFD7] rounded-xl text-xs font-semibold bg-[#2D4739] text-white transition cursor-pointer text-left">
+                                <span class="block font-bold">Xanh Rừng Thông</span>
+                                <span class="text-[10px] text-emerald-200">Sắc xanh trầm sang trọng mùa Giáng sinh</span>
+                            </button>
+                        </div>
+                    </div>
+
+                    <div>
+                        <label class="block text-xs font-semibold text-[#1C1C1A] mb-1.5">Tên người nhận *:</label>
+                        <input type="text" id="recipientName" oninput="updateCardPreview()" placeholder="VD: Chi Lan Anh" class="w-full px-3.5 py-2.5 text-xs border border-[#E2DFD7] rounded-xl focus:outline-none focus:ring-1 focus:ring-[#1C1C1A]">
+                    </div>
+
+                    <div>
+                        <label class="block text-xs font-semibold text-[#1C1C1A] mb-1.5">Lời chúc Giáng sinh:</label>
+                        <textarea id="recipientWish" oninput="updateCardPreview()" rows="2" placeholder="Chúc bạn một mùa Giáng sinh an lành, ấm áp bên những tách cà phê Việt Nam nguyên bản." class="w-full px-3.5 py-2.5 text-xs border border-[#E2DFD7] rounded-xl focus:outline-none focus:ring-1 focus:ring-[#1C1C1A]"></textarea>
+                    </div>
+
+                    <button onclick="addGiftCardToCart()" class="w-full py-3 bg-[#1C1C1A] hover:bg-stone-800 text-white font-semibold text-xs rounded-xl transition cursor-pointer shadow-sm">
+                        Thêm E-Gift Card vào giỏ hàng &rarr;
+                    </button>
+                </div>
+
+                <!-- Cột phải: Xem trước tấm thẻ (Live Preview thay đổi theo màu sắc) -->
+                <div>
+                    <label class="block text-xs font-semibold text-[#1C1C1A] mb-1.5">Xem trước giao diện E-Gift Card:</label>
+                    <div id="card-preview-box" class="p-6 rounded-2xl shadow-lg relative overflow-hidden transition-all duration-300 bg-[#F1EFEA] text-[#1C1C1A] border border-[#E2DFD7]">
+                        <div class="flex justify-between items-start mb-6">
+                            <div>
+                                <span id="preview-theme-label" class="text-[10px] font-semibold text-[#8B2635] uppercase tracking-widest">Giấy Kraft Nguyên Bản</span>
+                                <h4 class="font-logo text-2xl tracking-wider mt-0.5">ORIBERRY</h4>
+                            </div>
+                            <span id="preview-value" class="text-xl font-bold text-[#1C1C1A]">200.000đ</span>
+                        </div>
+
+                        <div class="space-y-3 mb-6">
+                            <div>
+                                <p class="text-[10px] opacity-70">Gửi tặng:</p>
+                                <p id="preview-name" class="text-sm font-semibold">Chưa nhập tên người nhận</p>
+                            </div>
+                            <div>
+                                <p class="text-[10px] opacity-70">Lời chúc:</p>
+                                <p id="preview-wish" class="text-xs italic leading-relaxed">"Chúc bạn một mùa Giáng sinh an lành..."</p>
+                            </div>
+                        </div>
+
+                        <div class="pt-4 border-t border-black/10 flex justify-between items-center text-[10px] font-mono opacity-80">
+                            <span>Mã AppSheet: <strong id="preview-code">XMAS26-9821</strong></span>
+                            <span>Áp dụng 6 quán</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="mt-auto border-t border-[#E2DFD7] bg-white py-8">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-[#666560]">
+            <div class="flex items-center gap-2">
+                <span class="font-logo font-bold text-base text-[#1C1C1A]">ORIBERRY</span>
+                <span>&bull; Social Enterprise Development</span>
+            </div>
+            <p>Hệ thống 6 quán cà phê đặc sản tại Hà Nội &bull; Google Workspace CMS Powered</p>
+        </div>
+    </footer>
+
+    <!-- Popup Chào mừng -->
+    <div id="xmas-popup" class="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-xs hidden px-4">
+        <div class="relative w-full max-w-md bg-white border border-[#E2DFD7] rounded-3xl shadow-2xl p-6 sm:p-8 text-[#1C1C1A]">
+            <button onclick="closePopup()" class="absolute top-4 right-4 text-[#666560] hover:text-[#1C1C1A] text-lg w-8 h-8 flex items-center justify-center rounded-full bg-[#F1EFEA] cursor-pointer">&times;</button>
+            <div class="text-center">
+                <span class="inline-block px-3 py-1 mb-3 text-xs font-semibold tracking-wider text-[#8B2635] uppercase bg-[#8B2635]/10 rounded-full">
+                    🎄 Mùa Lễ Hội An Lành 🎄
+                </span>
+                <h3 class="text-2xl font-serif-custom font-normal text-[#1C1C1A] mb-2">Chương Trình Quà Tặng Giáng Sinh</h3>
+                <p class="text-xs text-[#666560] mb-6 leading-relaxed">
+                    Khám phá các Set Quà thủ công đặc sản hoặc tự tay thiết kế Thẻ E-Gift Card tiền mặt linh hoạt để gửi tặng những người thân yêu.
+                </p>
+                <button onclick="closePopup()" class="w-full py-3 bg-[#1C1C1A] hover:bg-stone-800 text-white font-semibold text-xs rounded-xl transition cursor-pointer">
+                    Bắt đầu mua sắm ngay
+                </button>
+              <button onclick="closePopup()" class="w-full py-2 text-[#666560] hover:text-[#1C1C1A] text-xs font-medium transition cursor-pointer">
+        Để sau, cảm ơn bạn
+    </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Ngăn kéo Giỏ hàng -->
+    <div id="cart-drawer" class="fixed inset-0 z-50 bg-black/50 backdrop-blur-xs hidden justify-end">
+        <div class="w-full max-w-md bg-white h-full shadow-2xl p-6 flex flex-col justify-between">
+            <div>
+                <div class="flex items-center justify-between pb-4 border-b border-[#E2DFD7]">
+                    <h3 class="font-serif-custom text-xl font-normal text-[#1C1C1A]">Giỏ Hàng Giáng Sinh</h3>
+                    <button onclick="toggleCart()" class="text-[#666560] hover:text-[#1C1C1A] text-lg p-1 cursor-pointer"><i class="fa-solid fa-xmark"></i></button>
+                </div>
+                <div id="cart-items" class="py-4 space-y-3 max-h-[60vh] overflow-y-auto">
+                    <p class="text-xs text-[#666560] text-center py-8">Giỏ hàng của bạn đang trống.</p>
+                </div>
+            </div>
+            <div class="pt-4 border-t border-[#E2DFD7] space-y-4">
+                <div class="flex justify-between items-center text-sm font-semibold">
+                    <span>Tổng cộng:</span>
+                    <span id="cart-total" class="text-base text-[#1C1C1A]">0đ</span>
+                </div>
+                <button onclick="checkoutMock()" class="w-full py-3 bg-[#1C1C1A] hover:bg-stone-800 text-white font-semibold text-xs rounded-xl transition cursor-pointer">
+                    Xác nhận đặt đơn (Mô phỏng Apps Script)
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- JavaScript Xử Lý Giao Diện -->
+    <script>
+        let cart = [];
+        let currentGiftValue = 200000;
+        let currentCardTheme = 'kraft';
+
+        window.addEventListener('DOMContentLoaded', () => {
+            setTimeout(() => { document.getElementById('xmas-popup').classList.remove('hidden'); }, 1000);
+            updateCardPreview();
+        });
+
+        function openPopup() { document.getElementById('xmas-popup').classList.remove('hidden'); }
+        function closePopup() { document.getElementById('xmas-popup').classList.add('hidden'); }
+        function toggleCart() {
+            const drawer = document.getElementById('cart-drawer');
+            drawer.classList.toggle('hidden');
+            drawer.classList.toggle('flex');
+        }
+
+        function addToCart(name, price) {
+            cart.push({ name, price });
+            updateCartUI();
+            toggleCart();
+        }
+
+        function setGiftValue(val, btn) {
+            currentGiftValue = val;
+            document.querySelectorAll('.gift-btn').forEach(b => {
+                b.classList.remove('bg-[#1C1C1A]', 'text-white');
+                b.classList.add('bg-white', 'text-[#1C1C1A]');
+            });
+            btn.classList.remove('bg-white', 'text-[#1C1C1A]');
+            btn.classList.add('bg-[#1C1C1A]', 'text-white');
+            updateCardPreview();
+        }
+
+        function setCardTheme(theme, btn) {
+            currentCardTheme = theme;
+            document.querySelectorAll('.theme-btn').forEach(b => {
+                b.classList.remove('border-2', 'border-[#1C1C1A]');
+                b.classList.add('border', 'border-[#E2DFD7]');
+            });
+            btn.classList.remove('border', 'border-[#E2DFD7]');
+            btn.classList.add('border-2', 'border-[#1C1C1A]');
+            updateCardPreview();
+        }
+
+        function updateCardPreview() {
+            const name = document.getElementById('recipientName').value || 'Chưa nhập tên người nhận';
+            const wish = document.getElementById('recipientWish').value || 'Chúc bạn một mùa Giáng sinh an lành và ấm áp!';
+            const box = document.getElementById('card-preview-box');
+            const themeLabel = document.getElementById('preview-theme-label');
+            const valEl = document.getElementById('preview-value');
+
+            document.getElementById('preview-name').innerText = name;
+            document.getElementById('preview-wish').innerText = `"${wish}"`;
+            valEl.innerText = currentGiftValue.toLocaleString('vi-VN') + 'đ';
+
+            if (currentCardTheme === 'kraft') {
+                box.className = "p-6 rounded-2xl shadow-lg relative overflow-hidden transition-all duration-300 bg-[#F1EFEA] text-[#1C1C1A] border border-[#E2DFD7]";
+                themeLabel.innerText = "Giấy Kraft Nguyên Bản";
+                themeLabel.className = "text-[10px] font-semibold text-[#8B2635] uppercase tracking-widest";
+                valEl.className = "text-xl font-bold text-[#1C1C1A]";
+            } else {
+                box.className = "p-6 rounded-2xl shadow-lg relative overflow-hidden transition-all duration-300 bg-[#2D4739] text-white border border-emerald-600/30";
+                themeLabel.innerText = "Xanh Rừng Thông";
+                themeLabel.className = "text-[10px] font-semibold text-amber-300 uppercase tracking-widest";
+                valEl.className = "text-xl font-bold text-amber-300";
+            }
+        }
+
+        function addGiftCardToCart() {
+            const name = document.getElementById('recipientName').value || 'Bạn của bạn';
+            const cardName = `E-Gift Card (${currentGiftValue.toLocaleString('vi-VN')}đ - Tặng: ${name})`;
+            cart.push({ name: cardName, price: currentGiftValue });
+            updateCartUI();
+            toggleCart();
+        }
+
+        function updateCartUI() {
+            const badge = document.getElementById('cart-badge');
+            const itemsContainer = document.getElementById('cart-items');
+            const totalContainer = document.getElementById('cart-total');
+
+            badge.innerText = cart.length;
+            if (cart.length === 0) {
+                itemsContainer.innerHTML = `<p class="text-xs text-[#666560] text-center py-8">Giỏ hàng của bạn đang trống.</p>`;
+                totalContainer.innerText = '0đ';
+                return;
+            }
+
+            let total = 0;
+            itemsContainer.innerHTML = cart.map((item, index) => {
+                total += item.price;
+                return `
+                    <div class="flex justify-between items-center bg-[#F1EFEA] p-3 rounded-xl text-xs">
+                        <div>
+                            <p class="font-semibold text-[#1C1C1A]">${item.name}</p>
+                            <p class="text-[11px] text-[#666560]">${item.price.toLocaleString('vi-VN')}đ</p>
+                        </div>
+                        <button onclick="removeFromCart(${index})" class="text-rose-700 font-bold p-1 cursor-pointer">&times;</button>
+                    </div>
+                `;
+            }).join('');
+            totalContainer.innerText = total.toLocaleString('vi-VN') + 'đ';
+        }
+
+        function removeFromCart(index) {
+            cart.splice(index, 1);
+            updateCartUI();
+        }
+
+        function checkoutMock() {
+            if (cart.length === 0) { alert("Giỏ hàng đang trống!"); return; }
+            alert("Mô phỏng đặt hàng thành công! Dữ liệu E-Gift Card và Set quà sẽ được đẩy về Google Sheet (AppSheet).");
+            cart = [];
+            updateCartUI();
+            toggleCart();
+        }
+    </script>
+</body>
+</html>
