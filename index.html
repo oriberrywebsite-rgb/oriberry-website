@@ -536,23 +536,24 @@
     setupCarousel('stories-carousel', 'stories-carousel-dots');   // KHỐI 7
   });
 </script>
-      <!-- Popup Giáng Sinh nổi mờ trên trang chủ -->
-<div id="xmas-home-popup" class="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm hidden px-4">
-    <div class="relative w-full max-w-md bg-white border border-[#E2DFD7] rounded-3xl shadow-2xl p-6 sm:p-8 text-[#1C1C1A] text-center">
+<!-- ================= BẮT ĐẦU KHỐI CHƯƠNG TRÌNH GIÁNG SINH (XÓA KHỐI NÀY KHI HẾT CHƯƠNG TRÌNH) ================= -->
+<!-- 1. Khung Pop-up Giáng Sinh -->
+<div id="xmas-home-popup" class="fixed inset-0 flex items-center justify-center bg-black/25 hidden px-4 transition-opacity duration-300" style="z-index: 999999;">
+    <div class="relative w-full max-w-xl bg-white border border-[#E2DFD7] rounded-3xl shadow-2xl p-8 sm:p-10 text-[#1C1C1A] text-center">
         <!-- Nút đóng (×) -->
-        <button onclick="closeHomePopup()" class="absolute top-4 right-4 text-[#666560] hover:text-[#1C1C1A] text-lg w-8 h-8 flex items-center justify-center rounded-full bg-[#F1EFEA] cursor-pointer">&times;</button>
+        <button onclick="closeHomePopup()" aria-label="Đóng" class="absolute top-5 right-5 text-[#666560] hover:text-[#1C1C1A] text-xl w-9 h-9 flex items-center justify-center rounded-full bg-[#F1EFEA] hover:bg-[#E2DFD7] transition cursor-pointer">&times;</button>
         
-        <span class="inline-block px-3 py-1 mb-3 text-xs font-semibold tracking-wider text-[#8B2635] uppercase bg-[#8B2635]/10 rounded-full">
+        <span class="inline-block px-3.5 py-1.5 mb-4 text-xs font-semibold tracking-wider text-[#8B2635] uppercase bg-[#8B2635]/10 rounded-full">
             🎄 Mùa Lễ Hội An Lành 🎄
         </span>
-        <h3 class="text-2xl font-serif font-normal text-[#1C1C1A] mb-2">Chương Trình Quà Tặng Giáng Sinh</h3>
-        <p class="text-xs text-[#666560] mb-6 leading-relaxed">
+        <h3 class="text-2xl sm:text-3xl font-serif font-normal text-[#1C1C1A] mb-3">Chương Trình Quà Tặng Giáng Sinh</h3>
+        <p class="text-sm text-[#666560] mb-8 leading-relaxed max-w-md mx-auto">
             Khám phá các Set Quà thủ công đặc sản hoặc tự tay thiết kế Thẻ E-Gift Card tiền mặt linh hoạt để gửi tặng những người thân yêu.
         </p>
         
         <!-- Nút hành động -->
-        <div class="space-y-2.5">
-            <a href="/xmas/" class="block w-full py-3 bg-[#1C1C1A] hover:bg-stone-800 text-white font-semibold text-xs rounded-xl transition text-center shadow-sm">
+        <div class="space-y-3 max-w-sm mx-auto">
+            <a href="/xmas/" class="block w-full py-3.5 bg-[#1C1C1A] hover:bg-stone-800 text-white font-semibold text-sm rounded-xl transition text-center shadow-sm">
                 Bắt đầu mua sắm ngay
             </a>
             <button onclick="closeHomePopup()" class="w-full py-2 text-[#666560] hover:text-[#1C1C1A] text-xs font-medium transition cursor-pointer">
@@ -562,26 +563,46 @@
     </div>
 </div>
 
-<!-- Script điều khiển hiển thị Popup trên trang chủ -->
+<!-- 2. Nút nổi nhỏ trên thanh Header (Hiện ra sau khi tắt Pop-up) -->
+<button id="xmas-header-pill" onclick="openHomePopup()" class="hidden fixed top-4 right-4 sm:right-6 items-center gap-1.5 px-3.5 py-1.5 bg-[#8B2635] hover:bg-[#701d29] text-white text-xs font-medium rounded-full shadow-md transition-all cursor-pointer" style="z-index: 999998;">
+    <span>🎄</span>
+    <span>Quà Giáng Sinh</span>
+</button>
+
+<!-- 3. Script điều khiển Pop-up & Nút Header -->
 <script>
-    window.addEventListener('DOMContentLoaded', () => {
-        // Sau khi vào trang chủ 0.8 giây, popup sẽ mờ hiện lên
+    (function() {
         setTimeout(() => {
-            const popup = document.getElementById('xmas-home-popup');
-            if (popup) {
-                popup.classList.remove('hidden');
-                popup.classList.add('flex');
-            }
-        }, 800);
-    });
+            openHomePopup();
+        }, 500);
+    })();
+
+    function openHomePopup() {
+        const popup = document.getElementById('xmas-home-popup');
+        const pill = document.getElementById('xmas-header-pill');
+        if (popup) {
+            popup.classList.remove('hidden');
+            popup.classList.add('flex');
+        }
+        if (pill) {
+            pill.classList.add('hidden');
+            pill.classList.remove('inline-flex');
+        }
+    }
 
     function closeHomePopup() {
         const popup = document.getElementById('xmas-home-popup');
+        const pill = document.getElementById('xmas-header-pill');
         if (popup) {
             popup.classList.remove('flex');
             popup.classList.add('hidden');
         }
+        if (pill) {
+            pill.classList.remove('hidden');
+            pill.classList.add('inline-flex');
+        }
     }
 </script>
+<!-- ================= KẾT THÚC KHỐI CHƯƠNG TRÌNH GIÁNG SINH ================= -->
 </body>
 </html>
