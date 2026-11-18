@@ -268,11 +268,11 @@
         <div class="relative z-10 w-full max-w-md max-h-[90dvh] overflow-y-auto rounded-2xl bg-white p-5 shadow-2xl">
             <h2 id="editCartNoteTitle" class="text-lg font-bold text-stone-900">Edit note</h2>
             <p id="editCartNoteItemName" class="mt-1 text-sm text-stone-600"></p>
-            <label for="editCartNoteInput" class="mt-4 block text-sm font-semibold text-stone-800">Yêu cầu riêng cho món này</label>
-            <textarea id="editCartNoteInput" maxlength="500" rows="4" placeholder="Ví dụ: Ít đá, không đường" class="mt-2 w-full resize-y rounded-xl border border-stone-300 p-3 text-sm focus:outline-none focus:border-amber-800"></textarea>
+            <label for="editCartNoteInput" class="mt-4 block text-sm font-semibold text-stone-800">Special instructions for this item</label>
+            <textarea id="editCartNoteInput" maxlength="500" rows="4" placeholder="e.g., less ice, no sugar" class="mt-2 w-full resize-y rounded-xl border border-stone-300 p-3 text-sm focus:outline-none focus:border-amber-800"></textarea>
             <p id="editCartNoteError" class="mt-1 text-xs text-red-700" hidden>Item note max 500 characters</p>
             <div class="mt-4 flex justify-end gap-2">
-                <button type="button" onclick="cancelCartItemNote()" class="rounded-xl border border-stone-300 px-4 py-2 text-sm font-semibold text-stone-700">Hủy</button>
+                <button type="button" onclick="cancelCartItemNote()" class="rounded-xl border border-stone-300 px-4 py-2 text-sm font-semibold text-stone-700">Cancel</button>
                 <button type="button" onclick="saveCartItemNote()" class="rounded-xl bg-amber-950 px-4 py-2 text-sm font-semibold text-white">Save note</button>
             </div>
         </div>
@@ -283,13 +283,13 @@
         <div class="fixed inset-0 bg-black/60 backdrop-blur-sm" onclick="closeOrderSuccess()"></div>
         <div class="relative z-10 w-full max-w-sm max-h-[90dvh] overflow-y-auto rounded-2xl bg-white p-6 text-center shadow-2xl space-y-4">
             <div class="mx-auto flex h-14 w-14 items-center justify-center rounded-full bg-emerald-100 text-2xl font-bold text-emerald-700" aria-hidden="true">✓</div>
-            <h2 id="orderSuccessTitle" class="text-lg font-bold text-gray-900">Đã nhận đơn của bạn!</h2>
+            <h2 id="orderSuccessTitle" class="text-lg font-bold text-gray-900">Order received!</h2>
             <p id="orderSuccessMessage" class="text-xs leading-relaxed text-gray-600">Thank you for your order! It has been sent to the store and is waiting for confirmation.</p>
             <div class="text-xs text-gray-600"><strong id="successOrderId" class="text-gray-900"></strong><span aria-hidden="true"> · </span><span id="successStore"></span></div>
             <details id="successOrderDetails" class="text-left text-xs text-gray-600">
-                <summary class="cursor-pointer text-center underline underline-offset-4">Xem chi tiết đơn hàng</summary>
+                <summary class="cursor-pointer text-center underline underline-offset-4">View order details</summary>
                 <div id="successOrderItems" class="mt-3 space-y-2"></div>
-                <div class="mt-3 flex justify-between border-t border-stone-200 pt-3 font-bold"><span>Tổng tiền</span><span id="successOrderTotal" class="text-gray-900"></span></div>
+                <div class="mt-3 flex justify-between border-t border-stone-200 pt-3 font-bold"><span>Total</span><span id="successOrderTotal" class="text-gray-900"></span></div>
             </details>
             <button id="successContinueBtn" type="button" onclick="closeOrderSuccess()" class="w-full cursor-pointer rounded-xl bg-neutral-900 py-3 text-xs font-bold text-white transition hover:bg-amber-950 focus:outline-none focus:ring-2 focus:ring-emerald-700 focus:ring-offset-2">Tiếp tục xem menu</button>
         </div>
@@ -407,7 +407,7 @@ const MENU_CACHE_MAX_AGE = 5 * 60 * 1000;
             const table = String(params.get('table') || '').trim();
             if (storeId) {
                 if (!STORES.some(store => store.id === storeId)) {
-                    showMenuMessage('Link cửa hàng không hợp lệ. Vui lòng chọn cửa hàng để xem menu.');
+                    showMenuMessage('Store link not found. Please choose a location to browse the menu.');
                     openFulfillmentModal();
                     return;
                 }
@@ -415,7 +415,7 @@ const MENU_CACHE_MAX_AGE = 5 * 60 * 1000;
                     selectedStoreId = '';
                     selectedStoreOrLocation = '';
                     openFulfillmentModal();
-                    showMenuMessage('Giỏ hàng đang gắn với cửa hàng khác. Hãy xác nhận đổi cửa hàng để tiếp tục.');
+                    showMenuMessage('Your cart contains items from a different location. Please confirm to switch stores and continue.');
                     return;
                 }
                 if (table) {
@@ -481,7 +481,7 @@ function selectStore(storeId) {
     const previousStoreId = selectedStoreId || cartStoreId;
     const storeChanged = previousStoreId !== storeId;
     if (cart.length && storeChanged) {
-        const confirmed = window.confirm('Đổi cửa hàng sẽ xóa giỏ hàng hiện tại vì menu và giá có thể khác. Bạn có muốn tiếp tục?');
+        const confirmed = window.confirm('Changing locations will empty your current cart because menu items and prices may differ. Would you like to proceed?');
         if (!confirmed) return false;
         cart = [];
         localStorage.setItem('oriberry_order_cart_store', storeId);
@@ -609,7 +609,7 @@ async function fetchMenuProducts() {
                             <div class="flex-1 min-w-0">
                                 <h3 class="text-sm font-bold text-stone-900 truncate">${p.name}</h3>
                                 <p class="text-[11px] text-stone-500 line-clamp-2 mt-0.5">${p.shortDesc || ''}</p>
-                                <span class="text-xs font-bold text-amber-900 mt-1 inline-block">${p.referencePrice ? 'Giá tham khảo · ' : ''}${p.hasNormalSize ? `Normal ${productPrice(p, 'normal').toLocaleString('vi-VN')}đ` : ''}${p.hasNormalSize && p.hasLargeSize ? ' · ' : ''}${p.hasLargeSize ? `Large ${productPrice(p, 'large').toLocaleString('vi-VN')}đ` : ''}</span>
+                                <span class="text-xs font-bold text-amber-900 mt-1 inline-block">${p.referencePrice ? 'Starting from · ' : ''}${p.hasNormalSize ? `Normal ${productPrice(p, 'normal').toLocaleString('vi-VN')}đ` : ''}${p.hasNormalSize && p.hasLargeSize ? ' · ' : ''}${p.hasLargeSize ? `Large ${productPrice(p, 'large').toLocaleString('vi-VN')}đ` : ''}</span>
                             </div>
                             <div class="w-8 h-8 rounded-full bg-amber-900/10 text-amber-900 flex items-center justify-center hover:bg-amber-950 hover:text-white transition flex-shrink-0 shadow-sm">
                                 <i class="fa-solid fa-plus text-xs"></i>
@@ -845,7 +845,7 @@ function updateModalPrices() {
         cb.disabled = price === null;
         if (cb.disabled) cb.checked = false;
         const label = cb.closest('label')?.querySelector('.addon-price');
-        if (label) label.textContent = cb.disabled ? '(không bán size này)' : `(+${price.toLocaleString('vi-VN')}₫)`;
+        if (label) label.textContent = cb.disabled ? '(Not available in this size)' : `(+${price.toLocaleString('vi-VN')}₫)`;
         if (cb.checked) addonTotal += price;
     });
 
