@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
-  <meta name="description" content="Câu chuyện kinh doanh, nông dân và chế biến cà phê của Oriberry.">
+  <meta name="description" content="Oriberry: The business, the farmers and the processing.">
   <title>Oriberry — Stories</title>
   
   <!-- Tailwind CSS CDN -->
@@ -295,9 +295,9 @@
         if (cached && Date.now() - cached.savedAt < 120000) return cached.data;
       } catch (_) {}
       const response = await fetch(url.toString());
-      if (!response.ok) throw new Error('Không thể kết nối máy chủ.');
+      if (!response.ok) throw new Error('Unable to connect to the server.');
       const data = await response.json();
-      if (data.status !== 'success') throw new Error(data.message || 'Không tải được bài viết.');
+      if (data.status !== 'success') throw new Error(data.message || 'Failed to load post.');
       try {
         sessionStorage.setItem(cacheKey, JSON.stringify({ savedAt: Date.now(), data }));
       } catch (_) {}
@@ -329,7 +329,7 @@
         
         const filteredPosts = posts.filter(p => p.slug !== currentSlug);
         if (filteredPosts.length === 0) {
-          container.innerHTML = '<p class="text-xs text-brand-muted">Chưa có bài viết khác.</p>';
+          container.innerHTML = '<p class="text-xs text-brand-muted">No other posts yet.</p>';
           return;
         }
 
@@ -392,7 +392,7 @@
       setText('categoryTitle', title);
       setText('categoryDesc', BLOG_DESCRIPTIONS[blogCategory] || '');
       document.getElementById('categoryIntro').hidden = blogCategory === 'business';
-      setText('listSidebarTitle', blogCategory === 'business' ? 'Các bài viết khác' : 'Các bài viết tiếp theo');
+      setText('listSidebarTitle', blogCategory === 'business' ? 'Other articles' : 'Next articles');
       document.title = `${title} | Oriberry`;
       const container = document.getElementById('postGrid');
       const rawPage = Number(blogParams.get('page') || 1);
@@ -450,7 +450,7 @@
 
       } catch (error) {
         if (location.search !== requestedSearch) return;
-        blogState(container, error.message || 'Không thể tải bài viết. Vui lòng thử lại.');
+        blogState(container, error.message || 'Could not load the article. Please try again.');
       }
     }
 
@@ -505,11 +505,11 @@
       document.getElementById('articleCategory').hidden = blogCategory === 'business';
       const slug = blogParams.get('slug') || '';
       const container = document.getElementById('articleBody');
-      setText('articleTitle', 'Bài viết');
+      setText('articleTitle', 'Articles');
       setText('articleExcerpt', '');
       document.getElementById('articleCover').hidden = true;
-      blogState(container, 'Đang tải bài viết…');
-      if (!slug) return blogState(container, 'Thiếu đường dẫn bài viết.');
+      blogState(container, 'Loading article...');
+      if (!slug) return blogState(container, 'Article URL not found.');
       try {
         const [{ post }, listData] = await Promise.all([
           blogFetch('getBlogPost', { category: blogCategory, slug }),
@@ -534,7 +534,7 @@
         renderSidebarPosts(listData.posts || [], slug);
       } catch (error) {
         if (location.search !== requestedSearch) return;
-        blogState(container, error.message || 'Không tìm thấy bài viết.');
+        blogState(container, error.message || 'Article not found.');
       }
     }
 
