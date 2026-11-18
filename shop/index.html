@@ -176,7 +176,7 @@
                 <div class="flex flex-wrap gap-2" id="popGrindOptions"></div>
             </div>
             <div class="flex items-center justify-between pt-2 border-t border-gray-100">
-                <span class="text-xs font-bold text-gray-800">Số lượng gói:</span>
+                <span class="text-xs font-bold text-gray-800">Number of bags:</span>
                 <div class="flex items-center border border-gray-300 rounded-xl overflow-hidden">
                     <button onclick="changePopQty(-1)" class="px-3 py-1.5 text-sm font-bold text-gray-600 hover:bg-gray-100 cursor-pointer">-</button>
                     <span id="popQty" class="px-4 text-xs font-bold">1</span>
@@ -392,7 +392,7 @@
             const container = document.getElementById('shopContentContainer');
             
             if (filtered.length === 0) {
-                container.innerHTML = `<div class="text-center py-12 text-gray-400 text-xs font-semibold">Không tìm thấy sản phẩm phù hợp với bộ lọc đã chọn.</div>`;
+                container.innerHTML = `<div class="text-center py-12 text-gray-400 text-xs font-semibold">No items found matching your selected filters.</div>`;
                 return;
             }
 
@@ -594,7 +594,7 @@
 
             const finalTotal = totalAfterDiscount + shippingFee;
 
-            let promoText = subtotal >= MOC_DISCOUNT ? "🎉 <b>Chúc mừng!</b> Đơn hàng đạt trên 2tr được <b>Giảm 5%</b>!" : `🎁 Mua thêm <b>${(MOC_DISCOUNT - subtotal).toLocaleString('vi-VN')}đ</b> để nhận ngay ưu đãi <b>Giảm 5%</b>!`;
+            let promoText = subtotal >= MOC_DISCOUNT ? "🎉 <b>Congratulations!</b> Orders over 2M VND get <b>5% Off</b>!" : `🎁 Add <b>${(MOC_DISCOUNT - subtotal).toLocaleString('vi-VN')}đ</b> more to unlock your discount! <b>5% Off</b>!`;
             const promoBanner = document.getElementById('shippingPromoBanner');
             if (promoBanner) promoBanner.innerHTML = promoText;
 
@@ -613,7 +613,7 @@
         function closeModal(id) { document.getElementById(id).classList.add('hidden'); }
 
 function getCartDetailsString() {
-            if (!cart || cart.length === 0) return "Giỏ hàng trống";
+            if (!cart || cart.length === 0) return "Your cart is empty";
             return cart.map(item => {
                 let details = `- ${item.name} (SL: ${item.qty})`;
                 if (item.grind) details += ` [Cỡ xay: ${item.grind}]`;
@@ -649,7 +649,7 @@ async function submitOrder(e) {
             const itemsDetail = cart.map(i => `${i.name} (${i.grind}) x${i.qty} [${(i.price * i.qty).toLocaleString('vi-VN')}đ]`).join(' | ');
 
             const submitBtn = document.getElementById('submitBtn');
-            if (submitBtn) { submitBtn.disabled = true; submitBtn.innerText = "ĐANG GỬI ĐƠN HÀNG..."; }
+            if (submitBtn) { submitBtn.disabled = true; submitBtn.innerText = "Placing order..."; }
 
         // [SỬA] Đơn Shop trước đây thiếu sourceChannel nên backend có thể ghi nhầm sang Store; khai báo SHOP để định tuyến đúng sheet.
         const payload = {
