@@ -90,7 +90,6 @@
     <section id="set-qua" class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 border-t border-[#E2DFD7]">
         <div class="mb-8 flex items-end justify-between gap-4">
             <div>
-                <span class="text-xs uppercase tracking-widest text-[#666560] font-semibold">Option 01 &bull; Physical Gifts</span>
                 <h2 class="text-2xl sm:text-3xl font-serif-custom font-normal text-[#1C1C1A] mt-1">Special Christmas Gift Set</h2>
             </div>
             <span id="catalog-status" class="text-[11px] text-[#666560]">Đang tải danh mục...</span>
@@ -105,10 +104,9 @@
     <section id="e-gift" class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 border-t border-[#E2DFD7]">
         <div class="max-w-4xl mx-auto bg-white border border-[#E2DFD7] rounded-3xl p-6 sm:p-10 shadow-sm">
             <div class="mb-8">
-                <span class="text-xs uppercase tracking-widest text-[#666560] font-semibold">Lựa Chọn 02 &bull; Quà Tặng Giá Trị Tiền Mặt</span>
-                <h2 class="text-2xl sm:text-3xl font-serif-custom font-normal text-[#1C1C1A] mt-1">Thẻ Quà Tặng Điện Tử (E-Gift Card)</h2>
+                <h2 class="text-2xl sm:text-3xl font-serif-custom font-normal text-[#1C1C1A] mt-1">E-Gift Card</h2>
                 <p class="text-xs sm:text-sm text-[#666560] mt-2">
-                    Chọn mẫu thẻ Standard hoặc VIP, mệnh giá và nhập SĐT tài khoản người nhận để phát hành thẻ quà tặng.
+                    Pick a Standard or VIP card, choose an amount, and enter the recipient's account phone number to issue your gift card.
                 </p>
             </div>
 
@@ -116,40 +114,40 @@
                 <!-- Cột trái: Tùy chọn gói E-Card & thông tin người nhận -->
                 <div class="space-y-4">
                     <div>
-                        <label class="block text-xs font-semibold text-[#1C1C1A] mb-1.5">1. Chọn mẫu &amp; mệnh giá E-Card:</label>
+                        <label class="block text-xs font-semibold text-[#1C1C1A] mb-1.5">1. Choose an E-Card Design & Value:</label>
                         <div id="ecard-options-container" class="grid grid-cols-1 sm:grid-cols-2 gap-2">
                             <!-- Render động từ DB_ECard_Options -->
                         </div>
                     </div>
 
                     <div>
-                        <label class="block text-xs font-semibold text-[#1C1C1A] mb-1.5">2. SĐT tài khoản người nhận thẻ *:</label>
+                        <label class="block text-xs font-semibold text-[#1C1C1A] mb-1.5">2. Recipient Phone Number *:</label>
                         <input type="tel" id="ecardAccountPhone" oninput="updateCardPreview()" placeholder="VD: 0944556677" class="w-full px-3.5 py-2.5 text-xs border border-[#E2DFD7] rounded-xl focus:outline-none focus:ring-1 focus:ring-[#1C1C1A]">
                     </div>
 
                     <div>
-                        <label class="block text-xs font-semibold text-[#1C1C1A] mb-1.5">3. Tên người nhận *:</label>
+                        <label class="block text-xs font-semibold text-[#1C1C1A] mb-1.5">3. Recipient Name *:</label>
                         <input type="text" id="recipientName" oninput="updateCardPreview()" placeholder="VD: Đỗ Gia Bảo" class="w-full px-3.5 py-2.5 text-xs border border-[#E2DFD7] rounded-xl focus:outline-none focus:ring-1 focus:ring-[#1C1C1A]">
                     </div>
 
                     <div>
-                        <label class="block text-xs font-semibold text-[#1C1C1A] mb-1.5">4. Lời chúc Giáng sinh:</label>
-                        <textarea id="recipientWish" oninput="updateCardPreview()" rows="2" placeholder="Chúc bạn một mùa Giáng sinh an lành, ấm áp bên những tách cà phê Việt Nam nguyên bản." class="w-full px-3.5 py-2.5 text-xs border border-[#E2DFD7] rounded-xl focus:outline-none focus:ring-1 focus:ring-[#1C1C1A]"></textarea>
+                        <label class="block text-xs font-semibold text-[#1C1C1A] mb-1.5">4. Christmas Wish:</label>
+                        <textarea id="recipientWish" oninput="updateCardPreview()" rows="2" placeholder="Chúc bạn có những khoảng thời gian vui vẻ bên ly cà phê từ Oriberry." class="w-full px-3.5 py-2.5 text-xs border border-[#E2DFD7] rounded-xl focus:outline-none focus:ring-1 focus:ring-[#1C1C1A]"></textarea>
                     </div>
 
                     <button type="button" onclick="addGiftCardToCart()" class="w-full py-3 bg-[#1C1C1A] hover:bg-stone-800 text-white font-semibold text-xs rounded-xl transition cursor-pointer shadow-sm">
-                        Thêm E-Gift Card vào giỏ hàng &rarr;
+                        Add E-Gift Card to Cart &rarr;
                     </button>
                 </div>
 
                 <!-- Cột phải: Xem trước tấm thẻ -->
                 <div>
-                    <label class="block text-xs font-semibold text-[#1C1C1A] mb-1.5">Xem trước giao diện E-Gift Card:</label>
+                    <label class="block text-xs font-semibold text-[#1C1C1A] mb-1.5">E-Gift Card Preview:</label>
                     <div id="card-preview-box" class="p-6 rounded-2xl shadow-lg relative overflow-hidden transition-all duration-300 bg-[#4A4E54] text-white border border-[#E2DFD7] min-h-[250px] flex flex-col justify-between bg-cover bg-center">
                         <div class="flex justify-between items-start gap-3 mb-4">
                             <div>
                                 <span id="preview-theme-label" class="inline-block px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider bg-black/35">
-                                    STANDARD · RỪNG THÔNG NOEL
+                                    STANDARD · WINTER PINE FOREST
                                 </span>
                                 <h4 class="font-logo text-2xl tracking-wider mt-2">ORIBERRY</h4>
                             </div>
@@ -158,15 +156,15 @@
 
                         <div class="space-y-2.5 mb-4">
                             <div>
-                                <p class="text-[10px] opacity-80">Gửi tặng:</p>
-                                <p id="preview-name" class="text-sm font-semibold">Chưa nhập tên người nhận</p>
+                                <p class="text-[10px] opacity-80"Gift To:</p>
+                                <p id="preview-name" class="text-sm font-semibold">Recipient name not entered</p>
                             </div>
                             <div>
-                                <p class="text-[10px] opacity-80">SĐT tài khoản nhận:</p>
-                                <p id="preview-phone" class="text-xs font-mono font-semibold">Chưa nhập SĐT</p>
+                                <p class="text-[10px] opacity-80">Recipient Phone Number:</p>
+                                <p id="preview-phone" class="text-xs font-mono font-semibold">Phone Number not entered</p>
                             </div>
                             <div>
-                                <p class="text-[10px] opacity-80">Lời chúc:</p>
+                                <p class="text-[10px] opacity-80">Christmas Wish:</p>
                                 <p id="preview-wish" class="text-xs italic leading-relaxed">"Chúc bạn một mùa Giáng sinh an lành..."</p>
                             </div>
                         </div>
@@ -197,7 +195,7 @@
         <div class="w-full max-w-md bg-white h-full shadow-2xl p-6 flex flex-col justify-between overflow-y-auto">
             <div>
                 <div class="flex items-center justify-between pb-4 border-b border-[#E2DFD7]">
-                    <h3 class="font-serif-custom text-xl font-normal text-[#1C1C1A]">Giỏ Hàng &amp; Đặt Đơn</h3>
+                    <h3 class="font-serif-custom text-xl font-normal text-[#1C1C1A]">Cart &amp; Place order</h3>
                     <button type="button" onclick="toggleCart()" class="text-[#666560] hover:text-[#1C1C1A] text-lg p-1 cursor-pointer">
                         <i class="fa-solid fa-xmark"></i>
                     </button>
@@ -205,27 +203,27 @@
 
                 <!-- Danh sách món -->
                 <div id="cart-items" class="py-4 space-y-3 max-h-52 overflow-y-auto border-b border-[#E2DFD7]">
-                    <p class="text-xs text-[#666560] text-center py-6">Giỏ hàng của bạn đang trống.</p>
+                    <p class="text-xs text-[#666560] text-center py-6">Your cart is empty.</p>
                 </div>
 
                 <!-- Thông tin người mua -->
                 <div class="py-4 space-y-3">
-                    <p class="text-xs font-bold uppercase tracking-wider text-[#1C1C1A]">Thông tin người đặt</p>
-                    <input type="text" id="buyerName" placeholder="Họ tên người mua *" class="w-full px-3 py-2 text-xs border border-[#E2DFD7] rounded-xl focus:outline-none focus:ring-1 focus:ring-[#1C1C1A]">
+                    <p class="text-xs font-bold uppercase tracking-wider text-[#1C1C1A]">Buyer Details</p>
+                    <input type="text" id="buyerName" placeholder="Buyer Name *" class="w-full px-3 py-2 text-xs border border-[#E2DFD7] rounded-xl focus:outline-none focus:ring-1 focus:ring-[#1C1C1A]">
                     <div class="grid grid-cols-2 gap-2">
-                        <input type="tel" id="buyerPhone" placeholder="SĐT người mua *" class="w-full px-3 py-2 text-xs border border-[#E2DFD7] rounded-xl focus:outline-none focus:ring-1 focus:ring-[#1C1C1A]">
-                        <input type="email" id="buyerEmail" placeholder="Email (không bắt buộc)" class="w-full px-3 py-2 text-xs border border-[#E2DFD7] rounded-xl focus:outline-none focus:ring-1 focus:ring-[#1C1C1A]">
+                        <input type="tel" id="buyerPhone" placeholder="Buyer Phone Number *" class="w-full px-3 py-2 text-xs border border-[#E2DFD7] rounded-xl focus:outline-none focus:ring-1 focus:ring-[#1C1C1A]">
+                        <input type="email" id="buyerEmail" placeholder="Email (Optional)" class="w-full px-3 py-2 text-xs border border-[#E2DFD7] rounded-xl focus:outline-none focus:ring-1 focus:ring-[#1C1C1A]">
                     </div>
                 </div>
 
                 <!-- Thông tin giao quà vật lý (chỉ hiện khi giỏ có set quà) -->
                 <div id="shipping-fields" class="pb-4 space-y-3 hidden border-t border-[#E2DFD7] pt-4">
-                    <p class="text-xs font-bold uppercase tracking-wider text-[#8B2635]">Thông tin nhận quà vật lý</p>
+                    <p class="text-xs font-bold uppercase tracking-wider text-[#8B2635]">Physical Gift Delivery Information</p>
                     <div class="grid grid-cols-2 gap-2">
-                        <input type="text" id="receiverName" placeholder="Tên người nhận quà" class="w-full px-3 py-2 text-xs border border-[#E2DFD7] rounded-xl focus:outline-none focus:ring-1 focus:ring-[#1C1C1A]">
-                        <input type="tel" id="receiverPhone" placeholder="SĐT người nhận quà" class="w-full px-3 py-2 text-xs border border-[#E2DFD7] rounded-xl focus:outline-none focus:ring-1 focus:ring-[#1C1C1A]">
+                        <input type="text" id="receiverName" placeholder="Recipient Name" class="w-full px-3 py-2 text-xs border border-[#E2DFD7] rounded-xl focus:outline-none focus:ring-1 focus:ring-[#1C1C1A]">
+                        <input type="tel" id="receiverPhone" placeholder="Recipient Phone Number" class="w-full px-3 py-2 text-xs border border-[#E2DFD7] rounded-xl focus:outline-none focus:ring-1 focus:ring-[#1C1C1A]">
                     </div>
-                    <input type="text" id="shippingAddress" placeholder="Địa chỉ giao hàng chi tiết *" class="w-full px-3 py-2 text-xs border border-[#E2DFD7] rounded-xl focus:outline-none focus:ring-1 focus:ring-[#1C1C1A]">
+                    <input type="text" id="shippingAddress" placeholder="Shipping Address *" class="w-full px-3 py-2 text-xs border border-[#E2DFD7] rounded-xl focus:outline-none focus:ring-1 focus:ring-[#1C1C1A]">
                 </div>
 
                 <!-- Kết quả sau khi gửi đơn thành công -->
@@ -234,11 +232,11 @@
 
             <div class="pt-4 border-t border-[#E2DFD7] space-y-4">
                 <div class="flex justify-between items-center text-sm font-semibold">
-                    <span>Tổng cộng:</span>
+                    <span>Total:</span>
                     <span id="cart-total" class="text-base text-[#1C1C1A]">0đ</span>
                 </div>
                 <button type="button" id="submit-order-btn" onclick="submitOrderToSheet()" class="w-full py-3 bg-[#1C1C1A] hover:bg-stone-800 disabled:opacity-50 text-white font-semibold text-xs rounded-xl transition cursor-pointer shadow-sm">
-                    Xác nhận đặt đơn
+                    Place Order
                 </button>
             </div>
         </div>
@@ -251,19 +249,27 @@
         const FALLBACK_PHYSICAL = [
             {
                 set_id: 'SET_1_1_STD',
-                set_name: 'Set 1.1 - An Lành (Phin Nhôm)',
-                components_summary: 'Gồm 1 túi cà phê đặc sản + 1 Phin nhôm Oriberry.',
-                original_price: 520000,
-                new_price: 485000,
-                image_url: ''
+                set_name: 'An Lành',
+                components_summary: '1 gói cà phê 64 (60% Arabica Quảng trị + 40% Robusta Đắklắk',
+                original_price: 160,000,
+                new_price: 150,000,
+                image_url: 'https://res.cloudinary.com/ergvgrnl/image/upload/v1790250191/20260924_110959_1.jpg'
             },
             {
+                set_id: 'SET_1_2_STD',
+                set_name: 'Ấm áp',
+                components_summary: '2 gói cầ phê DM Đà lạt + 1 bộ phễu lọc Bát tràng.',
+                original_price: 250,000,
+                new_price: 230,000,
+                image_url: 'https://res.cloudinary.com/ergvgrnl/image/upload/v1790174780/Oriberry_dripper.jpg'
+            }
+           {
                 set_id: 'SET_1_3_STD',
-                set_name: 'Set 1.3 - Tri Ân (Cốc Bát Tràng 250ml)',
-                components_summary: 'Gồm cà phê đặc sản chọn lọc + 1 cốc Bát Tràng 250ml.',
-                original_price: 980000,
-                new_price: 920000,
-                image_url: ''
+                set_name: 'Tri ân',
+                components_summary: '1 gói cà phê Typica Đà lạt 200gr + 1 gói cà phê Mường Phăng lên men kép 250gr + 1 Cốc gốm Bát Tràng 250ml',
+                original_price: 500,000,
+                new_price: 450,000,
+                image_url: 'https://res.cloudinary.com/ergvgrnl/image/upload/v1790250189/20260131_140815.jpg'
             }
         ];
 
@@ -330,7 +336,7 @@
                         renderEcardOptions();
                         updateCardPreview();
                     }
-                    statusEl.innerText = 'Đã đồng bộ từ Sheet';
+                    statusEl.innerText = 'Holiday Gift Sets Updated';
                 }
             } catch (err) {
                 statusEl.innerText = 'Đang dùng danh mục dự phòng';
