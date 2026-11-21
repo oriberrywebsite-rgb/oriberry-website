@@ -3,8 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Holiday Specials & Gifts | Oriberry</title>
-    
+    <title>Oriberry Xmas 2026 — Gift Sets &amp; E-Gift Cards</title>
+
     <!-- Tailwind CSS CDN -->
     <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
     <!-- Font Awesome -->
@@ -13,7 +13,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;0,6..72,600&display=swap" rel="stylesheet">
-    
+
     <style>
         @font-face {
             font-family: 'Aardvark-Cafe';
@@ -36,29 +36,27 @@
         }
     </style>
 </head>
-<body class="bg-[#F9F8F6] text-[#1C1C1A] min-h-screen flex flex-col antialiased">
-
+<body class="min-h-screen flex flex-col">
     <!-- Thanh thông báo đầu trang -->
     <div class="bg-[#1C1C1A] text-[#F9F8F6] text-xs py-2 px-4 text-center font-medium flex items-center justify-center gap-3">
-        <span>🎄 Holiday Season: Special Offers on Gift Sets & E-Gift Cards!</span>
-        <button onclick="openPopup()" class="underline hover:text-amber-300 font-semibold cursor-pointer">Xem Popup Khuyến Mãi</button>
+        <span>🎄 Holiday Season: Special Offers on Gift Sets &amp; E-Gift Cards!</span>
+        <a href="#e-gift" class="underline hover:text-amber-300 font-semibold">Đặt E-Gift Card Ngay</a>
     </div>
 
     <!-- Header / Thanh điều hướng -->
     <header class="bg-white border-b border-[#E2DFD7] sticky top-0 z-40">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between">
-            <a href="/" class="text-3xl sm:text-4xl font-logo font-bold tracking-tight text-[#1C1C1A]">
+            <a href="#top" class="text-3xl sm:text-4xl font-logo font-bold tracking-tight text-[#1C1C1A]">
                 ORIBERRY
             </a>
 
             <nav class="hidden md:flex items-center gap-8 text-sm font-medium text-[#1C1C1A]">
                 <a href="#set-qua" class="hover:text-amber-800 transition">Christmas Gift Set</a>
                 <a href="#e-gift" class="hover:text-amber-800 transition">E-Gift Card</a>
-                <a href="/" class="text-[#666560] hover:text-[#1C1C1A] transition">Home</a>
             </nav>
 
             <div class="flex items-center gap-3">
-                <button onclick="toggleCart()" class="relative p-2.5 bg-[#F1EFEA] hover:bg-[#E2DFD7] text-[#1C1C1A] rounded-xl transition cursor-pointer flex items-center gap-2">
+                <button type="button" onclick="toggleCart()" class="relative p-2.5 bg-[#F1EFEA] hover:bg-[#E2DFD7] text-[#1C1C1A] rounded-xl transition cursor-pointer flex items-center gap-2">
                     <i class="fa-solid fa-bag-shopping"></i>
                     <span class="text-xs font-semibold hidden sm:inline">Your Cart</span>
                     <span id="cart-badge" class="absolute -top-1 -right-1 w-5 h-5 bg-[#8B2635] text-white text-[10px] font-bold rounded-full flex items-center justify-center">0</span>
@@ -68,7 +66,7 @@
     </header>
 
     <!-- Hero Section -->
-    <section class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-12 pb-8 text-center">
+    <section id="top" class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-12 pb-8 text-center">
         <span class="inline-block px-3.5 py-1 mb-4 text-xs font-semibold tracking-wider text-[#8B2635] uppercase bg-[#8B2635]/10 border border-[#8B2635]/20 rounded-full">
             Christmas Collection 2026
         </span>
@@ -76,7 +74,7 @@
             Coffee Flavors Wrapped for the Holiday Season
         </h1>
         <p class="text-sm sm:text-base text-[#666560] max-w-2xl mx-auto mb-8 leading-relaxed">
-            Send warmth with handcrafted gift boxes or flexible E-Gift Cards, valid across all 6 Oriberry locations in Hanoi.
+            Send warmth with handcrafted gift boxes or flexible E-Gift Cards, valid across Oriberry locations in Hanoi.
         </p>
         <div class="flex flex-wrap justify-center gap-4">
             <a href="#set-qua" class="px-6 py-3 bg-[#1C1C1A] text-[#F9F8F6] text-xs font-semibold uppercase tracking-wider rounded-xl hover:bg-stone-800 transition shadow-sm">
@@ -90,144 +88,92 @@
 
     <!-- LỰA CHỌN 1: SET QUÀ GIÁNG SINH -->
     <section id="set-qua" class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 border-t border-[#E2DFD7]">
-        <div class="mb-8">
-            <span class="text-xs uppercase tracking-widest text-[#666560] font-semibold">Option 01 &bull; Physical Gifts</span>
-            <h2 class="text-2xl sm:text-3xl font-serif-custom font-normal text-[#1C1C1A] mt-1">Special Christmas Gift Set</h2>
+        <div class="mb-8 flex items-end justify-between gap-4">
+            <div>
+                <span class="text-xs uppercase tracking-widest text-[#666560] font-semibold">Option 01 &bull; Physical Gifts</span>
+                <h2 class="text-2xl sm:text-3xl font-serif-custom font-normal text-[#1C1C1A] mt-1">Special Christmas Gift Set</h2>
+            </div>
+            <span id="catalog-status" class="text-[11px] text-[#666560]">Đang tải danh mục...</span>
         </div>
 
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-            <!-- Set 1 -->
-            <div class="bg-white border border-[#E2DFD7] rounded-2xl p-5 shadow-xs hover:shadow-md transition flex flex-col">
-                <div class="w-full aspect-[4/3] object-cover rounded-xl bg-[#F1EFEA] mb-4 flex items-center justify-center text-[#666560] text-xs">
-                    [Hình ảnh Set An Lành]
-                </div>
-                <h3 class="font-serif-custom text-xl text-[#1C1C1A] mb-1">Set An Lành - Phin & Cà Phê</h3>
-                <p class="text-xs text-[#666560] mb-4 leading-relaxed flex-1">Gồm 1 túi cà phê Arabica Cầu Đất 250g + 1 Phin nhôm mạ đồng khắc logo Oriberry.</p>
-                <div class="flex items-center justify-between pt-4 border-t border-[#E2DFD7] mt-auto">
-                    <div>
-                        <span class="text-xs text-[#666560] line-through block">340.000đ</span>
-                        <span class="text-sm font-bold text-[#1C1C1A]">289.000đ</span>
-                    </div>
-                    <button onclick="addToCart('Set An Lành', 289000)" class="text-xs font-semibold bg-[#1C1C1A] text-white px-4 py-2.5 rounded-xl hover:bg-stone-800 transition cursor-pointer">
-                        Thêm vào giỏ &rarr;
-                    </button>
-                </div>
-            </div>
-
-            <!-- Set 2 -->
-            <div class="bg-white border border-[#E2DFD7] rounded-2xl p-5 shadow-xs hover:shadow-md transition flex flex-col">
-                <div class="w-full aspect-[4/3] object-cover rounded-xl bg-[#F1EFEA] mb-4 flex items-center justify-center text-[#666560] text-xs">
-                    [Hình ảnh Set Ấm Áp]
-                </div>
-                <h3 class="font-serif-custom text-xl text-[#1C1C1A] mb-1">Set Ấm Áp - Điện Biên & Muỗng Phảng</h3>
-                <p class="text-xs text-[#666560] mb-4 leading-relaxed flex-1">Gồm 2 túi cà phê đặc sản vùng cao Tây Bắc, hộp quà thiết kế lễ hội thủ công.</p>
-                <div class="flex items-center justify-between pt-4 border-t border-[#E2DFD7] mt-auto">
-                    <div>
-                        <span class="text-xs text-[#666560] line-through block">450.000đ</span>
-                        <span class="text-sm font-bold text-[#1C1C1A]">390.000đ</span>
-                    </div>
-                    <button onclick="addToCart('Set Ấm Áp', 390000)" class="text-xs font-semibold bg-[#1C1C1A] text-white px-4 py-2.5 rounded-xl hover:bg-stone-800 transition cursor-pointer">
-                        Thêm vào giỏ &rarr;
-                    </button>
-                </div>
-            </div>
-
-            <!-- Set 3 -->
-            <div class="bg-white border border-[#E2DFD7] rounded-2xl p-5 shadow-xs hover:shadow-md transition flex flex-col">
-                <div class="w-full aspect-[4/3] object-cover rounded-xl bg-[#F1EFEA] mb-4 flex items-center justify-center text-[#666560] text-xs">
-                    [Hình ảnh Set Tri Ân]
-                </div>
-                <h3 class="font-serif-custom text-xl text-[#1C1C1A] mb-1">Set Tri Ân - Hộp Quà & Cốc Giữ Nhiệt</h3>
-                <p class="text-xs text-[#666560] mb-4 leading-relaxed flex-1">Món quà sang trọng tặng đối tác với 2 túi cà phê đặc sản chọn lọc + 1 cốc giữ nhiệt thép không gỉ.</p>
-                <div class="flex items-center justify-between pt-4 border-t border-[#E2DFD7] mt-auto">
-                    <div>
-                        <span class="text-xs text-[#666560] line-through block">750.000đ</span>
-                        <span class="text-sm font-bold text-[#1C1C1A]">599.000đ</span>
-                    </div>
-                    <button onclick="addToCart('Set Tri Ân', 599000)" class="text-xs font-semibold bg-[#1C1C1A] text-white px-4 py-2.5 rounded-xl hover:bg-stone-800 transition cursor-pointer">
-                        Thêm vào giỏ &rarr;
-                    </button>
-                </div>
-            </div>
+        <div id="physical-products-grid" class="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <!-- Render động từ DB_Physical_Products -->
         </div>
     </section>
 
-    <!-- LỰA CHỌN 2: THẺ E-GIFT CARD (Hỗ trợ 2 màu sắc thiết kế) -->
+    <!-- LỰA CHỌN 2: THẺ E-GIFT CARD -->
     <section id="e-gift" class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 border-t border-[#E2DFD7]">
         <div class="max-w-4xl mx-auto bg-white border border-[#E2DFD7] rounded-3xl p-6 sm:p-10 shadow-sm">
             <div class="mb-8">
                 <span class="text-xs uppercase tracking-widest text-[#666560] font-semibold">Lựa Chọn 02 &bull; Quà Tặng Giá Trị Tiền Mặt</span>
                 <h2 class="text-2xl sm:text-3xl font-serif-custom font-normal text-[#1C1C1A] mt-1">Thẻ Quà Tặng Điện Tử (E-Gift Card)</h2>
-                <p class="text-xs sm:text-sm text-[#666560] mt-2">Lựa chọn tinh gọn để gửi tặng bạn bè, đồng nghiệp hoặc đối tác. Người nhận sử dụng thẻ để thưởng thức đồ uống hoặc mua cà phê hạt cho đến khi hết số dư.</p>
+                <p class="text-xs sm:text-sm text-[#666560] mt-2">
+                    Chọn mẫu thẻ Standard hoặc VIP, mệnh giá và nhập SĐT tài khoản người nhận để phát hành thẻ quà tặng.
+                </p>
             </div>
 
             <div class="grid grid-cols-1 md:grid-cols-2 gap-8 items-start">
-                <!-- Cột trái: Tùy chọn thông tin & chọn màu thẻ -->
+                <!-- Cột trái: Tùy chọn gói E-Card & thông tin người nhận -->
                 <div class="space-y-4">
                     <div>
-                        <label class="block text-xs font-semibold text-[#1C1C1A] mb-1.5">1. Chọn mệnh giá thẻ quà tặng:</label>
-                        <div class="grid grid-cols-3 gap-2">
-                            <button onclick="setGiftValue(200000, this)" class="gift-btn py-2.5 px-3 border border-[#E2DFD7] rounded-xl text-xs font-semibold bg-[#1C1C1A] text-white transition cursor-pointer">200.000đ</button>
-                            <button onclick="setGiftValue(500000, this)" class="gift-btn py-2.5 px-3 border border-[#E2DFD7] rounded-xl text-xs font-semibold bg-white text-[#1C1C1A] hover:bg-stone-50 transition cursor-pointer">500.000đ</button>
-                            <button onclick="setGiftValue(1000000, this)" class="gift-btn py-2.5 px-3 border border-[#E2DFD7] rounded-xl text-xs font-semibold bg-white text-[#1C1C1A] hover:bg-stone-50 transition cursor-pointer">1.000.000đ</button>
+                        <label class="block text-xs font-semibold text-[#1C1C1A] mb-1.5">1. Chọn mẫu &amp; mệnh giá E-Card:</label>
+                        <div id="ecard-options-container" class="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                            <!-- Render động từ DB_ECard_Options -->
                         </div>
                     </div>
 
                     <div>
-                        <label class="block text-xs font-semibold text-[#1C1C1A] mb-1.5">2. Chọn màu mẫu thiết kế thẻ:</label>
-                        <div class="grid grid-cols-2 gap-2">
-                            <button onclick="setCardTheme('kraft', this)" class="theme-btn py-2.5 px-3 border-2 border-[#1C1C1A] rounded-xl text-xs font-semibold bg-[#F1EFEA] text-[#1C1C1A] transition cursor-pointer text-left">
-                                <span class="block font-bold">Giấy Kraft Nguyên Bản</span>
-                                <span class="text-[10px] text-[#666560]">Mộc mạc, ấm áp & đậm chất lễ hội</span>
-                            </button>
-                            <button onclick="setCardTheme('xanh', this)" class="theme-btn py-2.5 px-3 border border-[#E2DFD7] rounded-xl text-xs font-semibold bg-[#2D4739] text-white transition cursor-pointer text-left">
-                                <span class="block font-bold">Xanh Rừng Thông</span>
-                                <span class="text-[10px] text-emerald-200">Sắc xanh trầm sang trọng mùa Giáng sinh</span>
-                            </button>
-                        </div>
+                        <label class="block text-xs font-semibold text-[#1C1C1A] mb-1.5">2. SĐT tài khoản người nhận thẻ *:</label>
+                        <input type="tel" id="ecardAccountPhone" oninput="updateCardPreview()" placeholder="VD: 0944556677" class="w-full px-3.5 py-2.5 text-xs border border-[#E2DFD7] rounded-xl focus:outline-none focus:ring-1 focus:ring-[#1C1C1A]">
                     </div>
 
                     <div>
-                        <label class="block text-xs font-semibold text-[#1C1C1A] mb-1.5">Tên người nhận *:</label>
-                        <input type="text" id="recipientName" oninput="updateCardPreview()" placeholder="VD: Chi Lan Anh" class="w-full px-3.5 py-2.5 text-xs border border-[#E2DFD7] rounded-xl focus:outline-none focus:ring-1 focus:ring-[#1C1C1A]">
+                        <label class="block text-xs font-semibold text-[#1C1C1A] mb-1.5">3. Tên người nhận *:</label>
+                        <input type="text" id="recipientName" oninput="updateCardPreview()" placeholder="VD: Đỗ Gia Bảo" class="w-full px-3.5 py-2.5 text-xs border border-[#E2DFD7] rounded-xl focus:outline-none focus:ring-1 focus:ring-[#1C1C1A]">
                     </div>
 
                     <div>
-                        <label class="block text-xs font-semibold text-[#1C1C1A] mb-1.5">Lời chúc Giáng sinh:</label>
+                        <label class="block text-xs font-semibold text-[#1C1C1A] mb-1.5">4. Lời chúc Giáng sinh:</label>
                         <textarea id="recipientWish" oninput="updateCardPreview()" rows="2" placeholder="Chúc bạn một mùa Giáng sinh an lành, ấm áp bên những tách cà phê Việt Nam nguyên bản." class="w-full px-3.5 py-2.5 text-xs border border-[#E2DFD7] rounded-xl focus:outline-none focus:ring-1 focus:ring-[#1C1C1A]"></textarea>
                     </div>
 
-                    <button onclick="addGiftCardToCart()" class="w-full py-3 bg-[#1C1C1A] hover:bg-stone-800 text-white font-semibold text-xs rounded-xl transition cursor-pointer shadow-sm">
+                    <button type="button" onclick="addGiftCardToCart()" class="w-full py-3 bg-[#1C1C1A] hover:bg-stone-800 text-white font-semibold text-xs rounded-xl transition cursor-pointer shadow-sm">
                         Thêm E-Gift Card vào giỏ hàng &rarr;
                     </button>
                 </div>
 
-                <!-- Cột phải: Xem trước tấm thẻ (Live Preview thay đổi theo màu sắc) -->
+                <!-- Cột phải: Xem trước tấm thẻ -->
                 <div>
                     <label class="block text-xs font-semibold text-[#1C1C1A] mb-1.5">Xem trước giao diện E-Gift Card:</label>
-                    <div id="card-preview-box" class="p-6 rounded-2xl shadow-lg relative overflow-hidden transition-all duration-300 bg-[#F1EFEA] text-[#1C1C1A] border border-[#E2DFD7]">
-                        <div class="flex justify-between items-start mb-6">
+                    <div id="card-preview-box" class="p-6 rounded-2xl shadow-lg relative overflow-hidden transition-all duration-300 bg-[#4A4E54] text-white border border-[#E2DFD7] min-h-[250px] flex flex-col justify-between bg-cover bg-center">
+                        <div class="flex justify-between items-start gap-3 mb-4">
                             <div>
-                                <span id="preview-theme-label" class="text-[10px] font-semibold text-[#8B2635] uppercase tracking-widest">Giấy Kraft Nguyên Bản</span>
-                                <h4 class="font-logo text-2xl tracking-wider mt-0.5">ORIBERRY</h4>
+                                <span id="preview-theme-label" class="inline-block px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider bg-black/35">
+                                    STANDARD · RỪNG THÔNG NOEL
+                                </span>
+                                <h4 class="font-logo text-2xl tracking-wider mt-2">ORIBERRY</h4>
                             </div>
-                            <span id="preview-value" class="text-xl font-bold text-[#1C1C1A]">200.000đ</span>
+                            <span id="preview-value" class="text-xl font-bold">500.000đ</span>
                         </div>
 
-                        <div class="space-y-3 mb-6">
+                        <div class="space-y-2.5 mb-4">
                             <div>
-                                <p class="text-[10px] opacity-70">Gửi tặng:</p>
+                                <p class="text-[10px] opacity-80">Gửi tặng:</p>
                                 <p id="preview-name" class="text-sm font-semibold">Chưa nhập tên người nhận</p>
                             </div>
                             <div>
-                                <p class="text-[10px] opacity-70">Lời chúc:</p>
+                                <p class="text-[10px] opacity-80">SĐT tài khoản nhận:</p>
+                                <p id="preview-phone" class="text-xs font-mono font-semibold">Chưa nhập SĐT</p>
+                            </div>
+                            <div>
+                                <p class="text-[10px] opacity-80">Lời chúc:</p>
                                 <p id="preview-wish" class="text-xs italic leading-relaxed">"Chúc bạn một mùa Giáng sinh an lành..."</p>
                             </div>
                         </div>
 
-                        <div class="pt-4 border-t border-black/10 flex justify-between items-center text-[10px] font-mono opacity-80">
-                            <span>Mã AppSheet: <strong id="preview-code">XMAS26-9821</strong></span>
-                            <span>Áp dụng 6 quán</span>
+                        <div class="pt-3 border-t border-current/20 flex justify-between items-center text-[10px] font-mono opacity-90 gap-2">
+                            <span id="preview-stores" class="truncate">1 Phạm Sư Mạnh</span>
+                            <span id="preview-code">EC_STD_500</span>
                         </div>
                     </div>
                 </div>
@@ -242,152 +188,436 @@
                 <span class="font-logo font-bold text-base text-[#1C1C1A]">ORIBERRY</span>
                 <span>&bull; Social Enterprise Development</span>
             </div>
-            <p>Hệ thống 6 quán cà phê đặc sản tại Hà Nội &bull; Google Workspace CMS Powered</p>
+            <p>Hệ thống cửa hàng cà phê đặc sản tại Hà Nội &bull; Google Sheets + Apps Script</p>
         </div>
     </footer>
 
-    <!-- Ngăn kéo Giỏ hàng -->
+    <!-- Ngăn kéo Giỏ hàng & Thông tin đặt đơn -->
     <div id="cart-drawer" class="fixed inset-0 z-50 bg-black/50 backdrop-blur-xs hidden justify-end">
-        <div class="w-full max-w-md bg-white h-full shadow-2xl p-6 flex flex-col justify-between">
+        <div class="w-full max-w-md bg-white h-full shadow-2xl p-6 flex flex-col justify-between overflow-y-auto">
             <div>
                 <div class="flex items-center justify-between pb-4 border-b border-[#E2DFD7]">
-                    <h3 class="font-serif-custom text-xl font-normal text-[#1C1C1A]">Giỏ Hàng Giáng Sinh</h3>
-                    <button onclick="toggleCart()" class="text-[#666560] hover:text-[#1C1C1A] text-lg p-1 cursor-pointer"><i class="fa-solid fa-xmark"></i></button>
+                    <h3 class="font-serif-custom text-xl font-normal text-[#1C1C1A]">Giỏ Hàng &amp; Đặt Đơn</h3>
+                    <button type="button" onclick="toggleCart()" class="text-[#666560] hover:text-[#1C1C1A] text-lg p-1 cursor-pointer">
+                        <i class="fa-solid fa-xmark"></i>
+                    </button>
                 </div>
-                <div id="cart-items" class="py-4 space-y-3 max-h-[60vh] overflow-y-auto">
-                    <p class="text-xs text-[#666560] text-center py-8">Giỏ hàng của bạn đang trống.</p>
+
+                <!-- Danh sách món -->
+                <div id="cart-items" class="py-4 space-y-3 max-h-52 overflow-y-auto border-b border-[#E2DFD7]">
+                    <p class="text-xs text-[#666560] text-center py-6">Giỏ hàng của bạn đang trống.</p>
                 </div>
+
+                <!-- Thông tin người mua -->
+                <div class="py-4 space-y-3">
+                    <p class="text-xs font-bold uppercase tracking-wider text-[#1C1C1A]">Thông tin người đặt</p>
+                    <input type="text" id="buyerName" placeholder="Họ tên người mua *" class="w-full px-3 py-2 text-xs border border-[#E2DFD7] rounded-xl focus:outline-none focus:ring-1 focus:ring-[#1C1C1A]">
+                    <div class="grid grid-cols-2 gap-2">
+                        <input type="tel" id="buyerPhone" placeholder="SĐT người mua *" class="w-full px-3 py-2 text-xs border border-[#E2DFD7] rounded-xl focus:outline-none focus:ring-1 focus:ring-[#1C1C1A]">
+                        <input type="email" id="buyerEmail" placeholder="Email (không bắt buộc)" class="w-full px-3 py-2 text-xs border border-[#E2DFD7] rounded-xl focus:outline-none focus:ring-1 focus:ring-[#1C1C1A]">
+                    </div>
+                </div>
+
+                <!-- Thông tin giao quà vật lý (chỉ hiện khi giỏ có set quà) -->
+                <div id="shipping-fields" class="pb-4 space-y-3 hidden border-t border-[#E2DFD7] pt-4">
+                    <p class="text-xs font-bold uppercase tracking-wider text-[#8B2635]">Thông tin nhận quà vật lý</p>
+                    <div class="grid grid-cols-2 gap-2">
+                        <input type="text" id="receiverName" placeholder="Tên người nhận quà" class="w-full px-3 py-2 text-xs border border-[#E2DFD7] rounded-xl focus:outline-none focus:ring-1 focus:ring-[#1C1C1A]">
+                        <input type="tel" id="receiverPhone" placeholder="SĐT người nhận quà" class="w-full px-3 py-2 text-xs border border-[#E2DFD7] rounded-xl focus:outline-none focus:ring-1 focus:ring-[#1C1C1A]">
+                    </div>
+                    <input type="text" id="shippingAddress" placeholder="Địa chỉ giao hàng chi tiết *" class="w-full px-3 py-2 text-xs border border-[#E2DFD7] rounded-xl focus:outline-none focus:ring-1 focus:ring-[#1C1C1A]">
+                </div>
+
+                <!-- Kết quả sau khi gửi đơn thành công -->
+                <div id="order-result-box" class="hidden mb-4 p-3.5 rounded-xl bg-emerald-50 border border-emerald-200 text-xs text-emerald-950 space-y-1.5"></div>
             </div>
+
             <div class="pt-4 border-t border-[#E2DFD7] space-y-4">
                 <div class="flex justify-between items-center text-sm font-semibold">
                     <span>Tổng cộng:</span>
                     <span id="cart-total" class="text-base text-[#1C1C1A]">0đ</span>
                 </div>
-                <button onclick="checkoutMock()" class="w-full py-3 bg-[#1C1C1A] hover:bg-stone-800 text-white font-semibold text-xs rounded-xl transition cursor-pointer">
-                    Xác nhận đặt đơn (Mô phỏng Apps Script)
+                <button type="button" id="submit-order-btn" onclick="submitOrderToSheet()" class="w-full py-3 bg-[#1C1C1A] hover:bg-stone-800 disabled:opacity-50 text-white font-semibold text-xs rounded-xl transition cursor-pointer shadow-sm">
+                    Xác nhận đặt đơn
                 </button>
             </div>
         </div>
     </div>
 
-    <!-- JavaScript Xử Lý Giao Diện -->
     <script>
-        let cart = [];
-        let currentGiftValue = 200000;
-        let currentCardTheme = 'kraft';
+        // Dán Web App URL (/exec) của Google Apps Script vào đây
+        const APPS_SCRIPT_URL = '';
 
-        window.addEventListener('DOMContentLoaded', () => {
-            setTimeout(() => { document.getElementById('xmas-popup').classList.remove('hidden'); }, 1000);
+        const FALLBACK_PHYSICAL = [
+            {
+                set_id: 'SET_1_1_STD',
+                set_name: 'Set 1.1 - An Lành (Phin Nhôm)',
+                components_summary: 'Gồm 1 túi cà phê đặc sản + 1 Phin nhôm Oriberry.',
+                original_price: 520000,
+                new_price: 485000,
+                image_url: ''
+            },
+            {
+                set_id: 'SET_1_3_STD',
+                set_name: 'Set 1.3 - Tri Ân (Cốc Bát Tràng 250ml)',
+                components_summary: 'Gồm cà phê đặc sản chọn lọc + 1 cốc Bát Tràng 250ml.',
+                original_price: 980000,
+                new_price: 920000,
+                image_url: ''
+            }
+        ];
+
+        const FALLBACK_ECARDS = [
+            {
+                ecard_id: 'EC_STD_500',
+                card_type: 'Standard',
+                vip_label: '',
+                color_tag: '#4A4E54',
+                applicable_store: '1 Phạm Sư Mạnh',
+                face_value: 500000,
+                original_price: 500000,
+                new_price: 485000,
+                template_name: 'Rừng Thông Noel',
+                bg_image_url: '',
+                text_color: '#FFFFFF'
+            },
+            {
+                ecard_id: 'EC_VIP_1000',
+                card_type: 'VIP',
+                vip_label: 'VIP',
+                color_tag: '#8B2635',
+                applicable_store: 'Tất cả các cửa hàng',
+                face_value: 1000000,
+                original_price: 1000000,
+                new_price: 1000000,
+                template_name: 'Tiệc Ấm Đêm Đông',
+                bg_image_url: '',
+                text_color: '#FFFFFF'
+            }
+        ];
+
+        let physicalCatalog = [...FALLBACK_PHYSICAL];
+        let ecardCatalog = [...FALLBACK_ECARDS];
+        let selectedEcard = ecardCatalog[0] || null;
+        let cartItems = [];
+
+        window.addEventListener('DOMContentLoaded', async () => {
+            renderPhysicalProducts();
+            renderEcardOptions();
             updateCardPreview();
+            updateCartUI();
+            await loadCatalogFromApi();
         });
 
-        function openPopup() { document.getElementById('xmas-popup').classList.remove('hidden'); }
-        function closePopup() { document.getElementById('xmas-popup').classList.add('hidden'); }
-        function toggleCart() {
-            const drawer = document.getElementById('cart-drawer');
-            drawer.classList.toggle('hidden');
-            drawer.classList.toggle('flex');
+        async function loadCatalogFromApi() {
+            const statusEl = document.getElementById('catalog-status');
+            if (!APPS_SCRIPT_URL) {
+                statusEl.innerText = 'Đang dùng danh mục mẫu';
+                return;
+            }
+
+            try {
+                const res = await fetch(`${APPS_SCRIPT_URL}?action=catalog`);
+                const json = await res.json();
+                if (json && json.success && json.data) {
+                    if (Array.isArray(json.data.physical_products) && json.data.physical_products.length > 0) {
+                        physicalCatalog = json.data.physical_products;
+                        renderPhysicalProducts();
+                    }
+                    if (Array.isArray(json.data.ecard_options) && json.data.ecard_options.length > 0) {
+                        ecardCatalog = json.data.ecard_options;
+                        selectedEcard = ecardCatalog[0];
+                        renderEcardOptions();
+                        updateCardPreview();
+                    }
+                    statusEl.innerText = 'Đã đồng bộ từ Sheet';
+                }
+            } catch (err) {
+                statusEl.innerText = 'Đang dùng danh mục dự phòng';
+            }
         }
 
-        function addToCart(name, price) {
-            cart.push({ name, price });
-            updateCartUI();
-            toggleCart();
+        function renderPhysicalProducts() {
+            const grid = document.getElementById('physical-products-grid');
+            grid.innerHTML = physicalCatalog.map((item, idx) => {
+                const hasSale = Number(item.original_price) > Number(item.new_price) && Number(item.original_price) > 0;
+                const mediaHtml = item.image_url
+                    ? `<img src="${escapeAttr(item.image_url)}" alt="${escapeAttr(item.set_name)}" class="w-full aspect-[4/3] object-cover rounded-xl mb-4 bg-[#F1EFEA]">`
+                    : `<div class="w-full aspect-[4/3] rounded-xl bg-[#F1EFEA] mb-4 flex items-center justify-center text-[#666560] text-xs">${escapeHtml(item.set_name)}</div>`;
+
+                return `
+                    <div class="bg-white border border-[#E2DFD7] rounded-2xl p-5 shadow-xs hover:shadow-md transition flex flex-col">
+                        ${mediaHtml}
+                        <h3 class="font-serif-custom text-xl text-[#1C1C1A] mb-1">${escapeHtml(item.set_name)}</h3>
+                        <p class="text-xs text-[#666560] mb-4 leading-relaxed flex-1">${escapeHtml(item.components_summary || '')}</p>
+                        <div class="flex items-center justify-between pt-4 border-t border-[#E2DFD7] mt-auto">
+                            <div>
+                                ${hasSale ? `<span class="text-xs text-[#666560] line-through block">${Number(item.original_price).toLocaleString('vi-VN')}đ</span>` : ''}
+                                <span class="text-sm font-bold text-[#1C1C1A]">${Number(item.new_price).toLocaleString('vi-VN')}đ</span>
+                            </div>
+                            <button type="button" onclick="addPhysicalToCart(${idx})" class="text-xs font-semibold bg-[#1C1C1A] text-white px-4 py-2.5 rounded-xl hover:bg-stone-800 transition cursor-pointer">
+                                Thêm vào giỏ &rarr;
+                            </button>
+                        </div>
+                    </div>
+                `;
+            }).join('');
         }
 
-        function setGiftValue(val, btn) {
-            currentGiftValue = val;
-            document.querySelectorAll('.gift-btn').forEach(b => {
-                b.classList.remove('bg-[#1C1C1A]', 'text-white');
-                b.classList.add('bg-white', 'text-[#1C1C1A]');
-            });
-            btn.classList.remove('bg-white', 'text-[#1C1C1A]');
-            btn.classList.add('bg-[#1C1C1A]', 'text-white');
-            updateCardPreview();
+        function renderEcardOptions() {
+            const container = document.getElementById('ecard-options-container');
+            container.innerHTML = ecardCatalog.map((opt, idx) => {
+                const isSelected = selectedEcard && selectedEcard.ecard_id === opt.ecard_id;
+                const activeClass = isSelected
+                    ? 'border-2 border-[#1C1C1A] bg-[#1C1C1A] text-white'
+                    : 'border border-[#E2DFD7] bg-white text-[#1C1C1A] hover:bg-stone-50';
+                const labelType = opt.vip_label ? `${opt.card_type} (${opt.vip_label})` : opt.card_type;
+
+                return `
+                    <button type="button" onclick="selectEcardOption(${idx})" class="py-2.5 px-3 rounded-xl text-xs font-semibold transition cursor-pointer text-left ${activeClass}">
+                        <span class="block font-bold">${Number(opt.face_value).toLocaleString('vi-VN')}đ · ${escapeHtml(labelType)}</span>
+                        <span class="text-[10px] opacity-80 block truncate">${escapeHtml(opt.template_name || opt.ecard_id)} · Giá ${Number(opt.new_price).toLocaleString('vi-VN')}đ</span>
+                    </button>
+                `;
+            }).join('');
         }
 
-        function setCardTheme(theme, btn) {
-            currentCardTheme = theme;
-            document.querySelectorAll('.theme-btn').forEach(b => {
-                b.classList.remove('border-2', 'border-[#1C1C1A]');
-                b.classList.add('border', 'border-[#E2DFD7]');
-            });
-            btn.classList.remove('border', 'border-[#E2DFD7]');
-            btn.classList.add('border-2', 'border-[#1C1C1A]');
+        function selectEcardOption(index) {
+            selectedEcard = ecardCatalog[index] || null;
+            renderEcardOptions();
             updateCardPreview();
         }
 
         function updateCardPreview() {
-            const name = document.getElementById('recipientName').value || 'Chưa nhập tên người nhận';
-            const wish = document.getElementById('recipientWish').value || 'Chúc bạn một mùa Giáng sinh an lành và ấm áp!';
+            const opt = selectedEcard || FALLBACK_ECARDS[0];
+            const phone = document.getElementById('ecardAccountPhone').value.trim() || 'Chưa nhập SĐT';
+            const name = document.getElementById('recipientName').value.trim() || 'Chưa nhập tên người nhận';
+            const wish = document.getElementById('recipientWish').value.trim() || 'Chúc bạn một mùa Giáng sinh an lành và ấm áp!';
+
             const box = document.getElementById('card-preview-box');
             const themeLabel = document.getElementById('preview-theme-label');
             const valEl = document.getElementById('preview-value');
+            const storesEl = document.getElementById('preview-stores');
+            const codeEl = document.getElementById('preview-code');
 
+            const fallbackBg = opt.color_tag || (String(opt.card_type).toUpperCase() === 'VIP' ? '#8B2635' : '#4A4E54');
+            const txtColor = opt.text_color || '#FFFFFF';
+
+            box.style.backgroundColor = fallbackBg;
+            box.style.color = txtColor;
+            box.style.backgroundImage = opt.bg_image_url
+                ? `linear-gradient(rgba(0,0,0,0.25), rgba(0,0,0,0.25)), url('${escapeAttr(opt.bg_image_url)}')`
+                : 'none';
+
+            const typeTag = opt.vip_label ? `${opt.card_type} · ${opt.vip_label}` : opt.card_type;
+            themeLabel.innerText = `${typeTag} · ${opt.template_name || ''}`;
+            valEl.innerText = Number(opt.face_value).toLocaleString('vi-VN') + 'đ';
             document.getElementById('preview-name').innerText = name;
+            document.getElementById('preview-phone').innerText = phone;
             document.getElementById('preview-wish').innerText = `"${wish}"`;
-            valEl.innerText = currentGiftValue.toLocaleString('vi-VN') + 'đ';
+            storesEl.innerText = opt.applicable_store || 'Oriberry';
+            codeEl.innerText = opt.ecard_id || '';
+        }
 
-            if (currentCardTheme === 'kraft') {
-                box.className = "p-6 rounded-2xl shadow-lg relative overflow-hidden transition-all duration-300 bg-[#F1EFEA] text-[#1C1C1A] border border-[#E2DFD7]";
-                themeLabel.innerText = "Giấy Kraft Nguyên Bản";
-                themeLabel.className = "text-[10px] font-semibold text-[#8B2635] uppercase tracking-widest";
-                valEl.className = "text-xl font-bold text-[#1C1C1A]";
+        function addPhysicalToCart(index) {
+            const prod = physicalCatalog[index];
+            if (!prod) return;
+
+            const existing = cartItems.find(i => i.kind === 'physical' && i.set_id === prod.set_id);
+            if (existing) {
+                existing.qty += 1;
             } else {
-                box.className = "p-6 rounded-2xl shadow-lg relative overflow-hidden transition-all duration-300 bg-[#2D4739] text-white border border-emerald-600/30";
-                themeLabel.innerText = "Xanh Rừng Thông";
-                themeLabel.className = "text-[10px] font-semibold text-amber-300 uppercase tracking-widest";
-                valEl.className = "text-xl font-bold text-amber-300";
+                cartItems.push({
+                    kind: 'physical',
+                    set_id: prod.set_id,
+                    name: prod.set_name,
+                    price: Number(prod.new_price),
+                    qty: 1
+                });
             }
+
+            document.getElementById('order-result-box').classList.add('hidden');
+            updateCartUI();
+            toggleCart();
         }
 
         function addGiftCardToCart() {
-            const name = document.getElementById('recipientName').value || 'Bạn của bạn';
-            const cardName = `E-Gift Card (${currentGiftValue.toLocaleString('vi-VN')}đ - Tặng: ${name})`;
-            cart.push({ name: cardName, price: currentGiftValue });
+            const opt = selectedEcard || FALLBACK_ECARDS[0];
+            const phone = document.getElementById('ecardAccountPhone').value.trim();
+            const name = document.getElementById('recipientName').value.trim();
+            const wish = document.getElementById('recipientWish').value.trim();
+
+            if (!phone) {
+                alert('Vui lòng nhập SĐT tài khoản người nhận cho E-Card.');
+                document.getElementById('ecardAccountPhone').focus();
+                return;
+            }
+            if (!name) {
+                alert('Vui lòng nhập tên người nhận E-Card.');
+                document.getElementById('recipientName').focus();
+                return;
+            }
+
+            cartItems = cartItems.filter(i => i.kind !== 'ecard');
+            cartItems.push({
+                kind: 'ecard',
+                ecard_id: opt.ecard_id,
+                name: `E-Card ${opt.card_type} ${Number(opt.face_value).toLocaleString('vi-VN')}đ (${phone})`,
+                price: Number(opt.new_price),
+                qty: 1,
+                ecard_account_phone: phone,
+                ecard_recipient_name: name,
+                ecard_wish: wish
+            });
+
+            document.getElementById('order-result-box').classList.add('hidden');
             updateCartUI();
             toggleCart();
+        }
+
+        function removeFromCart(index) {
+            cartItems.splice(index, 1);
+            updateCartUI();
         }
 
         function updateCartUI() {
             const badge = document.getElementById('cart-badge');
             const itemsContainer = document.getElementById('cart-items');
             const totalContainer = document.getElementById('cart-total');
+            const shippingBox = document.getElementById('shipping-fields');
 
-            badge.innerText = cart.length;
-            if (cart.length === 0) {
-                itemsContainer.innerHTML = `<p class="text-xs text-[#666560] text-center py-8">Giỏ hàng của bạn đang trống.</p>`;
+            const totalCount = cartItems.reduce((sum, i) => sum + i.qty, 0);
+            badge.innerText = totalCount;
+
+            const hasPhysical = cartItems.some(i => i.kind === 'physical');
+            shippingBox.classList.toggle('hidden', !hasPhysical);
+
+            if (cartItems.length === 0) {
+                itemsContainer.innerHTML = '<p class="text-xs text-[#666560] text-center py-6">Giỏ hàng của bạn đang trống.</p>';
                 totalContainer.innerText = '0đ';
                 return;
             }
 
             let total = 0;
-            itemsContainer.innerHTML = cart.map((item, index) => {
-                total += item.price;
+            itemsContainer.innerHTML = cartItems.map((item, idx) => {
+                const lineTotal = item.price * item.qty;
+                total += lineTotal;
                 return `
-                    <div class="flex justify-between items-center bg-[#F1EFEA] p-3 rounded-xl text-xs">
+                    <div class="flex justify-between items-center bg-[#F1EFEA] p-3 rounded-xl text-xs gap-2">
                         <div>
-                            <p class="font-semibold text-[#1C1C1A]">${item.name}</p>
-                            <p class="text-[11px] text-[#666560]">${item.price.toLocaleString('vi-VN')}đ</p>
+                            <p class="font-semibold text-[#1C1C1A]">${item.qty > 1 ? `${item.qty}x ` : ''}${escapeHtml(item.name)}</p>
+                            <p class="text-[11px] text-[#666560]">${lineTotal.toLocaleString('vi-VN')}đ</p>
                         </div>
-                        <button onclick="removeFromCart(${index})" class="text-rose-700 font-bold p-1 cursor-pointer">&times;</button>
+                        <button type="button" onclick="removeFromCart(${idx})" class="text-rose-700 font-bold p-1 cursor-pointer">&times;</button>
                     </div>
                 `;
             }).join('');
+
             totalContainer.innerText = total.toLocaleString('vi-VN') + 'đ';
         }
 
-        function removeFromCart(index) {
-            cart.splice(index, 1);
-            updateCartUI();
+        function toggleCart() {
+            const drawer = document.getElementById('cart-drawer');
+            drawer.classList.toggle('hidden');
+            drawer.classList.toggle('flex');
         }
 
-        function checkoutMock() {
-            if (cart.length === 0) { alert("Giỏ hàng đang trống!"); return; }
-            alert("Mô phỏng đặt hàng thành công! Dữ liệu E-Gift Card và Set quà sẽ được đẩy về Google Sheet (AppSheet).");
-            cart = [];
-            updateCartUI();
-            toggleCart();
+        async function submitOrderToSheet() {
+            if (cartItems.length === 0) {
+                alert('Giỏ hàng đang trống!');
+                return;
+            }
+
+            const buyerName = document.getElementById('buyerName').value.trim();
+            const buyerPhone = document.getElementById('buyerPhone').value.trim();
+            const buyerEmail = document.getElementById('buyerEmail').value.trim();
+
+            if (!buyerName || !buyerPhone) {
+                alert('Vui lòng nhập họ tên và SĐT người mua.');
+                return;
+            }
+
+            const physicalItemsList = cartItems
+                .filter(i => i.kind === 'physical')
+                .map(i => ({ set_id: i.set_id, qty: i.qty }));
+
+            const ecardItem = cartItems.find(i => i.kind === 'ecard') || null;
+
+            const receiverName = document.getElementById('receiverName').value.trim() || buyerName;
+            const receiverPhone = document.getElementById('receiverPhone').value.trim() || buyerPhone;
+            const shippingAddress = document.getElementById('shippingAddress').value.trim();
+
+            if (physicalItemsList.length > 0 && !shippingAddress) {
+                alert('Vui lòng nhập địa chỉ giao hàng cho set quà vật lý.');
+                return;
+            }
+
+            const payload = {
+                buyer_name: buyerName,
+                buyer_phone: buyerPhone,
+                buyer_email: buyerEmail,
+                receiver_name: physicalItemsList.length > 0 ? receiverName : '',
+                receiver_phone: physicalItemsList.length > 0 ? receiverPhone : '',
+                shipping_address: physicalItemsList.length > 0 ? shippingAddress : '',
+                physical_items_list: physicalItemsList,
+                ecard: ecardItem ? {
+                    ecard_id: ecardItem.ecard_id,
+                    ecard_account_phone: ecardItem.ecard_account_phone,
+                    ecard_recipient_name: ecardItem.ecard_recipient_name,
+                    ecard_wish: ecardItem.ecard_wish
+                } : null
+            };
+
+            if (!APPS_SCRIPT_URL) {
+                alert('Chưa cấu hình APPS_SCRIPT_URL. Payload sẵn sàng gửi:\n' + JSON.stringify(payload, null, 2));
+                return;
+            }
+
+            const btn = document.getElementById('submit-order-btn');
+            btn.disabled = true;
+            btn.innerText = 'Đang tạo đơn...';
+
+            try {
+                const res = await fetch(APPS_SCRIPT_URL, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+                    body: JSON.stringify(payload)
+                });
+                const result = await res.json();
+
+                if (!result.success) {
+                    throw new Error(result.message || 'Không thể tạo đơn hàng.');
+                }
+
+                const resultBox = document.getElementById('order-result-box');
+                resultBox.innerHTML = `
+                    <p class="font-bold">Đặt đơn thành công: ${escapeHtml(result.order_id)}</p>
+                    <p>Loại đơn: <strong>${escapeHtml(result.order_type)}</strong> · Tổng tiền: <strong>${Number(result.total_order_amount).toLocaleString('vi-VN')}đ</strong></p>
+                    ${result.ecard_pdf_url ? `<p><a href="${escapeAttr(result.ecard_pdf_url)}" target="_blank" class="underline font-semibold text-emerald-800">Mở file E-Card PDF &rarr;</a></p>` : ''}
+                `;
+                resultBox.classList.remove('hidden');
+
+                cartItems = [];
+                updateCartUI();
+            } catch (err) {
+                alert('Lỗi đặt hàng: ' + err.message);
+            } finally {
+                btn.disabled = false;
+                btn.innerText = 'Xác nhận đặt đơn';
+            }
+        }
+
+        function escapeHtml(str) {
+            return String(str || '')
+                .replace(/&/g, '&amp;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;')
+                .replace(/"/g, '&quot;')
+                .replace(/'/g, '&#39;');
+        }
+
+        function escapeAttr(str) {
+            return escapeHtml(str).replace(/`/g, '&#96;');
         }
     </script>
 </body>
