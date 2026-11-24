@@ -13,7 +13,8 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;0,6..72,600&display=swap" rel="stylesheet">
-
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
     <style>
         @font-face {
             font-family: 'Aardvark-Cafe';
@@ -223,7 +224,20 @@
                         <input type="text" id="receiverName" placeholder="Recipient Name" class="w-full px-3 py-2 text-xs border border-[#E2DFD7] rounded-xl focus:outline-none focus:ring-1 focus:ring-[#1C1C1A]">
                         <input type="tel" id="receiverPhone" placeholder="Recipient Phone Number" class="w-full px-3 py-2 text-xs border border-[#E2DFD7] rounded-xl focus:outline-none focus:ring-1 focus:ring-[#1C1C1A]">
                     </div>
-                    <input type="text" id="shippingAddress" placeholder="Shipping Address *" class="w-full px-3 py-2 text-xs border border-[#E2DFD7] rounded-xl focus:outline-none focus:ring-1 focus:ring-[#1C1C1A]">
+    <div class="space-y-1.5">
+        <input type="text" id="shippingAddress" placeholder="Shipping Address *" class="w-full px-3 py-2 text-xs border border-[#E2DFD7] rounded-xl focus:outline-none focus:ring-1 focus:ring-[#1C1C1A]">
+        <input type="hidden" id="shippingLat">
+        <input type="hidden" id="shippingLng">
+        <div class="flex items-center justify-between gap-2">
+          <button type="button" onclick="selectPresetAddress('23 Đặng Tiến Đông')" class="text-[11px] px-2.5 py-1 rounded-lg border border-[#E2DFD7] text-[#55524C] hover:bg-stone-50">
+            23 Đặng Tiến Đông
+          </button>
+          <button type="button" onclick="toggleShippingMap()" class="text-[11px] px-2.5 py-1 rounded-lg border border-[#E2DFD7] text-[#1C1C1A] font-medium hover:bg-stone-50">
+            Pick on Map
+          </button>
+        </div>
+        <div id="shippingMapBox" class="hidden mt-1.5 rounded-xl overflow-hidden border border-[#E2DFD7]" style="height: 190px;"></div>
+      </div>
                 </div>
 
                 <!-- Kết quả sau khi gửi đơn thành công -->
@@ -245,7 +259,89 @@
     <script>
         // Dán Web App URL (/exec) của Google Apps Script vào đây
         const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxjkBAmg-ZlthP8jFFRliSKQLCWn07yi9pgudcWVdpLLETJilp_1S57WGlRj8upcsuwfg/exec';
+let shippingMap = null;
+let shippingMarker = null;
+let lastGeocodeTime = 0;
 
+function selectPresetAddress(addr) {
+  const input = document.getElementById('shippingAddress');
+  if (input) {
+    input.value = addr;
+    input.dispatchEvent(new Event('input', { bubbles: true }));
+  }
+}
+
+function toggleShippingMap() {
+  const box = document.getElementById('shippingMapBox');
+  if (!box) return;
+
+  const willShow = box.classList.contains('hidden');
+  box.classList.toggle('hidden', !willShow);
+
+  if (!willShow) return;
+
+  if (!shippingMap) {
+    const defaultLat = 21.0135;
+    const defaultLng = 105.8265;
+
+    shippingMap = L.map('shippingMapBox').setView([defaultLat, defaultLng], 15);
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      maxZoom: 19,
+      attribution: '&copy; OpenStreetMap'
+    }).addTo(shippingMap);
+
+    shippingMarker = L.marker([defaultLat, defaultLng], { draggable: true }).addTo(shippingMap);
+
+    shippingMarker.on('dragend', () => {
+      const { lat, lng } = shippingMarker.getLatLng();
+      applyPickedLocation(lat, lng);
+    });
+
+    shippingMap.on('click', (e) => {
+      shippingMarker.setLatLng(e.latlng);
+      applyPickedLocation(e.latlng.lat, e.latlng.lng);
+    });
+  }
+
+  setTimeout(() => {
+    shippingMap.invalidateSize();
+  }, 120);
+}
+
+async function applyPickedLocation(lat, lng) {
+  const latEl = document.getElementById('shippingLat');
+  const lngEl = document.getElementById('shippingLng');
+  const addrInput = document.getElementById('shippingAddress');
+
+  if (latEl) latEl.value = lat.toFixed(6);
+  if (lngEl) lngEl.value = lng.toFixed(6);
+
+  const now = Date.now();
+  if (now - lastGeocodeTime < 1200) {
+    if (addrInput && !addrInput.value) {
+      addrInput.value = `${lat.toFixed(6)}, ${lng.toFixed(6)}`;
+    }
+    return;
+  }
+  lastGeocodeTime = now;
+
+  try {
+    const url = `https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=${lat}&lon=${lng}&accept-language=vi`;
+    const res = await fetch(url);
+    if (!res.ok) throw new Error('Geocode failed');
+    const data = await res.json();
+    if (addrInput) {
+      addrInput.value = data.display_name || `${lat.toFixed(6)}, ${lng.toFixed(6)}`;
+      addrInput.dispatchEvent(new Event('input', { bubbles: true }));
+    }
+  } catch {
+    if (addrInput) {
+      addrInput.value = `${lat.toFixed(6)}, ${lng.toFixed(6)}`;
+      addrInput.dispatchEvent(new Event('input', { bubbles: true }));
+    }
+  }
+}
+        
         const FALLBACK_PHYSICAL = [
             {
                 set_id: 'SET_1_1_STD',
