@@ -287,11 +287,10 @@ function toggleShippingMap() {
     shippingMap = L.map('shippingMapBox').setView([defaultLat, defaultLng], 15);
     
     // Đổi sang CartoDB Voyager (tải nhanh, không bị chặn như OSM)
-    L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png', {
-      maxZoom: 19,
-      subdomains: 'abcd',
-      attribution: '&copy; OpenStreetMap &copy; CARTO'
-    }).addTo(shippingMap);
+L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Street_Map/MapServer/tile/{z}/{y}/{x}', {
+  maxZoom: 19,
+  attribution: 'Tiles &copy; Esri'
+}).addTo(shippingMap);
 
     shippingMarker = L.marker([defaultLat, defaultLng], { draggable: true }).addTo(shippingMap);
 
