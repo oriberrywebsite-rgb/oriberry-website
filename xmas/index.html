@@ -228,13 +228,18 @@
         <input type="text" id="shippingAddress" placeholder="Shipping Address *" class="w-full px-3 py-2 text-xs border border-[#E2DFD7] rounded-xl focus:outline-none focus:ring-1 focus:ring-[#1C1C1A]">
         <input type="hidden" id="shippingLat">
         <input type="hidden" id="shippingLng">
-        <div class="flex items-center justify-between gap-2">
+    <div class="flex items-center justify-between gap-2">
           <button type="button" onclick="selectPresetAddress('23 Đặng Tiến Đông')" class="text-[11px] px-2.5 py-1 rounded-lg border border-[#E2DFD7] text-[#55524C] hover:bg-stone-50">
             23 Đặng Tiến Đông
           </button>
-          <button type="button" onclick="toggleShippingMap()" class="text-[11px] px-2.5 py-1 rounded-lg border border-[#E2DFD7] text-[#1C1C1A] font-medium hover:bg-stone-50">
-            Pick on Map
-          </button>
+          <div class="flex items-center gap-1.5">
+            <button type="button" onclick="searchAddressOnMap()" class="text-[11px] px-2.5 py-1 rounded-lg border border-[#E2DFD7] text-[#1C1C1A] font-medium hover:bg-stone-50">
+              Find
+            </button>
+            <button type="button" onclick="toggleShippingMap()" class="text-[11px] px-2.5 py-1 rounded-lg border border-[#E2DFD7] text-[#1C1C1A] font-medium hover:bg-stone-50">
+              Pick on Map
+            </button>
+          </div>
         </div>
         <div id="shippingMapBox" class="hidden mt-1.5 rounded-xl overflow-hidden border border-[#E2DFD7]" style="height: 190px;"></div>
       </div>
@@ -352,7 +357,79 @@ async function applyPickedLocation(lat, lng) {
     }
   }
 }
-        
+
+        async function searchAddressOnMap() {
+  const addrInput = document.getElementById('shippingAddress');
+  if (!addrInput) return;
+
+  const query = addrInput.value.trim();
+  if (!query) return;
+
+  const box = document.getElementById('shippingMapBox');
+  if (box && box.classList.contains('hidden')) {
+    toggleShippingMap();
+  }
+
+  const coordMatch = query.match(/^\s*(-?\d+(?:\.\d+)?)\s*,\s*(-?\d+(?:\.\d+)?)\s*$/);
+  if (coordMatch) {
+    const lat = parseFloat(coordMatch[1]);
+    const lng = parseFloat(coordMatch[2]);
+    moveMapToLocation(lat, lng, false);
+    return;
+  }
+
+  try {
+    const fullQuery = /hà nội|ha noi|hanoi/i.test(query) ? query : `${query}, Hà Nội`;
+    const url = `https://nominatim.openstreetmap.org/search?format=jsonv2&limit=1&countrycodes=vn&q=${encodeURIComponent(fullQuery)}`;
+    const res = await fetch(url);
+    if (!res.ok) throw new Error('Search failed');
+
+    const results = await res.json();
+    if (Array.isArray(results) && results.length > 0) {
+      const lat = parseFloat(results[0].lat);
+      const lng = parseFloat(results[0].lon);
+      moveMapToLocation(lat, lng, false);
+    }
+  } catch {
+    // Giữ nguyên địa chỉ người dùng nhập nếu mạng lỗi
+  }
+}
+
+function moveMapToLocation(lat, lng, overwriteAddress = false) {
+  const latEl = document.getElementById('shippingLat');
+  const lngEl = document.getElementById('shippingLng');
+  const addrInput = document.getElementById('shippingAddress');
+
+  if (latEl) latEl.value = lat.toFixed(6);
+  if (lngEl) lngEl.value = lng.toFixed(6);
+
+  if (overwriteAddress && addrInput) {
+    addrInput.value = `${lat.toFixed(6)}, ${lng.toFixed(6)}`;
+  }
+
+  if (!shippingMap) {
+    toggleShippingMap();
+  }
+  setTimeout(() => {
+    if (shippingMap && shippingMarker) {
+      shippingMap.invalidateSize();
+      shippingMap.setView([lat, lng], 16);
+      shippingMarker.setLatLng([lat, lng]);
+    }
+  }, 150);
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+  const addrInput = document.getElementById('shippingAddress');
+  if (addrInput) {
+    addrInput.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') {
+        e.preventDefault();
+        searchAddressOnMap();
+      }
+    });
+  }
+});
         const FALLBACK_PHYSICAL = [
             {
                 set_id: 'SET_1_1_STD',
