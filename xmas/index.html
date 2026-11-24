@@ -378,23 +378,25 @@ async function applyPickedLocation(lat, lng) {
     return;
   }
 
-  try {
+try {
     const fullQuery = /hà nội|ha noi|hanoi/i.test(query) ? query : `${query}, Hà Nội`;
-    const url = `https://nominatim.openstreetmap.org/search?format=jsonv2&limit=1&countrycodes=vn&q=${encodeURIComponent(fullQuery)}`;
+    const url = `https://photon.komoot.io/api/?limit=1&lat=21.0135&lon=105.8265&q=${encodeURIComponent(fullQuery)}`;
     const res = await fetch(url);
     if (!res.ok) throw new Error('Search failed');
 
-    const results = await res.json();
-    if (Array.isArray(results) && results.length > 0) {
-      const lat = parseFloat(results[0].lat);
-      const lng = parseFloat(results[0].lon);
+    const data = await res.json();
+    const feature = data?.features?.[0];
+    const coords = feature?.geometry?.coordinates;
+
+    if (Array.isArray(coords) && coords.length >= 2) {
+      const lng = parseFloat(coords[0]);
+      const lat = parseFloat(coords[1]);
       moveMapToLocation(lat, lng, false);
     }
   } catch {
-    // Giữ nguyên địa chỉ người dùng nhập nếu mạng lỗi
+    // Nếu dịch vụ tìm kiếm không phản hồi, người dùng vẫn tự kéo ghim trên bản đồ được
   }
 }
-
 function moveMapToLocation(lat, lng, overwriteAddress = false) {
   const latEl = document.getElementById('shippingLat');
   const lngEl = document.getElementById('shippingLng');
