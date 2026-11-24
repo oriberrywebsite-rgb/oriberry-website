@@ -229,9 +229,6 @@
         <input type="hidden" id="shippingLat">
         <input type="hidden" id="shippingLng">
     <div class="flex items-center justify-between gap-2">
-          <button type="button" onclick="selectPresetAddress('23 Đặng Tiến Đông')" class="text-[11px] px-2.5 py-1 rounded-lg border border-[#E2DFD7] text-[#55524C] hover:bg-stone-50">
-            23 Đặng Tiến Đông
-          </button>
           <div class="flex items-center gap-1.5">
             <button type="button" onclick="searchAddressOnMap()" class="text-[11px] px-2.5 py-1 rounded-lg border border-[#E2DFD7] text-[#1C1C1A] font-medium hover:bg-stone-50">
               Find
@@ -323,30 +320,28 @@ async function applyPickedLocation(lat, lng) {
   if (latEl) latEl.value = lat.toFixed(6);
   if (lngEl) lngEl.value = lng.toFixed(6);
 
-  if (addrInput) {
-    addrInput.value = "Đang lấy địa chỉ...";
+// Nếu người mua đã nhập địa chỉ rồi thì giữ nguyên text đó, không ghi đè
+  if (addrInput && addrInput.value.trim() !== '') {
+    return;
   }
 
+  // Chỉ tự điền địa chỉ gợi ý khi ô Shipping Address đang để trống
   try {
-    // Dùng BigDataCloud Reverse Geocoding (Miễn phí, không cần key, ổn định tại VN)
     const url = `https://api.bigdatacloud.net/data/reverse-geocode-client?latitude=${lat}&longitude=${lng}&localityLanguage=vi`;
     const res = await fetch(url);
     if (!res.ok) throw new Error('Geocode failed');
     const data = await res.json();
-    
-    // Ghép tên đường/phường/quận/thành phố
+
     const parts = [
       data.locality,
       data.city,
       data.principalSubdivision
     ].filter(Boolean);
-
-    // Lọc bỏ các phần trùng lặp nhau
     const uniqueParts = [...new Set(parts)];
 
     if (addrInput) {
-      addrInput.value = uniqueParts.length > 0 
-        ? `${uniqueParts.join(', ')} (${lat.toFixed(5)}, ${lng.toFixed(5)})` 
+      addrInput.value = uniqueParts.length > 0
+        ? uniqueParts.join(', ')
         : `${lat.toFixed(6)}, ${lng.toFixed(6)}`;
       addrInput.dispatchEvent(new Event('input', { bubbles: true }));
     }
