@@ -261,7 +261,6 @@
         const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxjkBAmg-ZlthP8jFFRliSKQLCWn07yi9pgudcWVdpLLETJilp_1S57WGlRj8upcsuwfg/exec';
 let shippingMap = null;
 let shippingMarker = null;
-let lastGeocodeTime = 0;
 
 function selectPresetAddress(addr) {
   const input = document.getElementById('shippingAddress');
@@ -281,13 +280,17 @@ function toggleShippingMap() {
   if (!willShow) return;
 
   if (!shippingMap) {
+    // Mặc định quanh khu vực Đặng Tiến Đông, Đống Đa, Hà Nội
     const defaultLat = 21.0135;
     const defaultLng = 105.8265;
 
     shippingMap = L.map('shippingMapBox').setView([defaultLat, defaultLng], 15);
-    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    
+    // Đổi sang CartoDB Voyager (tải nhanh, không bị chặn như OSM)
+    L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png', {
       maxZoom: 19,
-      attribution: '&copy; OpenStreetMap'
+      subdomains: 'abcd',
+      attribution: '&copy; OpenStreetMap &copy; CARTO'
     }).addTo(shippingMap);
 
     shippingMarker = L.marker([defaultLat, defaultLng], { draggable: true }).addTo(shippingMap);
@@ -305,7 +308,7 @@ function toggleShippingMap() {
 
   setTimeout(() => {
     shippingMap.invalidateSize();
-  }, 120);
+  }, 150);
 }
 
 async function applyPickedLocation(lat, lng) {
@@ -316,22 +319,31 @@ async function applyPickedLocation(lat, lng) {
   if (latEl) latEl.value = lat.toFixed(6);
   if (lngEl) lngEl.value = lng.toFixed(6);
 
-  const now = Date.now();
-  if (now - lastGeocodeTime < 1200) {
-    if (addrInput && !addrInput.value) {
-      addrInput.value = `${lat.toFixed(6)}, ${lng.toFixed(6)}`;
-    }
-    return;
+  if (addrInput) {
+    addrInput.value = "Đang lấy địa chỉ...";
   }
-  lastGeocodeTime = now;
 
   try {
-    const url = `https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=${lat}&lon=${lng}&accept-language=vi`;
+    // Dùng BigDataCloud Reverse Geocoding (Miễn phí, không cần key, ổn định tại VN)
+    const url = `https://api.bigdatacloud.net/data/reverse-geocode-client?latitude=${lat}&longitude=${lng}&localityLanguage=vi`;
     const res = await fetch(url);
     if (!res.ok) throw new Error('Geocode failed');
     const data = await res.json();
+    
+    // Ghép tên đường/phường/quận/thành phố
+    const parts = [
+      data.locality,
+      data.city,
+      data.principalSubdivision
+    ].filter(Boolean);
+
+    // Lọc bỏ các phần trùng lặp nhau
+    const uniqueParts = [...new Set(parts)];
+
     if (addrInput) {
-      addrInput.value = data.display_name || `${lat.toFixed(6)}, ${lng.toFixed(6)}`;
+      addrInput.value = uniqueParts.length > 0 
+        ? `${uniqueParts.join(', ')} (${lat.toFixed(5)}, ${lng.toFixed(5)})` 
+        : `${lat.toFixed(6)}, ${lng.toFixed(6)}`;
       addrInput.dispatchEvent(new Event('input', { bubbles: true }));
     }
   } catch {
