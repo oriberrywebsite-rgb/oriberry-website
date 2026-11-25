@@ -647,44 +647,78 @@ let shippingMap = null;
                 btnEl.textContent = confirmed ? 'Confirmed ✓' : 'Confirm Location';
             }
         }
+let userHasInteractedWithLocation = false;
 
-        function initShippingMapIfNeeded() {
-            const box = document.getElementById('shippingMapBox');
-            if (!box || typeof L === 'undefined') return;
+function initShippingMapIfNeeded() {
+  const box = document.getElementById('shippingMapBox');
+  if (!box || typeof L === 'undefined') return;
 
-            const defaultLat = 21.0135;
-            const defaultLng = 105.8265;
+  const defaultLat = 21.0135;
+  const defaultLng = 105.8265;
 
-            if (!shippingMap) {
-                shippingMap = L.map('shippingMapBox').setView([defaultLat, defaultLng], 15);
+  if (!shippingMap) {
+    shippingMap = L.map('shippingMapBox').setView([defaultLat, defaultLng], 15);
 
-                L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Street_Map/MapServer/tile/{z}/{y}/{x}', {
-                    maxZoom: 19,
-                    attribution: 'Tiles &copy; Esri'
-                }).addTo(shippingMap);
+    L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Street_Map/MapServer/tile/{z}/{y}/{x}', {
+      maxZoom: 19,
+      attribution: 'Tiles &copy; Esri'
+    }).addTo(shippingMap);
 
-                shippingMarker = L.marker([defaultLat, defaultLng], { draggable: true }).addTo(shippingMap);
+    shippingMarker = L.marker([defaultLat, defaultLng], { draggable: true }).addTo(shippingMap);
 
-                const latEl = document.getElementById('shippingLat');
-                const lngEl = document.getElementById('shippingLng');
-                if (latEl && !latEl.value) latEl.value = defaultLat.toFixed(6);
-                if (lngEl && !lngEl.value) lngEl.value = defaultLng.toFixed(6);
+    const latEl = document.getElementById('shippingLat');
+    const lngEl = document.getElementById('shippingLng');
+    if (latEl && !latEl.value) latEl.value = defaultLat.toFixed(6);
+    if (lngEl && !lngEl.value) lngEl.value = defaultLng.toFixed(6);
 
-                shippingMarker.on('dragend', () => {
-                    const { lat, lng } = shippingMarker.getLatLng();
-                    applyPickedLocation(lat, lng);
-                });
+    shippingMarker.on('dragend', () => {
+      userHasInteractedWithLocation = true;
+      const { lat, lng } = shippingMarker.getLatLng();
+      applyPickedLocation(lat, lng);
+    });
 
-                shippingMap.on('click', (e) => {
-                    shippingMarker.setLatLng(e.latlng);
-                    applyPickedLocation(e.latlng.lat, e.latlng.lng);
-                });
-            }
+    shippingMap.on('click', (e) => {
+      userHasInteractedWithLocation = true;
+      shippingMarker.setLatLng(e.latlng);
+      applyPickedLocation(e.latlng.lat, e.latlng.lng);
+    });
 
-            setTimeout(() => {
-                if (shippingMap) shippingMap.invalidateSize();
-            }, 150);
-        }
+    // Tự pre-load theo vị trí hiện tại nếu nằm trong khu vực Việt Nam; nếu không thì giữ Hà Nội
+    if ('geolocation' in navigator) {
+      navigator.geolocation.getCurrentPosition(
+        (pos) => {
+          if (userHasInteractedWithLocation) return;
+          const addrInput = document.getElementById('custAddress');
+          if (addrInput && addrInput.value.trim() !== '') return;
+
+          const lat = pos.coords.latitude;
+          const lng = pos.coords.longitude;
+
+          // Chặn tọa độ lệch khỏi vùng Việt Nam (nếu IP/GPS lỗi)
+          const isInVietnamBounds = lat >= 8.0 && lat <= 24.0 && lng >= 102.0 && lng <= 110.5;
+          if (!isInVietnamBounds) return;
+
+          if (latEl) latEl.value = lat.toFixed(6);
+          if (lngEl) lngEl.value = lng.toFixed(6);
+
+          if (shippingMap && shippingMarker) {
+            shippingMap.setView([lat, lng], 16);
+            shippingMarker.setLatLng([lat, lng]);
+          }
+          setShippingStatus('Centered on your current location — click Confirm', false);
+        },
+        () => {
+          // Từ chối hoặc lỗi GPS: giữ nguyên mặc định Hà Nội
+        },
+        { enableHighAccuracy: false, timeout: 5000, maximumAge: 60000 }
+      );
+    }
+  }
+
+  setTimeout(() => {
+    if (shippingMap) shippingMap.invalidateSize();
+  }, 150);
+}
 
         async function applyPickedLocation(lat, lng) {
             const latEl = document.getElementById('shippingLat');
@@ -796,6 +830,7 @@ let shippingMap = null;
             const addrInput = document.getElementById('custAddress');
             if (addrInput) {
                 addrInput.addEventListener('input', () => {
+                    userHasInteractedWithLocation = true
                     shippingLocationConfirmed = false;
                     clearTimeout(addressSearchTimer);
                     const val = addrInput.value.trim();
