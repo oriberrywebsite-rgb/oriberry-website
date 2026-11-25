@@ -224,21 +224,19 @@
                         <input type="text" id="receiverName" placeholder="Recipient Name" class="w-full px-3 py-2 text-xs border border-[#E2DFD7] rounded-xl focus:outline-none focus:ring-1 focus:ring-[#1C1C1A]">
                         <input type="tel" id="receiverPhone" placeholder="Recipient Phone Number" class="w-full px-3 py-2 text-xs border border-[#E2DFD7] rounded-xl focus:outline-none focus:ring-1 focus:ring-[#1C1C1A]">
                     </div>
-    <div class="space-y-1.5">
+<div class="space-y-1.5">
         <input type="text" id="shippingAddress" placeholder="Shipping Address *" class="w-full px-3 py-2 text-xs border border-[#E2DFD7] rounded-xl focus:outline-none focus:ring-1 focus:ring-[#1C1C1A]">
         <input type="hidden" id="shippingLat">
         <input type="hidden" id="shippingLng">
-    <div class="flex items-center justify-between gap-2">
-          <div class="flex items-center gap-1.5">
-            <button type="button" onclick="searchAddressOnMap()" class="text-[11px] px-2.5 py-1 rounded-lg border border-[#E2DFD7] text-[#1C1C1A] font-medium hover:bg-stone-50">
-              Find
-            </button>
-            <button type="button" onclick="toggleShippingMap()" class="text-[11px] px-2.5 py-1 rounded-lg border border-[#E2DFD7] text-[#1C1C1A] font-medium hover:bg-stone-50">
-              Pick on Map
-            </button>
-          </div>
+        <div id="shippingMapBox" class="mt-1.5 rounded-xl overflow-hidden border border-[#E2DFD7]" style="height: 190px;"></div>
+        <div class="flex items-center justify-between gap-2 pt-0.5">
+          <span id="shippingLocationStatus" class="text-[11px] text-[#55524C] truncate">
+            Type an address or drag the pin
+          </span>
+          <button type="button" id="confirmLocationBtn" onclick="confirmShippingLocation()" class="shrink-0 text-[11px] px-3 py-1 rounded-lg border border-[#1C1C1A] bg-[#1C1C1A] text-white font-medium hover:bg-stone-800 transition cursor-pointer">
+            Confirm Location
+          </button>
         </div>
-        <div id="shippingMapBox" class="hidden mt-1.5 rounded-xl overflow-hidden border border-[#E2DFD7]" style="height: 190px;"></div>
       </div>
                 </div>
 
@@ -263,38 +261,47 @@
         const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxjkBAmg-ZlthP8jFFRliSKQLCWn07yi9pgudcWVdpLLETJilp_1S57WGlRj8upcsuwfg/exec';
 let shippingMap = null;
 let shippingMarker = null;
+let addressSearchTimer = null;
+let shippingLocationConfirmed = false;
 
-function selectPresetAddress(addr) {
-  const input = document.getElementById('shippingAddress');
-  if (input) {
-    input.value = addr;
-    input.dispatchEvent(new Event('input', { bubbles: true }));
+function setShippingStatus(text, confirmed = false) {
+  shippingLocationConfirmed = confirmed;
+  const statusEl = document.getElementById('shippingLocationStatus');
+  const btnEl = document.getElementById('confirmLocationBtn');
+
+  if (statusEl) {
+    statusEl.textContent = text;
+    statusEl.className = confirmed
+      ? 'text-[11px] text-emerald-700 font-medium truncate'
+      : 'text-[11px] text-[#55524C] truncate';
+  }
+
+  if (btnEl) {
+    btnEl.textContent = confirmed ? 'Confirmed ✓' : 'Confirm Location';
   }
 }
 
-function toggleShippingMap() {
+function initShippingMapIfNeeded() {
   const box = document.getElementById('shippingMapBox');
-  if (!box) return;
+  if (!box || typeof L === 'undefined') return;
 
-  const willShow = box.classList.contains('hidden');
-  box.classList.toggle('hidden', !willShow);
-
-  if (!willShow) return;
+  const defaultLat = 21.0135;
+  const defaultLng = 105.8265;
 
   if (!shippingMap) {
-    // Mặc định quanh khu vực Đặng Tiến Đông, Đống Đa, Hà Nội
-    const defaultLat = 21.0135;
-    const defaultLng = 105.8265;
-
     shippingMap = L.map('shippingMapBox').setView([defaultLat, defaultLng], 15);
-    
-    // Đổi sang CartoDB Voyager (tải nhanh, không bị chặn như OSM)
-L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Street_Map/MapServer/tile/{z}/{y}/{x}', {
-  maxZoom: 19,
-  attribution: 'Tiles &copy; Esri'
-}).addTo(shippingMap);
+
+    L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Street_Map/MapServer/tile/{z}/{y}/{x}', {
+      maxZoom: 19,
+      attribution: 'Tiles &copy; Esri'
+    }).addTo(shippingMap);
 
     shippingMarker = L.marker([defaultLat, defaultLng], { draggable: true }).addTo(shippingMap);
+
+    const latEl = document.getElementById('shippingLat');
+    const lngEl = document.getElementById('shippingLng');
+    if (latEl && !latEl.value) latEl.value = defaultLat.toFixed(6);
+    if (lngEl && !lngEl.value) lngEl.value = defaultLng.toFixed(6);
 
     shippingMarker.on('dragend', () => {
       const { lat, lng } = shippingMarker.getLatLng();
@@ -308,7 +315,7 @@ L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Street_M
   }
 
   setTimeout(() => {
-    shippingMap.invalidateSize();
+    if (shippingMap) shippingMap.invalidateSize();
   }, 150);
 }
 
@@ -320,111 +327,144 @@ async function applyPickedLocation(lat, lng) {
   if (latEl) latEl.value = lat.toFixed(6);
   if (lngEl) lngEl.value = lng.toFixed(6);
 
-// Nếu người mua đã nhập địa chỉ rồi thì giữ nguyên text đó, không ghi đè
+  // Giữ nguyên địa chỉ khách đã gõ; chỉ gợi ý nếu ô đang trống
   if (addrInput && addrInput.value.trim() !== '') {
+    setShippingStatus(`Pin: ${lat.toFixed(5)}, ${lng.toFixed(5)} — click Confirm`, false);
     return;
   }
 
-  // Chỉ tự điền địa chỉ gợi ý khi ô Shipping Address đang để trống
   try {
     const url = `https://api.bigdatacloud.net/data/reverse-geocode-client?latitude=${lat}&longitude=${lng}&localityLanguage=vi`;
     const res = await fetch(url);
     if (!res.ok) throw new Error('Geocode failed');
     const data = await res.json();
 
-    const parts = [
-      data.locality,
-      data.city,
-      data.principalSubdivision
-    ].filter(Boolean);
+    const parts = [data.locality, data.city, data.principalSubdivision].filter(Boolean);
     const uniqueParts = [...new Set(parts)];
 
-    if (addrInput) {
-      addrInput.value = uniqueParts.length > 0
-        ? uniqueParts.join(', ')
-        : `${lat.toFixed(6)}, ${lng.toFixed(6)}`;
-      addrInput.dispatchEvent(new Event('input', { bubbles: true }));
+    if (addrInput && uniqueParts.length > 0) {
+      addrInput.value = uniqueParts.join(', ');
     }
+    setShippingStatus(`Pin: ${lat.toFixed(5)}, ${lng.toFixed(5)} — click Confirm`, false);
   } catch {
-    if (addrInput) {
-      addrInput.value = `${lat.toFixed(6)}, ${lng.toFixed(6)}`;
-      addrInput.dispatchEvent(new Event('input', { bubbles: true }));
-    }
+    setShippingStatus(`Pin: ${lat.toFixed(5)}, ${lng.toFixed(5)} — click Confirm`, false);
   }
 }
 
-        async function searchAddressOnMap() {
+async function searchAddressOnMap(queryText) {
   const addrInput = document.getElementById('shippingAddress');
-  if (!addrInput) return;
-
-  const query = addrInput.value.trim();
+  const query = (queryText ?? addrInput?.value ?? '').trim();
   if (!query) return;
 
-  const box = document.getElementById('shippingMapBox');
-  if (box && box.classList.contains('hidden')) {
-    toggleShippingMap();
-  }
+  initShippingMapIfNeeded();
 
   const coordMatch = query.match(/^\s*(-?\d+(?:\.\d+)?)\s*,\s*(-?\d+(?:\.\d+)?)\s*$/);
   if (coordMatch) {
     const lat = parseFloat(coordMatch[1]);
     const lng = parseFloat(coordMatch[2]);
-    moveMapToLocation(lat, lng, false);
+    moveMapPin(lat, lng);
     return;
   }
 
-try {
+  setShippingStatus('Searching map...', false);
+
+  try {
     const fullQuery = /hà nội|ha noi|hanoi/i.test(query) ? query : `${query}, Hà Nội`;
     const url = `https://photon.komoot.io/api/?limit=1&lat=21.0135&lon=105.8265&q=${encodeURIComponent(fullQuery)}`;
     const res = await fetch(url);
     if (!res.ok) throw new Error('Search failed');
 
     const data = await res.json();
-    const feature = data?.features?.[0];
-    const coords = feature?.geometry?.coordinates;
+    const coords = data?.features?.[0]?.geometry?.coordinates;
 
     if (Array.isArray(coords) && coords.length >= 2) {
       const lng = parseFloat(coords[0]);
       const lat = parseFloat(coords[1]);
-      moveMapToLocation(lat, lng, false);
+      moveMapPin(lat, lng);
+    } else {
+      setShippingStatus('Not found — drag pin on map', false);
     }
   } catch {
-    // Nếu dịch vụ tìm kiếm không phản hồi, người dùng vẫn tự kéo ghim trên bản đồ được
+    setShippingStatus('Search unavailable — drag pin on map', false);
   }
 }
-function moveMapToLocation(lat, lng, overwriteAddress = false) {
+
+function moveMapPin(lat, lng) {
   const latEl = document.getElementById('shippingLat');
   const lngEl = document.getElementById('shippingLng');
-  const addrInput = document.getElementById('shippingAddress');
 
   if (latEl) latEl.value = lat.toFixed(6);
   if (lngEl) lngEl.value = lng.toFixed(6);
 
-  if (overwriteAddress && addrInput) {
-    addrInput.value = `${lat.toFixed(6)}, ${lng.toFixed(6)}`;
-  }
-
-  if (!shippingMap) {
-    toggleShippingMap();
-  }
+  initShippingMapIfNeeded();
   setTimeout(() => {
     if (shippingMap && shippingMarker) {
       shippingMap.invalidateSize();
       shippingMap.setView([lat, lng], 16);
       shippingMarker.setLatLng([lat, lng]);
     }
-  }, 150);
+  }, 120);
+
+  setShippingStatus(`Pinned: ${lat.toFixed(5)}, ${lng.toFixed(5)} — click Confirm`, false);
+}
+
+function confirmShippingLocation() {
+  const addrInput = document.getElementById('shippingAddress');
+  const latEl = document.getElementById('shippingLat');
+  const lngEl = document.getElementById('shippingLng');
+
+  const addr = addrInput?.value.trim() || '';
+  if (!addr) {
+    setShippingStatus('Please enter an address first', false);
+    addrInput?.focus();
+    return;
+  }
+
+  if (shippingMarker) {
+    const { lat, lng } = shippingMarker.getLatLng();
+    if (latEl) latEl.value = lat.toFixed(6);
+    if (lngEl) lngEl.value = lng.toFixed(6);
+  }
+
+  setShippingStatus(`Confirmed (${latEl?.value || ''}, ${lngEl?.value || ''})`, true);
 }
 
 document.addEventListener('DOMContentLoaded', () => {
+  initShippingMapIfNeeded();
+
   const addrInput = document.getElementById('shippingAddress');
   if (addrInput) {
+    addrInput.addEventListener('input', () => {
+      shippingLocationConfirmed = false;
+      clearTimeout(addressSearchTimer);
+      const val = addrInput.value.trim();
+      if (!val) {
+        setShippingStatus('Type an address or drag the pin', false);
+        return;
+      }
+      addressSearchTimer = setTimeout(() => {
+        searchAddressOnMap(val);
+      }, 650);
+    });
+
     addrInput.addEventListener('keydown', (e) => {
       if (e.key === 'Enter') {
         e.preventDefault();
-        searchAddressOnMap();
+        clearTimeout(addressSearchTimer);
+        searchAddressOnMap(addrInput.value);
       }
     });
+  }
+
+  // Đảm bảo bản đồ tính lại kích thước khi mở drawer giỏ hàng (nếu có hàm mở cart)
+  const cartBox = document.getElementById('shippingMapBox');
+  if (cartBox && 'IntersectionObserver' in window) {
+    const observer = new IntersectionObserver((entries) => {
+      if (entries.some((entry) => entry.isIntersecting) && shippingMap) {
+        setTimeout(() => shippingMap.invalidateSize(), 120);
+      }
+    });
+    observer.observe(cartBox);
   }
 });
         const FALLBACK_PHYSICAL = [
