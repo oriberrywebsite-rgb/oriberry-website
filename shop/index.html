@@ -27,6 +27,9 @@
             scroll-margin-top: 80px;
         }
     </style>
+    <!-- Leaflet Map CDN -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 </head>
 <body class="bg-gray-50 text-gray-800 font-sans antialiased flex flex-col min-h-screen">
 
@@ -219,7 +222,20 @@
                     <form id="checkoutForm" onsubmit="submitOrder(event)" class="space-y-2.5 pt-1">
                         <input type="text" id="custName" placeholder="Your name *" required minlength="2" class="w-full text-xs border border-gray-300 rounded-xl p-2.5 focus:outline-none focus:border-amber-700">
                         <input type="tel" id="custPhone" placeholder="Phone number * (VD: 0901234567)" required pattern="^(03|05|07|08|09)[0-9]{8}$" class="w-full text-xs border border-gray-300 rounded-xl p-2.5 focus:outline-none focus:border-amber-700">
+                    <div class="space-y-1.5">
                         <textarea id="custAddress" placeholder="Shipping address..." rows="2" required minlength="8" class="w-full text-xs border border-gray-300 rounded-xl p-2.5 focus:outline-none focus:border-amber-700"></textarea>
+                        <input type="hidden" id="shippingLat">
+                        <input type="hidden" id="shippingLng">
+                        <div id="shippingMapBox" class="rounded-xl overflow-hidden border border-gray-300" style="height: 180px;"></div>
+                        <div class="flex items-center justify-between gap-2 pt-0.5">
+                            <span id="shippingLocationStatus" class="text-[11px] text-gray-500 truncate">
+                                Type an address or drag the pin
+                            </span>
+                            <button type="button" id="confirmLocationBtn" onclick="confirmShippingLocation()" class="shrink-0 text-[11px] px-3 py-1 rounded-lg bg-amber-900 hover:bg-amber-800 text-white font-semibold transition cursor-pointer">
+                                Confirm Location
+                            </button>
+                        </div>
+                        </div>
                         <textarea id="custNote" placeholder="Note for Oriberry..." rows="1" class="w-full text-xs border border-gray-300 rounded-xl p-2.5 focus:outline-none focus:border-amber-700"></textarea>
                         <button type="submit" id="submitBtn" class="w-full bg-neutral-900 hover:bg-amber-950 text-white font-bold py-3 rounded-xl text-xs transition uppercase tracking-wider shadow-md cursor-pointer">PLACE ORDER</button>
                     </form>
@@ -611,7 +627,205 @@
 
         function openCartModal() { updateCartTotals(); document.getElementById('cartModal').classList.remove('hidden'); }
         function closeModal(id) { document.getElementById(id).classList.add('hidden'); }
+let shippingMap = null;
+        let shippingMarker = null;
+        let addressSearchTimer = null;
+        let shippingLocationConfirmed = false;
 
+        function setShippingStatus(text, confirmed = false) {
+            shippingLocationConfirmed = confirmed;
+            const statusEl = document.getElementById('shippingLocationStatus');
+            const btnEl = document.getElementById('confirmLocationBtn');
+
+            if (statusEl) {
+                statusEl.textContent = text;
+                statusEl.className = confirmed
+                    ? 'text-[11px] text-emerald-700 font-semibold truncate'
+                    : 'text-[11px] text-gray-500 truncate';
+            }
+            if (btnEl) {
+                btnEl.textContent = confirmed ? 'Confirmed ✓' : 'Confirm Location';
+            }
+        }
+
+        function initShippingMapIfNeeded() {
+            const box = document.getElementById('shippingMapBox');
+            if (!box || typeof L === 'undefined') return;
+
+            const defaultLat = 21.0135;
+            const defaultLng = 105.8265;
+
+            if (!shippingMap) {
+                shippingMap = L.map('shippingMapBox').setView([defaultLat, defaultLng], 15);
+
+                L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Street_Map/MapServer/tile/{z}/{y}/{x}', {
+                    maxZoom: 19,
+                    attribution: 'Tiles &copy; Esri'
+                }).addTo(shippingMap);
+
+                shippingMarker = L.marker([defaultLat, defaultLng], { draggable: true }).addTo(shippingMap);
+
+                const latEl = document.getElementById('shippingLat');
+                const lngEl = document.getElementById('shippingLng');
+                if (latEl && !latEl.value) latEl.value = defaultLat.toFixed(6);
+                if (lngEl && !lngEl.value) lngEl.value = defaultLng.toFixed(6);
+
+                shippingMarker.on('dragend', () => {
+                    const { lat, lng } = shippingMarker.getLatLng();
+                    applyPickedLocation(lat, lng);
+                });
+
+                shippingMap.on('click', (e) => {
+                    shippingMarker.setLatLng(e.latlng);
+                    applyPickedLocation(e.latlng.lat, e.latlng.lng);
+                });
+            }
+
+            setTimeout(() => {
+                if (shippingMap) shippingMap.invalidateSize();
+            }, 150);
+        }
+
+        async function applyPickedLocation(lat, lng) {
+            const latEl = document.getElementById('shippingLat');
+            const lngEl = document.getElementById('shippingLng');
+            const addrInput = document.getElementById('custAddress');
+
+            if (latEl) latEl.value = lat.toFixed(6);
+            if (lngEl) lngEl.value = lng.toFixed(6);
+
+            // Giữ nguyên địa chỉ khách đã nhập; chỉ gợi ý khi ô đang trống
+            if (addrInput && addrInput.value.trim() !== '') {
+                setShippingStatus(`Pin: ${lat.toFixed(5)}, ${lng.toFixed(5)} — click Confirm`, false);
+                return;
+            }
+
+            try {
+                const url = `https://api.bigdatacloud.net/data/reverse-geocode-client?latitude=${lat}&longitude=${lng}&localityLanguage=vi`;
+                const res = await fetch(url);
+                if (!res.ok) throw new Error('Geocode failed');
+                const data = await res.json();
+
+                const parts = [data.locality, data.city, data.principalSubdivision].filter(Boolean);
+                const uniqueParts = [...new Set(parts)];
+
+                if (addrInput && uniqueParts.length > 0) {
+                    addrInput.value = uniqueParts.join(', ');
+                }
+                setShippingStatus(`Pin: ${lat.toFixed(5)}, ${lng.toFixed(5)} — click Confirm`, false);
+            } catch {
+                setShippingStatus(`Pin: ${lat.toFixed(5)}, ${lng.toFixed(5)} — click Confirm`, false);
+            }
+        }
+
+        async function searchAddressOnMap(queryText) {
+            const addrInput = document.getElementById('custAddress');
+            const query = (queryText ?? addrInput?.value ?? '').trim();
+            if (!query) return;
+
+            initShippingMapIfNeeded();
+
+            const coordMatch = query.match(/^\s*(-?\d+(?:\.\d+)?)\s*,\s*(-?\d+(?:\.\d+)?)\s*$/);
+            if (coordMatch) {
+                moveMapPin(parseFloat(coordMatch[1]), parseFloat(coordMatch[2]));
+                return;
+            }
+
+            setShippingStatus('Searching map...', false);
+
+            try {
+                const fullQuery = /hà nội|ha noi|hanoi/i.test(query) ? query : `${query}, Hà Nội`;
+                const url = `https://photon.komoot.io/api/?limit=1&lat=21.0135&lon=105.8265&q=${encodeURIComponent(fullQuery)}`;
+                const res = await fetch(url);
+                if (!res.ok) throw new Error('Search failed');
+
+                const data = await res.json();
+                const coords = data?.features?.[0]?.geometry?.coordinates;
+
+                if (Array.isArray(coords) && coords.length >= 2) {
+                    moveMapPin(parseFloat(coords[1]), parseFloat(coords[0]));
+                } else {
+                    setShippingStatus('Not found — drag pin on map', false);
+                }
+            } catch {
+                setShippingStatus('Search unavailable — drag pin on map', false);
+            }
+        }
+
+        function moveMapPin(lat, lng) {
+            const latEl = document.getElementById('shippingLat');
+            const lngEl = document.getElementById('shippingLng');
+
+            if (latEl) latEl.value = lat.toFixed(6);
+            if (lngEl) lngEl.value = lng.toFixed(6);
+
+            initShippingMapIfNeeded();
+            setTimeout(() => {
+                if (shippingMap && shippingMarker) {
+                    shippingMap.invalidateSize();
+                    shippingMap.setView([lat, lng], 16);
+                    shippingMarker.setLatLng([lat, lng]);
+                }
+            }, 120);
+
+            setShippingStatus(`Pinned: ${lat.toFixed(5)}, ${lng.toFixed(5)} — click Confirm`, false);
+        }
+
+        function confirmShippingLocation() {
+            const addrInput = document.getElementById('custAddress');
+            const latEl = document.getElementById('shippingLat');
+            const lngEl = document.getElementById('shippingLng');
+
+            const addr = addrInput?.value.trim() || '';
+            if (!addr) {
+                setShippingStatus('Please enter an address first', false);
+                addrInput?.focus();
+                return;
+            }
+
+            if (shippingMarker) {
+                const { lat, lng } = shippingMarker.getLatLng();
+                if (latEl) latEl.value = lat.toFixed(6);
+                if (lngEl) lngEl.value = lng.toFixed(6);
+            }
+
+            setShippingStatus(`Confirmed (${latEl?.value || ''}, ${lngEl?.value || ''})`, true);
+        }
+
+        (function setupShopAddressMapListeners() {
+            const addrInput = document.getElementById('custAddress');
+            if (addrInput) {
+                addrInput.addEventListener('input', () => {
+                    shippingLocationConfirmed = false;
+                    clearTimeout(addressSearchTimer);
+                    const val = addrInput.value.trim();
+                    if (!val) {
+                        setShippingStatus('Type an address or drag the pin', false);
+                        return;
+                    }
+                    addressSearchTimer = setTimeout(() => {
+                        searchAddressOnMap(val);
+                    }, 650);
+                });
+
+                addrInput.addEventListener('keydown', (e) => {
+                    if (e.key === 'Enter' && !e.shiftKey) {
+                        e.preventDefault();
+                        clearTimeout(addressSearchTimer);
+                        searchAddressOnMap(addrInput.value);
+                    }
+                });
+            }
+
+            const origOpenCart = window.openCartModal;
+            if (typeof origOpenCart === 'function') {
+                window.openCartModal = function () {
+                    origOpenCart();
+                    initShippingMapIfNeeded();
+                };
+            }
+        })();
+        
 function getCartDetailsString() {
             if (!cart || cart.length === 0) return "Your cart is empty";
             return cart.map(item => {
