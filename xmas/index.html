@@ -281,6 +281,8 @@ function setShippingStatus(text, confirmed = false) {
   }
 }
 
+let userHasInteractedWithLocation = false;
+
 function initShippingMapIfNeeded() {
   const box = document.getElementById('shippingMapBox');
   if (!box || typeof L === 'undefined') return;
@@ -304,14 +306,47 @@ function initShippingMapIfNeeded() {
     if (lngEl && !lngEl.value) lngEl.value = defaultLng.toFixed(6);
 
     shippingMarker.on('dragend', () => {
+      userHasInteractedWithLocation = true;
       const { lat, lng } = shippingMarker.getLatLng();
       applyPickedLocation(lat, lng);
     });
 
     shippingMap.on('click', (e) => {
+      userHasInteractedWithLocation = true;
       shippingMarker.setLatLng(e.latlng);
       applyPickedLocation(e.latlng.lat, e.latlng.lng);
     });
+
+    // Tự pre-load theo vị trí hiện tại nếu nằm trong khu vực Việt Nam; nếu không thì giữ Hà Nội
+    if ('geolocation' in navigator) {
+      navigator.geolocation.getCurrentPosition(
+        (pos) => {
+          if (userHasInteractedWithLocation) return;
+          const addrInput = document.getElementById('shippingAddress');
+          if (addrInput && addrInput.value.trim() !== '') return;
+
+          const lat = pos.coords.latitude;
+          const lng = pos.coords.longitude;
+
+          // Chặn tọa độ lệch khỏi vùng Việt Nam (nếu IP/GPS lỗi)
+          const isInVietnamBounds = lat >= 8.0 && lat <= 24.0 && lng >= 102.0 && lng <= 110.5;
+          if (!isInVietnamBounds) return;
+
+          if (latEl) latEl.value = lat.toFixed(6);
+          if (lngEl) lngEl.value = lng.toFixed(6);
+
+          if (shippingMap && shippingMarker) {
+            shippingMap.setView([lat, lng], 16);
+            shippingMarker.setLatLng([lat, lng]);
+          }
+          setShippingStatus('Centered on your current location — click Confirm', false);
+        },
+        () => {
+          // Từ chối hoặc lỗi GPS: giữ nguyên mặc định Hà Nội
+        },
+        { enableHighAccuracy: false, timeout: 5000, maximumAge: 60000 }
+      );
+    }
   }
 
   setTimeout(() => {
@@ -435,7 +470,8 @@ document.addEventListener('DOMContentLoaded', () => {
   const addrInput = document.getElementById('shippingAddress');
   if (addrInput) {
     addrInput.addEventListener('input', () => {
-      shippingLocationConfirmed = false;
+        userHasInteractedWithLocation = true;
+        shippingLocationConfirmed = false;
       clearTimeout(addressSearchTimer);
       const val = addrInput.value.trim();
       if (!val) {
